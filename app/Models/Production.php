@@ -10,7 +10,8 @@ class Production extends Model
 {
     protected $fillable = [
         'name',
-        'seed_name',
+        'location',
+        'cage',
         'production_type',
         'treatment_day',
         'treatment_time',

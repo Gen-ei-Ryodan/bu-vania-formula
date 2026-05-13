@@ -13,7 +13,8 @@ class ProductionController extends Controller
     {
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
-            'seed_name' => ['required', 'string', 'max:255'],
+            'location' => ['nullable', 'string', 'max:255'],
+            'cage' => ['nullable', 'string', 'max:255'],
             'production_type' => ['required', 'in:biasa,pengobatan'],
             'treatment_day' => ['nullable', 'integer', 'min:1'],
             'treatment_time' => ['nullable', 'in:pagi,siang,malam,full'],

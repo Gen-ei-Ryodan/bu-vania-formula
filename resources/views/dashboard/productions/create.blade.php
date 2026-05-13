@@ -13,8 +13,12 @@
                         <input type="text" name="name" value="{{ old('name') }}" placeholder="Produksi April">
                     </div>
                     <div class="field">
-                        <div class="label">Nama Bibit</div>
-                        <input type="text" name="seed_name" value="{{ old('seed_name') }}" placeholder="Bibit A">
+                        <div class="label">Lokasi</div>
+                        <input type="text" name="location" value="{{ old('location') }}" placeholder="Lokasi A">
+                    </div>
+                    <div class="field">
+                        <div class="label">Kandang</div>
+                        <input type="text" name="cage" value="{{ old('cage') }}" placeholder="Kandang 1">
                     </div>
                     <div class="field">
                         <div class="label">Jenis Produksi</div>
