@@ -23,7 +23,7 @@
                                 @endforeach
                             </select>
                         </div>
-                        <div class="muted" style="font-size: 12px;">Disimpan sebagai gram</div>
+                        <div class="muted" style="font-size: 12px;">Disimpan sebagai kg</div>
                     </div>
                 </div>
 

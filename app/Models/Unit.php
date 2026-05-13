@@ -9,7 +9,7 @@ class Unit extends Model
 {
     protected $fillable = [
         'name',
-        'conversion_to_gram',
+        'conversion_to_kg',
     ];
 
     public function items(): HasMany

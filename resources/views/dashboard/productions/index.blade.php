@@ -12,7 +12,7 @@
                         <th>Nama</th>
                         <th>Nama Bibit</th>
                         <th>Concept</th>
-                        <th>Target (gram)</th>
+                        <th>Target (kg)</th>
                         <th>Aksi</th>
                     </tr>
                 </thead>
@@ -23,7 +23,7 @@
                             <td>{{ $production->name }}</td>
                             <td>{{ $production->seed_name }}</td>
                             <td>{{ $production->concept?->name }}</td>
-                            <td>{{ number_format($production->target_weight_gram) }}</td>
+                            <td>{{ number_format($production->target_weight_kg, 2) }}</td>
                             <td>
                                 <a class="btn" href="{{ route('productions.show', $production) }}">Detail</a>
                                 <a class="btn" href="{{ route('productions.pdf', $production) }}">PDF</a>

@@ -9,8 +9,8 @@
             <strong style="font-size: 18px;">{{ $production->seed_name }}</strong>
         </div>
         <div class="card">
-            <div class="muted">Target (gram)</div>
-            <strong style="font-size: 18px;">{{ number_format($production->target_weight_gram) }}</strong>
+            <div class="muted">Target (kg)</div>
+            <strong style="font-size: 18px;">{{ number_format($production->target_weight_kg, 2) }}</strong>
         </div>
     </div>
 
@@ -40,7 +40,7 @@
                 <thead>
                     <tr>
                         <th>Item</th>
-                        <th>Weight (gram)</th>
+                        <th>Weight (kg)</th>
                         <th>Source</th>
                     </tr>
                 </thead>
@@ -48,7 +48,7 @@
                     @foreach ($production->items as $row)
                         <tr>
                             <td>{{ $row->item?->name }}</td>
-                            <td>{{ number_format($row->weight_gram) }}</td>
+                            <td>{{ number_format($row->weight_kg, 2) }}</td>
                             <td><span class="chip">{{ $row->source }}</span></td>
                         </tr>
                     @endforeach
@@ -66,7 +66,7 @@
         <div class="panel">
             <div class="panel-header">
                 <h2>Golongan (Global Add-on)</h2>
-                <span class="chip">Sisa untuk TAB: {{ number_format($tabAvailableGram) }} g</span>
+                <span class="chip">Sisa untuk TAB: {{ number_format($tabAvailableKg, 2) }} kg</span>
             </div>
             <div class="panel-body">
                 <form method="POST" action="{{ route('productions.groups.store', $production) }}">
@@ -128,15 +128,15 @@
                                     <thead>
                                         <tr>
                                             <th>Item</th>
-                                            <th>Weight (gram)</th>
-                                            <th>Aksi</th>
+                                            <th>Weight (kg)</th>
+                                             <th>Aksi</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         @foreach ($group->items as $gi)
                                             <tr>
                                                 <td>{{ $gi->item?->name }}</td>
-                                                <td>{{ number_format($gi->weight_gram) }}</td>
+                                                <td>{{ number_format($gi->weight_kg, 2) }}</td>
                                                 <td>
                                                     <form method="POST" action="{{ route('groups.items.destroy', $gi) }}" style="display: inline;">
                                                         @csrf
@@ -198,8 +198,8 @@
                         <div class="panel">
                             <div class="panel-header">
                                 <h2>{{ $tab->name }}</h2>
-                                <span class="chip">Ambil: {{ number_format($tab->input_weight_gram) }} g</span>
-                                <span class="chip">Sisa: {{ number_format($tab->remaining_weight_gram) }} g</span>
+                                <span class="chip">Ambil: {{ number_format($tab->input_weight_kg, 2) }} kg</span>
+                                <span class="chip">Sisa: {{ number_format($tab->remaining_weight_kg, 2) }} kg</span>
                                 <form method="POST" action="{{ route('tabs.destroy', $tab) }}" style="display: inline;">
                                     @csrf
                                     @method('DELETE')
@@ -248,7 +248,7 @@
                                         @foreach ($tab->items as $ti)
                                             <tr>
                                                 <td>{{ $ti->item?->name }}</td>
-                                                <td>{{ number_format($ti->weight_gram) }}</td>
+                                                <td>{{ number_format($ti->weight_kg, 2) }}</td>
                                                 <td>
                                                     <form method="POST" action="{{ route('tabs.items.destroy', $ti) }}" style="display: inline;">
                                                         @csrf

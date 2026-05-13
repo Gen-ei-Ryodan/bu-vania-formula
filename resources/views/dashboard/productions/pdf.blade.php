@@ -25,7 +25,7 @@
                 <td><strong>Concept:</strong> {{ $production->concept?->name }}</td>
             </tr>
             <tr>
-                <td><strong>Target (gram):</strong> {{ number_format($production->target_weight_gram) }}</td>
+                <td><strong>Target (kg):</strong> {{ number_format($production->target_weight_kg, 2) }}</td>
             </tr>
             @if ($production->start_date || $production->end_date)
                 <tr>
@@ -44,7 +44,7 @@
             <thead>
                 <tr>
                     <th>Item</th>
-                    <th style="width: 140px;">Weight (gram)</th>
+                    <th style="width: 140px;">Weight (kg)</th>
                     <th style="width: 120px;">Source</th>
                 </tr>
             </thead>
@@ -52,7 +52,7 @@
                 @foreach ($production->items as $row)
                     <tr>
                         <td>{{ $row->item?->name }}</td>
-                        <td>{{ number_format($row->weight_gram) }}</td>
+                        <td>{{ number_format($row->weight_kg, 2) }}</td>
                         <td>{{ $row->source }}</td>
                     </tr>
                 @endforeach
@@ -71,14 +71,14 @@
                 <thead>
                     <tr>
                         <th>Item</th>
-                        <th style="width: 140px;">Weight (gram)</th>
+                        <th style="width: 140px;">Weight (kg)</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach ($group->items as $gi)
                         <tr>
                             <td>{{ $gi->item?->name }}</td>
-                            <td>{{ number_format($gi->weight_gram) }}</td>
+                            <td>{{ number_format($gi->weight_kg, 2) }}</td>
                         </tr>
                     @endforeach
                     @if ($group->items->isEmpty())
@@ -97,20 +97,20 @@
         @foreach ($production->tabs as $tab)
             <div>
                 <strong>{{ $tab->name }}</strong>
-                (Ambil: {{ number_format($tab->input_weight_gram) }} g, Sisa: {{ number_format($tab->remaining_weight_gram) }} g)
+                (Ambil: {{ number_format($tab->input_weight_kg, 2) }} kg, Sisa: {{ number_format($tab->remaining_weight_kg, 2) }} kg)
             </div>
             <table>
                 <thead>
                     <tr>
                         <th>Item</th>
-                        <th style="width: 140px;">Weight (gram)</th>
+                        <th style="width: 140px;">Weight (kg)</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach ($tab->items as $ti)
                         <tr>
                             <td>{{ $ti->item?->name }}</td>
-                            <td>{{ number_format($ti->weight_gram) }}</td>
+                            <td>{{ number_format($ti->weight_kg, 2) }}</td>
                         </tr>
                     @endforeach
                     @if ($tab->items->isEmpty())

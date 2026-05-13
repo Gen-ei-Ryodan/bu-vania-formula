@@ -13,13 +13,13 @@ class ProductionGroupItemController extends Controller
     {
         $validated = $request->validate([
             'item_id' => ['required', 'integer', 'exists:items,id'],
-            'weight_gram' => ['required', 'integer', 'min:1'],
+            'weight_kg' => ['required', 'numeric', 'min:0.0001'],
         ]);
 
         $groupItem = ProductionGroupItem::query()->create([
             'group_id' => $group->id,
             'item_id' => (int) $validated['item_id'],
-            'weight_gram' => (int) $validated['weight_gram'],
+            'weight_kg' => (float) $validated['weight_kg'],
         ]);
 
         return response()->json($groupItem, 201);

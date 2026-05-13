@@ -10,7 +10,7 @@ class ProductionGroupItem extends Model
     protected $fillable = [
         'group_id',
         'item_id',
-        'weight_gram',
+        'weight_kg',
     ];
 
     public function group(): BelongsTo

@@ -39,44 +39,26 @@ class ProductionSnapshotService
             ]);
         }
 
-        $target = (int) $production->target_weight_gram;
+        $target = (float) $production->target_weight_kg;
 
         $candidates = $conceptItems
             ->map(function ($row) use ($target) {
                 $raw = $target * ((float) $row->percentage / 100.0);
-                $floor = (int) floor($raw);
 
                 return [
                     'item_id' => (int) $row->item_id,
-                    'floor' => $floor,
-                    'fraction' => $raw - $floor,
+                    'weight_kg' => round($raw, 4),
                 ];
             })
             ->values();
 
-        $allocated = $candidates->sum('floor');
-        $remainder = $target - $allocated;
-
-        if ($remainder < 0) {
-            throw ValidationException::withMessages([
-                'target_weight_gram' => ['Target gram tidak valid untuk komposisi ini.'],
-            ]);
-        }
-
-        $sorted = $candidates->sortByDesc('fraction')->values();
-
-        for ($i = 0; $i < $remainder; $i++) {
-            $index = $i % $sorted->count();
-            $sorted[$index]['floor']++;
-        }
-
         $now = now();
 
-        DB::transaction(function () use ($production, $sorted, $now) {
-            $rows = $sorted->map(fn ($row) => [
+        DB::transaction(function () use ($production, $candidates, $now) {
+            $rows = $candidates->map(fn ($row) => [
                 'production_id' => $production->id,
                 'item_id' => $row['item_id'],
-                'weight_gram' => $row['floor'],
+                'weight_kg' => $row['weight_kg'],
                 'source' => 'concept',
                 'created_at' => $now,
                 'updated_at' => $now,

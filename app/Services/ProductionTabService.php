@@ -9,15 +9,15 @@ use Illuminate\Validation\ValidationException;
 
 class ProductionTabService
 {
-    public function createTab(Production $production, string $name, int $inputWeightGram): ProductionTab
+    public function createTab(Production $production, string $name, float $inputWeightKg): ProductionTab
     {
-        if ($inputWeightGram <= 0) {
+        if ($inputWeightKg <= 0) {
             throw ValidationException::withMessages([
-                'input_weight_gram' => ['Input gram harus lebih besar dari 0.'],
+                'input_weight_kg' => ['Input kg harus lebih besar dari 0.'],
             ]);
         }
 
-        return DB::transaction(function () use ($production, $name, $inputWeightGram) {
+        return DB::transaction(function () use ($production, $name, $inputWeightKg) {
             $lockedProduction = Production::query()
                 ->whereKey($production->id)
                 ->lockForUpdate()
@@ -26,23 +26,23 @@ class ProductionTabService
             $used = ProductionTab::query()
                 ->where('production_id', $lockedProduction->id)
                 ->lockForUpdate()
-                ->sum('input_weight_gram');
+                ->sum('input_weight_kg');
 
-            $available = (int) $lockedProduction->target_weight_gram - (int) $used;
+            $available = (float) $lockedProduction->target_weight_kg - (float) $used;
 
-            if ($inputWeightGram > $available) {
+            if ($inputWeightKg > $available) {
                 throw ValidationException::withMessages([
-                    'input_weight_gram' => ['TAB melebihi sisa gram yang tersedia.'],
+                    'input_weight_kg' => ['TAB melebihi sisa kg yang tersedia.'],
                 ]);
             }
 
-            $remaining = $available - $inputWeightGram;
+            $remaining = $available - $inputWeightKg;
 
             return ProductionTab::query()->create([
                 'production_id' => $lockedProduction->id,
                 'name' => $name,
-                'input_weight_gram' => $inputWeightGram,
-                'remaining_weight_gram' => $remaining,
+                'input_weight_kg' => $inputWeightKg,
+                'remaining_weight_kg' => $remaining,
             ]);
         });
     }

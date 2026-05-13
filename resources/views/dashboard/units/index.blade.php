@@ -19,7 +19,7 @@
                         <tr>
                             <td>{{ $unit->id }}</td>
                             <td>{{ $unit->name }}</td>
-                            <td>{{ number_format($unit->conversion_to_gram) }}</td>
+                            <td>{{ number_format($unit->conversion_to_kg, 4) }}</td>
                             <td>
                                 <div class="actions">
                                     <a class="btn" href="{{ route('units.edit', $unit) }}">Edit</a>

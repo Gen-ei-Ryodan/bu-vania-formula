@@ -10,7 +10,7 @@ class ProductionItem extends Model
     protected $fillable = [
         'production_id',
         'item_id',
-        'weight_gram',
+        'weight_kg',
         'source',
     ];
 

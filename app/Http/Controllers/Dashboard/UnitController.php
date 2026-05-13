@@ -25,7 +25,7 @@ class UnitController extends Controller
     {
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255', 'unique:units,name'],
-            'conversion_to_gram' => ['required', 'integer', 'min:1'],
+            'conversion_to_kg' => ['required', 'numeric', 'min:0.0001'],
         ]);
 
         Unit::query()->create($validated);
@@ -44,7 +44,7 @@ class UnitController extends Controller
     {
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255', Rule::unique('units', 'name')->ignore($unit->id)],
-            'conversion_to_gram' => ['required', 'integer', 'min:1'],
+            'conversion_to_kg' => ['required', 'numeric', 'min:0.0001'],
         ]);
 
         $unit->update($validated);

@@ -10,7 +10,7 @@ class ProductionTabItem extends Model
     protected $fillable = [
         'tab_id',
         'item_id',
-        'weight_gram',
+        'weight_kg',
     ];
 
     public function tab(): BelongsTo
