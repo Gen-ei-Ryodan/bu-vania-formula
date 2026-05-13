@@ -41,14 +41,15 @@
                             <option value="full" @selected(old('treatment_time') === 'full')>Full</option>
                         </select>
                     </div>
-                    <div class="field">
-                        <div class="label">Concept</div>
-                        <select name="concept_id">
+                    <div class="field" style="grid-column: 1 / -1;">
+                        <div class="label">Concept (Resep Dasar)</div>
+                        <select name="concept_id" id="concept-select">
                             @php($c = (int) old('concept_id', $concepts->first()?->id ?? 0))
                             @foreach ($concepts as $concept)
                                 <option value="{{ $concept->id }}" @selected($c === $concept->id)>{{ $concept->name }}</option>
                             @endforeach
                         </select>
+                        <div id="concept-preview" class="stack" style="margin-top: 8px;"></div>
                     </div>
                     <div class="field">
                         <div class="label">Target Weight</div>
@@ -93,6 +94,31 @@ document.addEventListener('DOMContentLoaded', function () {
     const treatmentFields = document.querySelectorAll('.treatment-field');
     const durationInput = document.getElementById('duration-days');
     const foreverCheck = document.getElementById('is-forever');
+    const conceptSelect = document.getElementById('concept-select');
+    const conceptPreview = document.getElementById('concept-preview');
+
+    const concepts = @json($concepts->keyBy('id')->map(fn($c) => [
+        'name' => $c->name,
+        'base_weight_kg' => $c->base_weight_kg,
+        'items' => $c->items->map(fn($i) => [
+            'item' => $i->item?->name,
+            'weight_kg' => $i->weight_kg,
+            'percentage' => $i->percentage,
+        ]),
+    ]));
+
+    function showConceptPreview(id) {
+        const data = concepts[id];
+        if (!data) { conceptPreview.innerHTML = ''; return; }
+        let html = '<div class="card" style="padding: 8px; font-size: 13px;">';
+        html += '<div><strong>' + data.name + '</strong> — Base: ' + parseFloat(data.base_weight_kg).toFixed(2) + ' kg</div>';
+        html += '<table class="table" style="margin-top: 4px;"><thead><tr><th>Item</th><th>Weight (kg)</th><th>%</th></tr></thead><tbody>';
+        data.items.forEach(function (item) {
+            html += '<tr><td>' + (item.item || '-') + '</td><td>' + parseFloat(item.weight_kg).toFixed(2) + '</td><td>' + item.percentage + '%</td></tr>';
+        });
+        html += '</tbody></table></div>';
+        conceptPreview.innerHTML = html;
+    }
 
     typeSelect.addEventListener('change', function () {
         const show = this.value === 'pengobatan';
@@ -105,6 +131,9 @@ document.addEventListener('DOMContentLoaded', function () {
         durationInput.disabled = this.checked;
         if (this.checked) durationInput.value = '';
     });
+
+    conceptSelect.addEventListener('change', function () { showConceptPreview(this.value); });
+    showConceptPreview(conceptSelect.value);
 });
 </script>
 
