@@ -15,8 +15,8 @@
                     <div class="field">
                         <div class="label">Base Weight</div>
                         <div class="inline">
-                            <input class="w-220" type="number" step="0.0001" name="base_weight_value" value="{{ old('base_weight_value', 1) }}">
-                            <select class="w-160" name="base_weight_unit_id">
+                            <input class="w-220" type="number" step="0.0001" name="base_weight_value" id="base-weight-value" value="{{ old('base_weight_value', 1) }}">
+                            <select class="w-160" name="base_weight_unit_id" id="base-weight-unit">
                                 @php($u = (int) old('base_weight_unit_id', $units->first()?->id ?? 0))
                                 @foreach ($units as $unit)
                                     <option value="{{ $unit->id }}" @selected($u === $unit->id)>{{ $unit->name }}</option>
@@ -50,11 +50,11 @@
                                     </div>
                                     <div class="field w-220">
                                         <div class="label">Percentage (%)</div>
-                                        <input data-name="percentage" type="number" step="0.0001" placeholder="50">
+                                        <input data-name="percentage" type="number" step="0.0001" placeholder="50" readonly>
                                     </div>
                                     <div class="field w-220">
-                                        <div class="label">Atau Weight</div>
-                                        <input data-name="weight_value" type="number" step="0.0001" placeholder="1">
+                                        <div class="label">Weight (kg)</div>
+                                        <input data-name="weight_value" type="number" step="0.0001" placeholder="1" data-calc-percentage>
                                     </div>
                                     <div class="field w-160">
                                         <div class="label">Unit</div>
@@ -82,3 +82,42 @@
         </div>
     </div>
 </x-layouts.dashboard>
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const baseWeightInput = document.getElementById('base-weight-value');
+
+    function calcPercentage(row) {
+        const weightInput = row.querySelector('[data-calc-percentage]');
+        const pctInput = row.querySelector('[data-name="percentage"]');
+        const baseWeight = parseFloat(baseWeightInput.value) || 0;
+
+        weightInput.addEventListener('input', function () {
+            const weight = parseFloat(this.value) || 0;
+            if (baseWeight > 0 && weight > 0) {
+                pctInput.value = ((weight / baseWeight) * 100).toFixed(4);
+            } else {
+                pctInput.value = '';
+            }
+        });
+    }
+
+    const observer = new MutationObserver(function () {
+        document.querySelectorAll('[data-repeatable-row]').forEach(function (row) {
+            if (!row.dataset.listenerAttached) {
+                row.dataset.listenerAttached = '1';
+                calcPercentage(row);
+            }
+        });
+    });
+
+    observer.observe(document.querySelector('[data-repeatable-list]'), { childList: true, subtree: false });
+
+    document.querySelectorAll('[data-repeatable-row]').forEach(function (row) {
+        row.dataset.listenerAttached = '1';
+        calcPercentage(row);
+    });
+});
+</script>
+@endpush
