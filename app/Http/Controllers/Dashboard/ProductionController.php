@@ -30,7 +30,7 @@ class ProductionController extends Controller
     public function create()
     {
         return view('dashboard.productions.create', [
-            'concepts' => Concept::query()->orderBy('name')->get(),
+            'concepts' => Concept::query()->with('items.item')->orderBy('name')->get(),
             'units' => Unit::query()->orderBy('name')->get(),
         ]);
     }
