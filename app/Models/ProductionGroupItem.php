@@ -11,6 +11,7 @@ class ProductionGroupItem extends Model
         'group_id',
         'item_id',
         'weight_kg',
+        'is_dosis',
     ];
 
     public function group(): BelongsTo

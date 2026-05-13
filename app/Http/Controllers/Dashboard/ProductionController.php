@@ -133,6 +133,7 @@ class ProductionController extends Controller
             'group_id' => $group->id,
             'item_id' => (int) $validated['item_id'],
             'weight_kg' => $weightKg,
+            'is_dosis' => $request->boolean('is_dosis'),
         ]);
 
         return redirect()->route('productions.show', $group->production_id)->with('ok', 'Item golongan ditambah.');
@@ -175,6 +176,7 @@ class ProductionController extends Controller
             'tab_id' => $tab->id,
             'item_id' => (int) $validated['item_id'],
             'weight_kg' => $weightKg,
+            'is_dosis' => $request->boolean('is_dosis'),
         ]);
 
         return redirect()->route('productions.show', $tab->production_id)->with('ok', 'Item TAB ditambah.');

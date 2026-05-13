@@ -11,6 +11,7 @@ class ProductionTabItem extends Model
         'tab_id',
         'item_id',
         'weight_kg',
+        'is_dosis',
     ];
 
     public function tab(): BelongsTo
