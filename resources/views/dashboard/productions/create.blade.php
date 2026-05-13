@@ -36,7 +36,7 @@
                                 @endforeach
                             </select>
                         </div>
-                        <div class="muted" style="font-size: 12px;">Disimpan sebagai gram</div>
+                        <div class="muted" style="font-size: 12px;">Disimpan sebagai kg</div>
                     </div>
                     <div class="field">
                         <div class="label">Start Date</div>

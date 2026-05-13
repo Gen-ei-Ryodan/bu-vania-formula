@@ -11,8 +11,8 @@ class ProductionTab extends Model
     protected $fillable = [
         'production_id',
         'name',
-        'input_weight_gram',
-        'remaining_weight_gram',
+        'input_weight_kg',
+        'remaining_weight_kg',
     ];
 
     public function production(): BelongsTo

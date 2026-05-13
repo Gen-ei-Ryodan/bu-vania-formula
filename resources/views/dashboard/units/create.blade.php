@@ -13,8 +13,8 @@
                         <input type="text" name="name" value="{{ old('name') }}" placeholder="kg / ton / sak / gram">
                     </div>
                     <div class="field">
-                        <div class="label">Konversi ke gram</div>
-                        <input type="number" name="conversion_to_gram" value="{{ old('conversion_to_gram') }}" placeholder="1000 untuk kg">
+                        <div class="label">Konversi ke kg</div>
+                        <input type="number" step="0.0001" name="conversion_to_kg" value="{{ old('conversion_to_kg') }}" placeholder="1 untuk kg">
                     </div>
                 </div>
                 <div class="divider"></div>

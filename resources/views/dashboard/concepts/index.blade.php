@@ -19,7 +19,7 @@
                         <tr>
                             <td>{{ $concept->id }}</td>
                             <td>{{ $concept->name }}</td>
-                            <td>{{ number_format($concept->base_weight_gram) }}</td>
+                            <td>{{ number_format($concept->base_weight_kg, 2) }}</td>
                             <td>
                                 <a class="btn" href="{{ route('concepts.show', $concept) }}">Detail</a>
                             </td>

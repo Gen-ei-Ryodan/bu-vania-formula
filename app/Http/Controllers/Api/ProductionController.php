@@ -15,7 +15,7 @@ class ProductionController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'seed_name' => ['required', 'string', 'max:255'],
             'concept_id' => ['required', 'integer', 'exists:concepts,id'],
-            'target_weight_gram' => ['required', 'integer', 'min:1'],
+            'target_weight_kg' => ['required', 'numeric', 'min:0.0001'],
             'start_date' => ['nullable', 'date'],
             'end_date' => ['nullable', 'date'],
             'notes' => ['nullable', 'string'],

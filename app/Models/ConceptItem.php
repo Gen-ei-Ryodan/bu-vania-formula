@@ -11,12 +11,12 @@ class ConceptItem extends Model
         'concept_id',
         'item_id',
         'percentage',
-        'weight_gram',
+        'weight_kg',
     ];
 
     protected $casts = [
         'percentage' => 'decimal:4',
-        'weight_gram' => 'integer',
+        'weight_kg' => 'decimal:4',
     ];
 
     public function concept(): BelongsTo

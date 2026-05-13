@@ -11,8 +11,8 @@
                     <strong style="font-size: 18px;">{{ $concept->name }}</strong>
                 </div>
                 <div class="card">
-                    <div class="muted">Base Weight (gram)</div>
-                    <strong style="font-size: 18px;">{{ number_format($concept->base_weight_gram) }}</strong>
+                    <div class="muted">Base Weight (kg)</div>
+                    <strong style="font-size: 18px;">{{ number_format($concept->base_weight_kg, 2) }}</strong>
                 </div>
             </div>
 
@@ -30,7 +30,7 @@
                     @foreach ($concept->items as $row)
                         <tr>
                             <td>{{ $row->item?->name }}</td>
-                            <td>{{ number_format((int) $row->weight_gram) }}</td>
+                            <td>{{ number_format($row->weight_kg, 2) }}</td>
                             <td>{{ $row->percentage }}%</td>
                         </tr>
                     @endforeach

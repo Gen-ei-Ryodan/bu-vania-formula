@@ -20,13 +20,13 @@ class ProductionTabController extends Controller
 
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
-            'input_weight_gram' => ['required', 'integer', 'min:1'],
+            'input_weight_kg' => ['required', 'numeric', 'min:0.0001'],
         ]);
 
         $tab = $service->createTab(
             $production,
             $validated['name'],
-            (int) $validated['input_weight_gram'],
+            (float) $validated['input_weight_kg'],
         );
 
         return response()->json($tab, 201);

@@ -12,7 +12,7 @@ class Production extends Model
         'name',
         'seed_name',
         'concept_id',
-        'target_weight_gram',
+        'target_weight_kg',
         'start_date',
         'end_date',
         'notes',

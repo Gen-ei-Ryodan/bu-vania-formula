@@ -15,7 +15,7 @@ class ConceptController extends Controller
     {
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255', 'unique:concepts,name'],
-            'base_weight_gram' => ['required', 'integer', 'min:1'],
+            'base_weight_kg' => ['required', 'numeric', 'min:0.0001'],
             'items' => ['required', 'array', 'min:1'],
             'items.*.item_id' => ['required', 'integer', 'distinct', 'exists:items,id'],
             'items.*.percentage' => ['required', 'numeric', 'min:0.0001', 'max:100'],
@@ -32,7 +32,7 @@ class ConceptController extends Controller
         $concept = DB::transaction(function () use ($validated) {
             $concept = Concept::query()->create([
                 'name' => $validated['name'],
-                'base_weight_gram' => (int) $validated['base_weight_gram'],
+                'base_weight_kg' => (float) $validated['base_weight_kg'],
             ]);
 
             $now = now();

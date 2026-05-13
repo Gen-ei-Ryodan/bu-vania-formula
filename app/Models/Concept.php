@@ -9,7 +9,7 @@ class Concept extends Model
 {
     protected $fillable = [
         'name',
-        'base_weight_gram',
+        'base_weight_kg',
     ];
 
     public function items(): HasMany

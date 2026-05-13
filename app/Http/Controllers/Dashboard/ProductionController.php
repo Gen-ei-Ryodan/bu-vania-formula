@@ -49,13 +49,13 @@ class ProductionController extends Controller
         ]);
 
         $unit = Unit::query()->findOrFail((int) $validated['target_weight_unit_id']);
-        $targetWeightGram = (int) round(((float) $validated['target_weight_value']) * (int) $unit->conversion_to_gram);
+        $targetWeightKg = (float) $validated['target_weight_value'] * (float) $unit->conversion_to_kg;
 
         $production = Production::query()->create([
             'name' => $validated['name'],
             'seed_name' => $validated['seed_name'],
             'concept_id' => (int) $validated['concept_id'],
-            'target_weight_gram' => $targetWeightGram,
+            'target_weight_kg' => $targetWeightKg,
             'start_date' => $validated['start_date'] ?? null,
             'end_date' => $validated['end_date'] ?? null,
             'notes' => $validated['notes'] ?? null,
@@ -73,14 +73,14 @@ class ProductionController extends Controller
             'tabs.items.item',
         ]);
 
-        $tabUsed = $production->tabs->sum('input_weight_gram');
-        $tabAvailable = (int) $production->target_weight_gram - (int) $tabUsed;
+        $tabUsed = $production->tabs->sum('input_weight_kg');
+        $tabAvailable = (float) $production->target_weight_kg - (float) $tabUsed;
 
         return view('dashboard.productions.show', [
             'production' => $production,
             'items' => Item::query()->orderBy('name')->get(),
             'units' => Unit::query()->orderBy('name')->get(),
-            'tabAvailableGram' => $tabAvailable,
+            'tabAvailableKg' => $tabAvailable,
         ]);
     }
 
@@ -116,12 +116,12 @@ class ProductionController extends Controller
         ]);
 
         $unit = Unit::query()->findOrFail((int) $validated['weight_unit_id']);
-        $weightGram = (int) round(((float) $validated['weight_value']) * (int) $unit->conversion_to_gram);
+        $weightKg = (float) $validated['weight_value'] * (float) $unit->conversion_to_kg;
 
         ProductionGroupItem::query()->create([
             'group_id' => $group->id,
             'item_id' => (int) $validated['item_id'],
-            'weight_gram' => $weightGram,
+            'weight_kg' => $weightKg,
         ]);
 
         return redirect()->route('productions.show', $group->production_id)->with('ok', 'Item golongan ditambah.');
@@ -142,9 +142,9 @@ class ProductionController extends Controller
         ]);
 
         $unit = Unit::query()->findOrFail((int) $validated['input_weight_unit_id']);
-        $inputGram = (int) round(((float) $validated['input_weight_value']) * (int) $unit->conversion_to_gram);
+        $inputKg = (float) $validated['input_weight_value'] * (float) $unit->conversion_to_kg;
 
-        $service->createTab($production, $validated['name'], $inputGram);
+        $service->createTab($production, $validated['name'], $inputKg);
 
         return redirect()->route('productions.show', $production)->with('ok', 'TAB dibuat.');
     }
@@ -158,12 +158,12 @@ class ProductionController extends Controller
         ]);
 
         $unit = Unit::query()->findOrFail((int) $validated['weight_unit_id']);
-        $weightGram = (int) round(((float) $validated['weight_value']) * (int) $unit->conversion_to_gram);
+        $weightKg = (float) $validated['weight_value'] * (float) $unit->conversion_to_kg;
 
         ProductionTabItem::query()->create([
             'tab_id' => $tab->id,
             'item_id' => (int) $validated['item_id'],
-            'weight_gram' => $weightGram,
+            'weight_kg' => $weightKg,
         ]);
 
         return redirect()->route('productions.show', $tab->production_id)->with('ok', 'Item TAB ditambah.');
