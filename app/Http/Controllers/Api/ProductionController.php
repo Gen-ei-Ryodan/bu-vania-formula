@@ -14,10 +14,15 @@ class ProductionController extends Controller
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'seed_name' => ['required', 'string', 'max:255'],
+            'production_type' => ['required', 'in:biasa,pengobatan'],
+            'treatment_day' => ['nullable', 'integer', 'min:1'],
+            'treatment_time' => ['nullable', 'in:pagi,siang,malam,full'],
             'concept_id' => ['required', 'integer', 'exists:concepts,id'],
             'target_weight_kg' => ['required', 'numeric', 'min:0.0001'],
             'start_date' => ['nullable', 'date'],
-            'end_date' => ['nullable', 'date'],
+            'duration_days' => ['nullable', 'integer', 'min:1'],
+            'is_forever' => ['nullable', 'boolean'],
+            'mix_date' => ['nullable', 'date'],
             'notes' => ['nullable', 'string'],
         ]);
 

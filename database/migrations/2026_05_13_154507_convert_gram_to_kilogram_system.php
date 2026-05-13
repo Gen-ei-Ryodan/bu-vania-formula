@@ -25,7 +25,7 @@ return new class extends Migration
         });
 
         Schema::table('concept_items', function (Blueprint $table) {
-            $table->decimal('weight_kg', 16, 4')->nullable()->after('percentage');
+            $table->decimal('weight_kg', 16, 4)->nullable()->after('percentage');
         });
         DB::statement('UPDATE concept_items SET weight_kg = weight_gram / 1000.0');
         Schema::table('concept_items', function (Blueprint $table) {
@@ -41,7 +41,7 @@ return new class extends Migration
         });
 
         Schema::table('production_items', function (Blueprint $table) {
-            $table->decimal('weight_kg', 16, 4')->default(0)->after('item_id');
+            $table->decimal('weight_kg', 16, 4)->default(0)->after('item_id');
         });
         DB::statement('UPDATE production_items SET weight_kg = weight_gram / 1000.0');
         Schema::table('production_items', function (Blueprint $table) {
@@ -49,7 +49,7 @@ return new class extends Migration
         });
 
         Schema::table('production_group_items', function (Blueprint $table) {
-            $table->decimal('weight_kg', 16, 4')->default(0)->after('item_id');
+            $table->decimal('weight_kg', 16, 4)->default(0)->after('item_id');
         });
         DB::statement('UPDATE production_group_items SET weight_kg = weight_gram / 1000.0');
         Schema::table('production_group_items', function (Blueprint $table) {
@@ -57,8 +57,8 @@ return new class extends Migration
         });
 
         Schema::table('production_tabs', function (Blueprint $table) {
-            $table->decimal('input_weight_kg', 16, 4')->default(0)->after('name');
-            $table->decimal('remaining_weight_kg', 16, 4')->default(0)->after('input_weight_kg');
+            $table->decimal('input_weight_kg', 16, 4)->default(0)->after('name');
+            $table->decimal('remaining_weight_kg', 16, 4)->default(0)->after('input_weight_kg');
         });
         DB::statement('UPDATE production_tabs SET input_weight_kg = input_weight_gram / 1000.0, remaining_weight_kg = remaining_weight_gram / 1000.0');
         Schema::table('production_tabs', function (Blueprint $table) {
@@ -67,7 +67,7 @@ return new class extends Migration
         });
 
         Schema::table('production_tab_items', function (Blueprint $table) {
-            $table->decimal('weight_kg', 16, 4')->default(0)->after('item_id');
+            $table->decimal('weight_kg', 16, 4)->default(0)->after('item_id');
         });
         DB::statement('UPDATE production_tab_items SET weight_kg = weight_gram / 1000.0');
         Schema::table('production_tab_items', function (Blueprint $table) {

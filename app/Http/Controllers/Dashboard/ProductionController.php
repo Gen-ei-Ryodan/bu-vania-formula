@@ -40,11 +40,16 @@ class ProductionController extends Controller
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'seed_name' => ['required', 'string', 'max:255'],
+            'production_type' => ['required', 'in:biasa,pengobatan'],
+            'treatment_day' => ['nullable', 'integer', 'min:1'],
+            'treatment_time' => ['nullable', 'in:pagi,siang,malam,full'],
             'concept_id' => ['required', 'integer', 'exists:concepts,id'],
             'target_weight_value' => ['required', 'numeric', 'min:0.0001'],
             'target_weight_unit_id' => ['required', 'integer', 'exists:units,id'],
             'start_date' => ['nullable', 'date'],
-            'end_date' => ['nullable', 'date'],
+            'duration_days' => ['nullable', 'integer', 'min:1'],
+            'is_forever' => ['nullable', 'boolean'],
+            'mix_date' => ['nullable', 'date'],
             'notes' => ['nullable', 'string'],
         ]);
 
@@ -54,10 +59,15 @@ class ProductionController extends Controller
         $production = Production::query()->create([
             'name' => $validated['name'],
             'seed_name' => $validated['seed_name'],
+            'production_type' => $validated['production_type'],
+            'treatment_day' => $validated['treatment_day'] ?? null,
+            'treatment_time' => $validated['treatment_time'] ?? null,
             'concept_id' => (int) $validated['concept_id'],
             'target_weight_kg' => $targetWeightKg,
             'start_date' => $validated['start_date'] ?? null,
-            'end_date' => $validated['end_date'] ?? null,
+            'duration_days' => $validated['duration_days'] ?? null,
+            'is_forever' => $request->boolean('is_forever'),
+            'mix_date' => $validated['mix_date'] ?? null,
             'notes' => $validated['notes'] ?? null,
         ]);
 
