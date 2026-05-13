@@ -1,16 +1,23 @@
 <x-layouts.dashboard :title="'Production: '.$production->name" :heading="'Production: '.$production->name">
-    <div class="grid-3">
+    <div class="grid-4">
         <div class="card">
             <div class="muted">Concept</div>
             <strong style="font-size: 18px;">{{ $production->concept?->name }}</strong>
         </div>
         <div class="card">
-            <div class="muted">Nama Bibit</div>
-            <strong style="font-size: 18px;">{{ $production->seed_name }}</strong>
+            <div class="muted">Jenis</div>
+            <strong style="font-size: 18px;">{{ ucfirst($production->production_type) }}</strong>
+            @if ($production->production_type === 'pengobatan')
+                <div>Hari ke-{{ $production->treatment_day }} ({{ $production->treatment_time }})</div>
+            @endif
         </div>
         <div class="card">
             <div class="muted">Target (kg)</div>
             <strong style="font-size: 18px;">{{ number_format($production->target_weight_kg, 2) }}</strong>
+        </div>
+        <div class="card">
+            <div class="muted">Durasi</div>
+            <strong style="font-size: 18px;">{{ $production->is_forever ? 'Selamanya' : $production->duration_days.' hari' }}</strong>
         </div>
     </div>
 

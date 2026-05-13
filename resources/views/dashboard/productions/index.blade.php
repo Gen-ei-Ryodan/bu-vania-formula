@@ -10,9 +10,10 @@
                     <tr>
                         <th>ID</th>
                         <th>Nama</th>
-                        <th>Nama Bibit</th>
+                        <th>Jenis</th>
                         <th>Concept</th>
                         <th>Target (kg)</th>
+                        <th>Durasi</th>
                         <th>Aksi</th>
                     </tr>
                 </thead>
@@ -21,9 +22,10 @@
                         <tr>
                             <td>{{ $production->id }}</td>
                             <td>{{ $production->name }}</td>
-                            <td>{{ $production->seed_name }}</td>
+                            <td>{{ ucfirst($production->production_type) }}</td>
                             <td>{{ $production->concept?->name }}</td>
                             <td>{{ number_format($production->target_weight_kg, 2) }}</td>
+                            <td>{{ $production->is_forever ? 'Selamanya' : $production->duration_days.' hari' }}</td>
                             <td>
                                 <a class="btn" href="{{ route('productions.show', $production) }}">Detail</a>
                                 <a class="btn" href="{{ route('productions.pdf', $production) }}">PDF</a>

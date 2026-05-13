@@ -19,19 +19,32 @@
 
         <table class="meta">
             <tr>
-                <td><strong>Nama Bibit:</strong> {{ $production->seed_name }}</td>
+                <td><strong>Jenis:</strong> {{ ucfirst($production->production_type) }}</td>
             </tr>
+            @if ($production->production_type === 'pengobatan')
+            <tr>
+                <td><strong>Pengobatan:</strong> Hari ke-{{ $production->treatment_day }} ({{ $production->treatment_time }})</td>
+            </tr>
+            @endif
             <tr>
                 <td><strong>Concept:</strong> {{ $production->concept?->name }}</td>
             </tr>
             <tr>
                 <td><strong>Target (kg):</strong> {{ number_format($production->target_weight_kg, 2) }}</td>
             </tr>
-            @if ($production->start_date || $production->end_date)
+            @if ($production->start_date)
                 <tr>
-                    <td><strong>Periode:</strong> {{ $production->start_date?->format('d-m-Y') }} s/d {{ $production->end_date?->format('d-m-Y') }}</td>
+                    <td><strong>Start Date:</strong> {{ $production->start_date?->format('d-m-Y') }}</td>
                 </tr>
             @endif
+            @if ($production->mix_date)
+                <tr>
+                    <td><strong>Tanggal Campur:</strong> {{ $production->mix_date?->format('d-m-Y') }}</td>
+                </tr>
+            @endif
+            <tr>
+                <td><strong>Durasi:</strong> {{ $production->is_forever ? 'Selamanya' : $production->duration_days.' hari' }}</td>
+            </tr>
             @if ($production->notes)
                 <tr>
                     <td><strong>Notes:</strong> {{ $production->notes }}</td>

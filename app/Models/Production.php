@@ -11,16 +11,22 @@ class Production extends Model
     protected $fillable = [
         'name',
         'seed_name',
+        'production_type',
+        'treatment_day',
+        'treatment_time',
         'concept_id',
         'target_weight_kg',
         'start_date',
-        'end_date',
+        'duration_days',
+        'is_forever',
+        'mix_date',
         'notes',
     ];
 
     protected $casts = [
         'start_date' => 'date',
-        'end_date' => 'date',
+        'mix_date' => 'date',
+        'is_forever' => 'boolean',
     ];
 
     public function concept(): BelongsTo
