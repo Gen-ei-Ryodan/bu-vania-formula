@@ -1,7 +1,7 @@
 <x-layouts.dashboard :title="'Production: '.$production->name" :heading="'Production: '.$production->name">
     <div class="grid-4">
         <div class="card">
-            <div class="muted">Concept</div>
+            <div class="muted">Concept / Resep</div>
             <strong style="font-size: 18px;">{{ $production->concept?->name }}</strong>
         </div>
         <div class="card">
@@ -23,17 +23,9 @@
 
     <div class="panel">
         <div class="panel-header">
-            <h2>Snapshot Production Items</h2>
+            <h2>Header Production</h2>
             <div class="actions">
                 <a class="btn" href="{{ route('productions.pdf', $production) }}">PDF</a>
-                @if ($production->items->isEmpty())
-                    <form method="POST" action="{{ route('productions.generate', $production) }}">
-                        @csrf
-                        <button class="btn btn-primary" type="submit">Generate</button>
-                    </form>
-                @else
-                    <span class="chip">Generated</span>
-                @endif
                 <a class="btn" href="{{ route('productions.index') }}">Kembali</a>
                 <form method="POST" action="{{ route('productions.destroy', $production) }}" style="display: inline;">
                     @csrf
@@ -43,11 +35,37 @@
             </div>
         </div>
         <div class="panel-body">
+            <div class="grid-2">
+                <div class="card"><div class="muted">Nama</div><strong>{{ $production->name }}</strong></div>
+                <div class="card"><div class="muted">Lokasi</div><strong>{{ $production->location ?? '-' }}</strong></div>
+                <div class="card"><div class="muted">Kandang</div><strong>{{ $production->cage ?? '-' }}</strong></div>
+                <div class="card"><div class="muted">Start Date</div><strong>{{ $production->start_date?->format('d-m-Y') ?? '-' }}</strong></div>
+                <div class="card"><div class="muted">Tanggal Campur</div><strong>{{ $production->mix_date?->format('d-m-Y') ?? '-' }}</strong></div>
+                <div class="card"><div class="muted">Notes</div><strong>{{ $production->notes ?? '-' }}</strong></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="panel">
+        <div class="panel-header">
+            <h2>Snapshot Production Items (Auto Scaling dari Konsep)</h2>
+            <div class="actions">
+                @if ($production->items->isEmpty())
+                    <form method="POST" action="{{ route('productions.generate', $production) }}">
+                        @csrf
+                        <button class="btn btn-primary" type="submit">Generate Snapshot</button>
+                    </form>
+                @else
+                    <span class="chip">Generated</span>
+                @endif
+            </div>
+        </div>
+        <div class="panel-body">
             <table class="table">
                 <thead>
                     <tr>
                         <th>Item</th>
-                        <th>Weight (kg)</th>
+                        <th>Weight (kg) — Hasil Scaling</th>
                         <th>Source</th>
                     </tr>
                 </thead>
@@ -61,7 +79,7 @@
                     @endforeach
                     @if ($production->items->isEmpty())
                         <tr>
-                            <td colspan="3" class="muted">Belum ada snapshot. Klik Generate.</td>
+                            <td colspan="3" class="muted">Klik Generate Snapshot untuk membuat item dari konsep dengan auto-scaling ke target {{ number_format($production->target_weight_kg, 2) }} kg.</td>
                         </tr>
                     @endif
                 </tbody>
@@ -69,217 +87,482 @@
         </div>
     </div>
 
-    <div class="grid-2">
-        <div class="panel">
-            <div class="panel-header">
-                <h2>Golongan (Global Add-on)</h2>
-                <span class="chip">Sisa untuk TAB: {{ number_format($tabAvailableKg, 2) }} kg</span>
-            </div>
-            <div class="panel-body">
-                <form method="POST" action="{{ route('productions.groups.store', $production) }}">
-                    @csrf
-                    <div class="inline">
-                        <div class="field w-280">
-                            <div class="label">Nama Golongan</div>
-                            <input type="text" name="name" placeholder="Golongan 1">
-                        </div>
-                        <button class="btn btn-primary" type="submit">Tambah</button>
-                    </div>
-                </form>
-
-                <div class="divider"></div>
-
-                <div class="stack">
-                    @foreach ($production->groups as $group)
-                        <div class="panel">
-                            <div class="panel-header">
-                                <h2>{{ $group->name }}</h2>
-                                <span class="chip">ID: {{ $group->id }}</span>
-                                <form method="POST" action="{{ route('groups.destroy', $group) }}" style="display: inline;">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button class="btn btn-danger" type="submit">Hapus</button>
-                                </form>
-                            </div>
-                            <div class="panel-body">
-                                <form method="POST" action="{{ route('groups.items.store', $group) }}">
-                                    @csrf
-                                    <div class="inline">
-                                        <div class="field w-280">
-                                            <div class="label">Item</div>
-                                            <select name="item_id">
-                                                @foreach ($items as $item)
-                                                    <option value="{{ $item->id }}">{{ $item->name }}</option>
-                                                @endforeach
-                                            </select>
-                                        </div>
-                                        <div class="field w-220">
-                                            <div class="label">Weight</div>
-                                            <input type="number" step="0.0001" name="weight_value" placeholder="1">
-                                        </div>
-                                        <div class="field w-160">
-                                            <div class="label">Unit</div>
-                                            <select name="weight_unit_id">
-                                                @foreach ($units as $unit)
-                                                    <option value="{{ $unit->id }}">{{ $unit->name }}</option>
-                                                @endforeach
-                                            </select>
-                                        </div>
-                                        <button class="btn btn-primary" type="submit">Tambah Item</button>
-                                    </div>
-                                </form>
-
-                                <div class="divider"></div>
-
-                                <table class="table">
-                                    <thead>
-                                        <tr>
-                                            <th>Item</th>
-                                            <th>Weight (kg)</th>
-                                             <th>Aksi</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @foreach ($group->items as $gi)
-                                            <tr>
-                                                <td>{{ $gi->item?->name }}</td>
-                                                <td>{{ number_format($gi->weight_kg, 2) }}</td>
-                                                <td>
-                                                    <form method="POST" action="{{ route('groups.items.destroy', $gi) }}" style="display: inline;">
-                                                        @csrf
-                                                        @method('DELETE')
-                                                        <button class="btn btn-danger" type="submit">Hapus</button>
-                                                    </form>
-                                                </td>
-                                            </tr>
-                                        @endforeach
-                                        @if ($group->items->isEmpty())
-                                            <tr>
-                                                <td colspan="3" class="muted">Belum ada item.</td>
-                                            </tr>
-                                        @endif
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    @endforeach
-                    @if ($production->groups->isEmpty())
-                        <div class="muted">Belum ada golongan.</div>
-                    @endif
-                </div>
-            </div>
+    <div class="panel">
+        <div class="panel-header">
+            <h2>Mode Input</h2>
         </div>
-
-        <div class="panel">
-            <div class="panel-header">
-                <h2>TAB (Split Batch)</h2>
-            </div>
-            <div class="panel-body">
-                <form method="POST" action="{{ route('productions.tabs.store', $production) }}">
-                    @csrf
-                    <div class="inline">
-                        <div class="field w-220">
-                            <div class="label">Nama TAB</div>
-                            <input type="text" name="name" placeholder="TAB 1">
-                        </div>
-                        <div class="field w-220">
-                            <div class="label">Ambil</div>
-                            <input type="number" step="0.0001" name="input_weight_value" placeholder="1">
-                        </div>
-                        <div class="field w-160">
-                            <div class="label">Unit</div>
-                            <select name="input_weight_unit_id">
-                                @foreach ($units as $unit)
-                                    <option value="{{ $unit->id }}">{{ $unit->name }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                        <button class="btn btn-primary" type="submit">Buat TAB</button>
-                    </div>
-                </form>
-
-                <div class="divider"></div>
-
-                <div class="stack">
-                    @foreach ($production->tabs as $tab)
-                        <div class="panel">
-                            <div class="panel-header">
-                                <h2>{{ $tab->name }}</h2>
-                                <span class="chip">Ambil: {{ number_format($tab->input_weight_kg, 2) }} kg</span>
-                                <span class="chip">Sisa: {{ number_format($tab->remaining_weight_kg, 2) }} kg</span>
-                                <form method="POST" action="{{ route('tabs.destroy', $tab) }}" style="display: inline;">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button class="btn btn-danger" type="submit">Hapus</button>
-                                </form>
-                            </div>
-                            <div class="panel-body">
-                                <form method="POST" action="{{ route('tabs.items.store', $tab) }}">
-                                    @csrf
-                                    <div class="inline">
-                                        <div class="field w-280">
-                                            <div class="label">Item</div>
-                                            <select name="item_id">
-                                                @foreach ($items as $item)
-                                                    <option value="{{ $item->id }}">{{ $item->name }}</option>
-                                                @endforeach
-                                            </select>
-                                        </div>
-                                        <div class="field w-220">
-                                            <div class="label">Weight</div>
-                                            <input type="number" step="0.0001" name="weight_value" placeholder="1">
-                                        </div>
-                                        <div class="field w-160">
-                                            <div class="label">Unit</div>
-                                            <select name="weight_unit_id">
-                                                @foreach ($units as $unit)
-                                                    <option value="{{ $unit->id }}">{{ $unit->name }}</option>
-                                                @endforeach
-                                            </select>
-                                        </div>
-                                        <button class="btn btn-primary" type="submit">Tambah Item</button>
-                                    </div>
-                                </form>
-
-                                <div class="divider"></div>
-
-                                <table class="table">
-                                    <thead>
-                                        <tr>
-                                            <th>Item</th>
-                                            <th>Weight (gram)</th>
-                                            <th>Aksi</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @foreach ($tab->items as $ti)
-                                            <tr>
-                                                <td>{{ $ti->item?->name }}</td>
-                                                <td>{{ number_format($ti->weight_kg, 2) }}</td>
-                                                <td>
-                                                    <form method="POST" action="{{ route('tabs.items.destroy', $ti) }}" style="display: inline;">
-                                                        @csrf
-                                                        @method('DELETE')
-                                                        <button class="btn btn-danger" type="submit">Hapus</button>
-                                                    </form>
-                                                </td>
-                                            </tr>
-                                        @endforeach
-                                        @if ($tab->items->isEmpty())
-                                            <tr>
-                                                <td colspan="3" class="muted">Belum ada item.</td>
-                                            </tr>
-                                        @endif
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    @endforeach
-                    @if ($production->tabs->isEmpty())
-                        <div class="muted">Belum ada TAB.</div>
-                    @endif
-                </div>
+        <div class="panel-body">
+            <div class="inline" style="gap: 16px;">
+                <label class="inline" style="align-items: center; gap: 6px; cursor: pointer;">
+                    <input type="radio" name="input-mode" value="golongan" checked data-mode-toggle>
+                    Golongan
+                </label>
+                <label class="inline" style="align-items: center; gap: 6px; cursor: pointer;">
+                    <input type="radio" name="input-mode" value="tab" data-mode-toggle>
+                    Tab (Split Batch)
+                </label>
             </div>
         </div>
     </div>
+
+    <div id="mode-golongan" class="panel">
+        <div class="panel-header">
+            <h2>Golongan</h2>
+            <span class="chip">Sisa untuk Tab: {{ number_format($tabAvailableKg, 2) }} kg</span>
+        </div>
+        <div class="panel-body">
+            <form method="POST" action="{{ route('productions.groups.store', $production) }}">
+                @csrf
+                <div class="inline">
+                    <div class="field w-280">
+                        <div class="label">Nama Golongan</div>
+                        <input type="text" name="name" placeholder="Golongan 1">
+                    </div>
+                    <button class="btn btn-primary" type="submit">Tambah</button>
+                </div>
+            </form>
+
+            <div class="divider"></div>
+
+            <div class="stack">
+                @foreach ($production->groups as $group)
+                    <div class="panel">
+                        <div class="panel-header">
+                            <h2>{{ $group->name }}</h2>
+                            <form method="POST" action="{{ route('groups.destroy', $group) }}" style="display: inline;">
+                                @csrf
+                                @method('DELETE')
+                                <button class="btn btn-danger" type="submit">Hapus</button>
+                            </form>
+                        </div>
+                        <div class="panel-body">
+                            <form method="POST" action="{{ route('groups.items.store', $group) }}" class="group-item-form">
+                                @csrf
+                                <div class="inline">
+                                    <div class="field w-280">
+                                        <div class="label">Item</div>
+                                        <select name="item_id" class="item-select">
+                                            @foreach ($items as $item)
+                                                <option value="{{ $item->id }}">{{ $item->name }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                    <div class="field w-220">
+                                        <div class="label">Weight (kg)</div>
+                                        <input type="number" step="0.0001" name="weight_value" class="weight-input" placeholder="1">
+                                    </div>
+                                    <div class="field w-160">
+                                        <div class="label">Unit</div>
+                                        <select name="weight_unit_id">
+                                            @foreach ($units as $unit)
+                                                <option value="{{ $unit->id }}">{{ $unit->name }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                    <div class="field" style="align-self: flex-end;">
+                                        <label class="inline" style="align-items: center; gap: 4px; cursor: pointer;">
+                                            <input type="checkbox" class="dosis-toggle" data-group-id="{{ $group->id }}">
+                                            Dosis
+                                        </label>
+                                    </div>
+                                    <button class="btn btn-primary" type="submit" style="align-self: flex-end;">Tambah</button>
+                                </div>
+                            </form>
+
+                            <div class="divider"></div>
+
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Item</th>
+                                        <th>Weight (kg)</th>
+                                        <th>Dosis</th>
+                                        <th>Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach ($group->items as $gi)
+                                        <tr>
+                                            <td>{{ $gi->item?->name }}</td>
+                                            <td>{{ number_format($gi->weight_kg, 2) }}</td>
+                                            <td>{!! $gi->is_dosis ? '<span class="chip">Dosis</span>' : '<span class="muted">Non</span>' !!}</td>
+                                            <td>
+                                                <form method="POST" action="{{ route('groups.items.destroy', $gi) }}" style="display: inline;">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button class="btn btn-danger" type="submit">Hapus</button>
+                                                </form>
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                    @if ($group->items->isEmpty())
+                                        <tr>
+                                            <td colspan="4" class="muted">Belum ada item.</td>
+                                        </tr>
+                                    @endif
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                @endforeach
+                @if ($production->groups->isEmpty())
+                    <div class="muted">Belum ada golongan.</div>
+                @endif
+            </div>
+        </div>
+    </div>
+
+    <div id="mode-tab" class="panel" style="display: none;">
+        <div class="panel-header">
+            <h2>Tab (Split Batch)</h2>
+        </div>
+        <div class="panel-body">
+            <form method="POST" action="{{ route('productions.tabs.store', $production) }}">
+                @csrf
+                <div class="inline">
+                    <div class="field w-220">
+                        <div class="label">Nama Tab</div>
+                        <input type="text" name="name" placeholder="Tab 1">
+                    </div>
+                    <div class="field w-220">
+                        <div class="label">Ambil Berapa (kg)</div>
+                        <input type="number" step="0.0001" name="input_weight_value" placeholder="1">
+                    </div>
+                    <div class="field w-160">
+                        <div class="label">Unit</div>
+                        <select name="input_weight_unit_id">
+                            @foreach ($units as $unit)
+                                <option value="{{ $unit->id }}">{{ $unit->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <button class="btn btn-primary" type="submit">Buat Tab</button>
+                </div>
+            </form>
+
+            <div class="divider"></div>
+
+            @if ($production->tabs->isNotEmpty())
+                @php $cumulativeUsed = 0; @endphp
+                <div class="card" style="margin-bottom: 12px;">
+                    <div class="inline" style="gap: 24px;">
+                        <div><strong>Split Batch:</strong></div>
+                        @foreach ($production->tabs as $tab)
+                            @php $cumulativeUsed += (float) $tab->input_weight_kg; @endphp
+                            <div>
+                                <span class="chip">{{ $tab->name }}: {{ number_format($tab->input_weight_kg, 2) }} kg</span>
+                                <span class="chip">Sisa: {{ number_format($tab->remaining_weight_kg, 2) }} kg</span>
+                            </div>
+                        @endforeach
+                        <div><span class="chip">Total Ambil: {{ number_format($cumulativeUsed, 2) }} kg</span></div>
+                        <div><span class="chip">Sisa Global: {{ number_format($tabAvailableKg, 2) }} kg</span></div>
+                    </div>
+                </div>
+            @endif
+
+            <div class="stack">
+                @foreach ($production->tabs as $tab)
+                    <div class="panel">
+                        <div class="panel-header">
+                            <h2>{{ $tab->name }}</h2>
+                            <span class="chip">Ambil: {{ number_format($tab->input_weight_kg, 2) }} kg</span>
+                            <span class="chip">Sisa: {{ number_format($tab->remaining_weight_kg, 2) }} kg</span>
+                            <form method="POST" action="{{ route('tabs.destroy', $tab) }}" style="display: inline;">
+                                @csrf
+                                @method('DELETE')
+                                <button class="btn btn-danger" type="submit">Hapus</button>
+                            </form>
+                        </div>
+                        <div class="panel-body">
+                            <form method="POST" action="{{ route('tabs.items.store', $tab) }}" class="tab-item-form">
+                                @csrf
+                                <div class="inline">
+                                    <div class="field w-280">
+                                        <div class="label">Item</div>
+                                        <select name="item_id" class="item-select">
+                                            @foreach ($items as $item)
+                                                <option value="{{ $item->id }}">{{ $item->name }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                    <div class="field w-220">
+                                        <div class="label">Weight (kg)</div>
+                                        <input type="number" step="0.0001" name="weight_value" class="weight-input" placeholder="1">
+                                    </div>
+                                    <div class="field w-160">
+                                        <div class="label">Unit</div>
+                                        <select name="weight_unit_id">
+                                            @foreach ($units as $unit)
+                                                <option value="{{ $unit->id }}">{{ $unit->name }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                    <div class="field" style="align-self: flex-end;">
+                                        <label class="inline" style="align-items: center; gap: 4px; cursor: pointer;">
+                                            <input type="checkbox" class="dosis-toggle" data-tab-id="{{ $tab->id }}">
+                                            Dosis
+                                        </label>
+                                    </div>
+                                    <button class="btn btn-primary" type="submit" style="align-self: flex-end;">Tambah</button>
+                                </div>
+                            </form>
+
+                            <div class="divider"></div>
+
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Item</th>
+                                        <th>Weight (kg)</th>
+                                        <th>Dosis</th>
+                                        <th>Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach ($tab->items as $ti)
+                                        <tr>
+                                            <td>{{ $ti->item?->name }}</td>
+                                            <td>{{ number_format($ti->weight_kg, 2) }}</td>
+                                            <td>{!! $ti->is_dosis ? '<span class="chip">Dosis</span>' : '<span class="muted">Non</span>' !!}</td>
+                                            <td>
+                                                <form method="POST" action="{{ route('tabs.items.destroy', $ti) }}" style="display: inline;">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button class="btn btn-danger" type="submit">Hapus</button>
+                                                </form>
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                    @if ($tab->items->isEmpty())
+                                        <tr>
+                                            <td colspan="4" class="muted">Belum ada item.</td>
+                                        </tr>
+                                    @endif
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                @endforeach
+                @if ($production->tabs->isEmpty())
+                    <div class="muted">Belum ada Tab.</div>
+                @endif
+            </div>
+        </div>
+    </div>
+
+    <div id="dosis-modal" class="modal-overlay" style="display: none;">
+        <div class="modal" style="max-width: 500px;">
+            <div class="modal-header">
+                <h3>Kalkulator Dosis</h3>
+                <button type="button" class="btn" id="dosis-close">Tutup</button>
+            </div>
+            <div class="modal-body">
+                <div class="card" style="background: #f9f9f9;">
+                    <div class="grid-2">
+                        <div class="field">
+                            <div class="label">Item</div>
+                            <input type="text" id="dosis-item-name" readonly>
+                        </div>
+                        <div class="field">
+                            <div class="label">Target Produksi</div>
+                            <input type="text" id="dosis-target" readonly value="{{ number_format($production->target_weight_kg, 2) }} kg">
+                        </div>
+                    </div>
+                    <div class="divider"></div>
+                    <div class="grid-2">
+                        <div class="field">
+                            <div class="label">Berat Dosis</div>
+                            <input type="number" step="0.0001" id="dosis-weight" placeholder="1">
+                        </div>
+                        <div class="field">
+                            <div class="label">Satuan</div>
+                            <select id="dosis-unit">
+                                <option value="kg">kg</option>
+                                <option value="gram">gram</option>
+                                <option value="mg">mg</option>
+                            </select>
+                        </div>
+                        <div class="field">
+                            <div class="label">Per</div>
+                            <input type="number" step="0.0001" id="dosis-per" placeholder="1" value="1">
+                        </div>
+                        <div class="field">
+                            <div class="label">Satuan Per</div>
+                            <select id="dosis-per-unit">
+                                <option value="kg">kg</option>
+                                <option value="gram">gram</option>
+                                <option value="mg">mg</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="divider"></div>
+                    <div class="card" style="background: #e8f5e9; text-align: center;">
+                        <div class="muted">Hasil Perhitungan:</div>
+                        <strong style="font-size: 24px;" id="dosis-result">0 kg</strong>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn" id="dosis-close-btn">Batal</button>
+                <button class="btn btn-primary" id="dosis-pakai">Pakai Hasil</button>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 1000; display: flex; align-items: center; justify-content: center; }
+        .modal { background: #fff; border-radius: 8px; width: 100%; box-shadow: 0 8px 32px rgba(0,0,0,0.2); }
+        .modal-header, .modal-footer { padding: 16px 20px; display: flex; align-items: center; justify-content: space-between; }
+        .modal-body { padding: 0 20px 16px; }
+        .modal-footer { border-top: 1px solid #eee; gap: 8px; justify-content: flex-end; }
+    </style>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const modeRadios = document.querySelectorAll('[data-mode-toggle]');
+        const panelGol = document.getElementById('mode-golongan');
+        const panelTab = document.getElementById('mode-tab');
+
+        modeRadios.forEach(function (radio) {
+            radio.addEventListener('change', function () {
+                if (this.value === 'golongan') {
+                    panelGol.style.display = '';
+                    panelTab.style.display = 'none';
+                } else {
+                    panelGol.style.display = 'none';
+                    panelTab.style.display = '';
+                }
+            });
+        });
+
+        const dosisModal = document.getElementById('dosis-modal');
+        const dosisItemName = document.getElementById('dosis-item-name');
+        const dosisWeight = document.getElementById('dosis-weight');
+        const dosisUnit = document.getElementById('dosis-unit');
+        const dosisPer = document.getElementById('dosis-per');
+        const dosisPerUnit = document.getElementById('dosis-per-unit');
+        const dosisResult = document.getElementById('dosis-result');
+        const dosisTarget = document.getElementById('dosis-target');
+        let activeForm = null;
+        let activeItemSelect = null;
+        let isTabContext = false;
+        let contextId = null;
+
+        document.querySelectorAll('.dosis-toggle').forEach(function (cb) {
+            cb.addEventListener('change', function () {
+                if (this.checked) {
+                    const form = this.closest('form');
+                    activeForm = form;
+                    const itemSelect = form.querySelector('.item-select');
+                    const weightInput = form.querySelector('.weight-input');
+                    activeItemSelect = itemSelect;
+
+                    const selectedOption = itemSelect.options[itemSelect.selectedIndex];
+                    dosisItemName.value = selectedOption ? selectedOption.text : '';
+
+                    const groupId = this.dataset.groupId;
+                    const tabId = this.dataset.tabId;
+                    isTabContext = !!tabId;
+                    contextId = groupId || tabId;
+
+                    weightInput.disabled = true;
+                    weightInput.style.opacity = '0.5';
+
+                    dosisWeight.value = '';
+                    dosisPer.value = '1';
+                    dosisResult.textContent = '0 kg';
+                    dosisModal.style.display = 'flex';
+                } else {
+                    const form = this.closest('form');
+                    const weightInput = form.querySelector('.weight-input');
+                    weightInput.disabled = false;
+                    weightInput.style.opacity = '1';
+                }
+            });
+        });
+
+        function calculateDosis() {
+            const weight = parseFloat(dosisWeight.value) || 0;
+            const per = parseFloat(dosisPer.value) || 1;
+            let weightKg = weight;
+            let perKg = per;
+
+            if (dosisUnit.value === 'gram') weightKg = weight / 1000;
+            else if (dosisUnit.value === 'mg') weightKg = weight / 1000000;
+
+            if (dosisPerUnit.value === 'gram') perKg = per / 1000;
+            else if (dosisPerUnit.value === 'mg') perKg = per / 1000000;
+
+            let targetKg = {{ $production->target_weight_kg }};
+            if (isTabContext) {
+                const tabItems = document.querySelectorAll('[data-tab-id="' + contextId + '"]');
+                if (tabItems.length > 0) {
+                    const tabPanel = tabItems[0].closest('.panel');
+                    const chipSpans = tabPanel.querySelectorAll('.chip');
+                    chipSpans.forEach(function (chip) {
+                        const text = chip.textContent;
+                        const match = text.match(/Ambil:\s*([\d,.]+)/);
+                        if (match) {
+                            targetKg = parseFloat(match[1].replace(/,/g, '')) || targetKg;
+                        }
+                    });
+                }
+            }
+
+            if (perKg > 0 && weightKg > 0) {
+                const result = (weightKg / perKg) * targetKg;
+                dosisResult.textContent = result.toFixed(4) + ' kg';
+            } else {
+                dosisResult.textContent = '0 kg';
+            }
+        }
+
+        dosisWeight.addEventListener('input', calculateDosis);
+        dosisUnit.addEventListener('change', calculateDosis);
+        dosisPer.addEventListener('input', calculateDosis);
+        dosisPerUnit.addEventListener('change', calculateDosis);
+
+        document.getElementById('dosis-pakai').addEventListener('click', function () {
+            const resultText = dosisResult.textContent;
+            const resultKg = parseFloat(resultText) || 0;
+            if (activeForm) {
+                const weightInput = activeForm.querySelector('.weight-input');
+                weightInput.value = resultKg.toFixed(4);
+                weightInput.disabled = false;
+                weightInput.style.opacity = '1';
+            }
+            dosisModal.style.display = 'none';
+            if (activeForm) {
+                const toggle = activeForm.querySelector('.dosis-toggle');
+                if (toggle) toggle.checked = false;
+            }
+        });
+
+        function closeDosis() {
+            dosisModal.style.display = 'none';
+            if (activeForm) {
+                const weightInput = activeForm.querySelector('.weight-input');
+                weightInput.disabled = false;
+                weightInput.style.opacity = '1';
+                const toggle = activeForm.querySelector('.dosis-toggle');
+                if (toggle) toggle.checked = false;
+            }
+        }
+
+        document.getElementById('dosis-close').addEventListener('click', closeDosis);
+        document.getElementById('dosis-close-btn').addEventListener('click', closeDosis);
+        dosisModal.addEventListener('click', function (e) { if (e.target === this) closeDosis(); });
+
+        document.querySelectorAll('.item-select').forEach(function (sel) {
+            sel.addEventListener('change', function () {
+                const form = this.closest('form');
+                const toggle = form.querySelector('.dosis-toggle');
+                if (toggle && toggle.checked) {
+                    const selectedOption = this.options[this.selectedIndex];
+                    dosisItemName.value = selectedOption ? selectedOption.text : '';
+                }
+            });
+        });
+    });
+    </script>
 </x-layouts.dashboard>
