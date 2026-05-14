@@ -99,7 +99,9 @@
             </form>
         </div>
     </div>
+</x-layouts.dashboard>
 
+@push('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     const typeSelect = document.getElementById('production-type');
@@ -140,4 +142,4 @@ document.addEventListener('DOMContentLoaded', function () {
     showConceptPreview(conceptSelect.value);
 });
 </script>
-</x-layouts.dashboard>
+@endpush

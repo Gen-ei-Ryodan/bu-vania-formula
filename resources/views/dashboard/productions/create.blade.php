@@ -88,6 +88,16 @@
                     </div>
                 </div>
 
+                <div class="divider"></div>
+                <div class="actions">
+                    <button class="btn btn-primary" type="submit">Simpan Production</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</x-layouts.dashboard>
+
+@push('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     const typeSelect = document.getElementById('production-type');
@@ -128,12 +138,4 @@ document.addEventListener('DOMContentLoaded', function () {
     showConceptPreview(conceptSelect.value);
 });
 </script>
-
-                <div class="divider"></div>
-                <div class="actions">
-                    <button class="btn btn-primary" type="submit">Simpan Production</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</x-layouts.dashboard>
+@endpush
