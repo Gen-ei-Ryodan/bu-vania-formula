@@ -419,20 +419,25 @@
 
     <script>
     document.addEventListener('DOMContentLoaded', function () {
-        const modeRadios = document.querySelectorAll('[data-mode-toggle]');
-        const panelGol = document.getElementById('mode-golongan');
-        const panelTab = document.getElementById('mode-tab');
+        function switchMode(mode) {
+            const panelGol = document.getElementById('mode-golongan');
+            const panelTab = document.getElementById('mode-tab');
+            if (mode === 'golongan') {
+                panelGol.style.display = '';
+                panelTab.style.display = 'none';
+            } else {
+                panelGol.style.display = 'none';
+                panelTab.style.display = '';
+            }
+        }
 
-        modeRadios.forEach(function (radio) {
-            radio.addEventListener('change', function () {
-                if (this.value === 'golongan') {
-                    panelGol.style.display = '';
-                    panelTab.style.display = 'none';
-                } else {
-                    panelGol.style.display = 'none';
-                    panelTab.style.display = '';
-                }
+        document.querySelectorAll('[data-mode-toggle]').forEach(function (radio) {
+            radio.addEventListener('click', function () {
+                switchMode(this.value);
             });
+            if (radio.checked) {
+                switchMode(radio.value);
+            }
         });
 
         const dosisModal = document.getElementById('dosis-modal');
@@ -448,35 +453,46 @@
         let isTabContext = false;
         let contextId = null;
 
+        function openDosisModal(form, toggleCb) {
+            activeForm = form;
+            const itemSelect = form.querySelector('.item-select');
+            const weightInput = form.querySelector('.weight-input');
+            activeItemSelect = itemSelect;
+
+            const selectedOption = itemSelect.options[itemSelect.selectedIndex];
+            dosisItemName.value = selectedOption ? selectedOption.text : '';
+
+            const groupId = toggleCb.dataset.groupId;
+            const tabId = toggleCb.dataset.tabId;
+            isTabContext = !!tabId;
+            contextId = groupId || tabId;
+
+            weightInput.disabled = true;
+            weightInput.style.opacity = '0.5';
+
+            dosisWeight.value = '';
+            dosisPer.value = '1';
+            dosisResult.textContent = '0 kg';
+            dosisModal.style.display = 'flex';
+        }
+
+        function closeDosis() {
+            dosisModal.style.display = 'none';
+            if (activeForm) {
+                const weightInput = activeForm.querySelector('.weight-input');
+                weightInput.disabled = false;
+                weightInput.style.opacity = '1';
+                const toggle = activeForm.querySelector('.dosis-toggle');
+                if (toggle) toggle.checked = false;
+            }
+        }
+
         document.querySelectorAll('.dosis-toggle').forEach(function (cb) {
-            cb.addEventListener('change', function () {
+            cb.addEventListener('click', function (e) {
                 if (this.checked) {
+                    e.preventDefault();
                     const form = this.closest('form');
-                    activeForm = form;
-                    const itemSelect = form.querySelector('.item-select');
-                    const weightInput = form.querySelector('.weight-input');
-                    activeItemSelect = itemSelect;
-
-                    const selectedOption = itemSelect.options[itemSelect.selectedIndex];
-                    dosisItemName.value = selectedOption ? selectedOption.text : '';
-
-                    const groupId = this.dataset.groupId;
-                    const tabId = this.dataset.tabId;
-                    isTabContext = !!tabId;
-                    contextId = groupId || tabId;
-
-                    weightInput.disabled = true;
-                    weightInput.style.opacity = '0.5';
-
-                    dosisWeight.value = '';
-                    dosisPer.value = '1';
-                    dosisResult.textContent = '0 kg';
-                    dosisModal.style.display = 'flex';
-                } else {
-                    const form = this.closest('form');
-                    const weightInput = form.querySelector('.weight-input');
-                    weightInput.disabled = false;
-                    weightInput.style.opacity = '1';
+                    openDosisModal(form, this);
                 }
             });
         });
@@ -528,26 +544,9 @@
             if (activeForm) {
                 const weightInput = activeForm.querySelector('.weight-input');
                 weightInput.value = resultKg.toFixed(4);
-                weightInput.disabled = false;
-                weightInput.style.opacity = '1';
             }
-            dosisModal.style.display = 'none';
-            if (activeForm) {
-                const toggle = activeForm.querySelector('.dosis-toggle');
-                if (toggle) toggle.checked = false;
-            }
+            closeDosis();
         });
-
-        function closeDosis() {
-            dosisModal.style.display = 'none';
-            if (activeForm) {
-                const weightInput = activeForm.querySelector('.weight-input');
-                weightInput.disabled = false;
-                weightInput.style.opacity = '1';
-                const toggle = activeForm.querySelector('.dosis-toggle');
-                if (toggle) toggle.checked = false;
-            }
-        }
 
         document.getElementById('dosis-close').addEventListener('click', closeDosis);
         document.getElementById('dosis-close-btn').addEventListener('click', closeDosis);
