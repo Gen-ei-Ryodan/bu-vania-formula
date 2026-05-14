@@ -431,9 +431,56 @@
             }
         }
 
+        // track current mode to enable confirm on switch
+        let currentMode = document.querySelector('[data-mode-toggle]:checked') ? document.querySelector('[data-mode-toggle]:checked').value : 'golongan';
+
+        function panelHasUnsavedInputs(mode) {
+            const panel = (mode === 'golongan') ? document.getElementById('mode-golongan') : document.getElementById('mode-tab');
+            if (!panel) return false;
+            // look for any weight inputs with values or any text inputs inside the panel
+            const inputs = panel.querySelectorAll('input[type="number"], input[type="text"], textarea, select');
+            for (let i = 0; i < inputs.length; i++) {
+                const el = inputs[i];
+                if (el.type === 'number' || el.type === 'text' || el.tagName.toLowerCase() === 'textarea') {
+                    if (el.value && el.value.toString().trim() !== '') return true;
+                } else if (el.tagName.toLowerCase() === 'select') {
+                    if (el.selectedIndex > 0) return true;
+                }
+            }
+            return false;
+        }
+
         document.querySelectorAll('[data-mode-toggle]').forEach(function (radio) {
-            radio.addEventListener('click', function () {
-                switchMode(this.value);
+            radio.addEventListener('click', function (e) {
+                const newMode = this.value;
+                if (newMode === currentMode) return; // nothing to do
+
+                // if current panel has data, ask confirmation
+                if (panelHasUnsavedInputs(currentMode)) {
+                    const ok = confirm('Anda sudah mengisi beberapa data. Mengganti mode akan menghapus input yang belum disimpan. Lanjutkan?');
+                    if (!ok) {
+                        // revert radio selection
+                        e.preventDefault();
+                        // re-check previous radio
+                        document.querySelectorAll('[data-mode-toggle]').forEach(function (r) { r.checked = (r.value === currentMode); });
+                        return;
+                    } else {
+                        // clear inputs in current panel
+                        const panel = (currentMode === 'golongan') ? document.getElementById('mode-golongan') : document.getElementById('mode-tab');
+                        if (panel) {
+                            const inputsToClear = panel.querySelectorAll('input[type="number"], input[type="text"], textarea');
+                            inputsToClear.forEach(function (inp) { inp.value = ''; });
+                            const selects = panel.querySelectorAll('select');
+                            selects.forEach(function (s) { s.selectedIndex = 0; });
+                            const checkboxes = panel.querySelectorAll('input[type="checkbox"]');
+                            checkboxes.forEach(function (c) { c.checked = false; });
+                        }
+                    }
+                }
+
+                // perform switch
+                switchMode(newMode);
+                currentMode = newMode;
             });
             if (radio.checked) {
                 switchMode(radio.value);
@@ -452,9 +499,11 @@
         let activeItemSelect = null;
         let isTabContext = false;
         let contextId = null;
+        let pendingDosisToggle = null; // checkbox that triggered modal, not yet applied
 
         function openDosisModal(form, toggleCb) {
             activeForm = form;
+            pendingDosisToggle = toggleCb;
             const itemSelect = form.querySelector('.item-select');
             const weightInput = form.querySelector('.weight-input');
             activeItemSelect = itemSelect;
@@ -462,13 +511,15 @@
             const selectedOption = itemSelect.options[itemSelect.selectedIndex];
             dosisItemName.value = selectedOption ? selectedOption.text : '';
 
-            const groupId = toggleCb.dataset.groupId;
-            const tabId = toggleCb.dataset.tabId;
+            const groupId = toggleCb ? toggleCb.dataset.groupId : null;
+            const tabId = toggleCb ? toggleCb.dataset.tabId : null;
             isTabContext = !!tabId;
             contextId = groupId || tabId;
 
-            weightInput.disabled = true;
-            weightInput.style.opacity = '0.5';
+            if (weightInput) {
+                weightInput.disabled = true;
+                weightInput.style.opacity = '0.5';
+            }
 
             dosisWeight.value = '';
             dosisPer.value = '1';
@@ -476,24 +527,25 @@
             dosisModal.style.display = 'flex';
         }
 
-        function closeDosis() {
+        function closeDosis(keepChecked = false) {
             dosisModal.style.display = 'none';
             if (activeForm) {
                 const weightInput = activeForm.querySelector('.weight-input');
-                weightInput.disabled = false;
-                weightInput.style.opacity = '1';
-                const toggle = activeForm.querySelector('.dosis-toggle');
-                if (toggle) toggle.checked = false;
+                if (weightInput) {
+                    weightInput.disabled = false;
+                    weightInput.style.opacity = '1';
+                }
+                if (pendingDosisToggle && !keepChecked) pendingDosisToggle.checked = false;
+                pendingDosisToggle = null;
             }
+            activeForm = null;
         }
 
         document.querySelectorAll('.dosis-toggle').forEach(function (cb) {
             cb.addEventListener('click', function (e) {
-                if (this.checked) {
-                    e.preventDefault();
-                    const form = this.closest('form');
-                    openDosisModal(form, this);
-                }
+                e.preventDefault();
+                const form = this.closest('form');
+                openDosisModal(form, this);
             });
         });
 
@@ -510,10 +562,9 @@
             else if (dosisPerUnit.value === 'mg') perKg = per / 1000000;
 
             let targetKg = {{ $production->target_weight_kg }};
-            if (isTabContext) {
-                const tabItems = document.querySelectorAll('[data-tab-id="' + contextId + '"]');
-                if (tabItems.length > 0) {
-                    const tabPanel = tabItems[0].closest('.panel');
+            if (isTabContext && contextId) {
+                const tabPanel = document.querySelector('[data-tab-id="' + contextId + '"]') ? document.querySelector('[data-tab-id="' + contextId + '"]') .closest('.panel') : null;
+                if (tabPanel) {
                     const chipSpans = tabPanel.querySelectorAll('.chip');
                     chipSpans.forEach(function (chip) {
                         const text = chip.textContent;
@@ -543,21 +594,24 @@
             const resultKg = parseFloat(resultText) || 0;
             if (activeForm) {
                 const weightInput = activeForm.querySelector('.weight-input');
-                weightInput.value = resultKg.toFixed(4);
+                if (weightInput) {
+                    weightInput.value = resultKg.toFixed(4);
+                }
+                // mark the checkbox as applied
+                if (pendingDosisToggle) pendingDosisToggle.checked = true;
             }
-            closeDosis();
+            closeDosis(true);
         });
 
-        document.getElementById('dosis-close').addEventListener('click', closeDosis);
-        document.getElementById('dosis-close-btn').addEventListener('click', closeDosis);
-        dosisModal.addEventListener('click', function (e) { if (e.target === this) closeDosis(); });
+        document.getElementById('dosis-close').addEventListener('click', function () { closeDosis(false); });
+        document.getElementById('dosis-close-btn').addEventListener('click', function () { closeDosis(false); });
+        dosisModal.addEventListener('click', function (e) { if (e.target === this) closeDosis(false); });
 
         document.querySelectorAll('.item-select').forEach(function (sel) {
             sel.addEventListener('change', function () {
                 const form = this.closest('form');
-                const toggle = form.querySelector('.dosis-toggle');
-                if (toggle && toggle.checked) {
-                    const selectedOption = this.options[this.selectedIndex];
+                const selectedOption = this.options[this.selectedIndex];
+                if (dosisModal.style.display !== 'none') {
                     dosisItemName.value = selectedOption ? selectedOption.text : '';
                 }
             });
