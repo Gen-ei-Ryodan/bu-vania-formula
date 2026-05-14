@@ -97,15 +97,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const conceptSelect = document.getElementById('concept-select');
     const conceptPreview = document.getElementById('concept-preview');
 
-    const concepts = @json($concepts->keyBy('id')->map(fn($c) => [
-        'name' => $c->name,
-        'base_weight_kg' => $c->base_weight_kg,
-        'items' => $c->items->map(fn($i) => [
-            'item' => $i->item?->name,
-            'weight_kg' => $i->weight_kg,
-            'percentage' => $i->percentage,
-        ]),
-    ]));
+    const concepts = @json($conceptsData);
 
     function showConceptPreview(id) {
         const data = concepts[id];

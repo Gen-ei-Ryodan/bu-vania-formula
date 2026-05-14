@@ -29,8 +29,26 @@ class ProductionController extends Controller
 
     public function create()
     {
+        $concepts = Concept::query()->with('items.item')->orderBy('name')->get();
+        $conceptsData = [];
+        foreach ($concepts as $c) {
+            $items = [];
+            foreach ($c->items as $i) {
+                $items[] = [
+                    'item' => $i->item?->name,
+                    'weight_kg' => $i->weight_kg,
+                    'percentage' => $i->percentage,
+                ];
+            }
+            $conceptsData[$c->id] = [
+                'name' => $c->name,
+                'base_weight_kg' => $c->base_weight_kg,
+                'items' => $items,
+            ];
+        }
         return view('dashboard.productions.create', [
-            'concepts' => Concept::query()->with('items.item')->orderBy('name')->get(),
+            'concepts' => $concepts,
+            'conceptsData' => $conceptsData,
             'units' => Unit::query()->orderBy('name')->get(),
         ]);
     }
