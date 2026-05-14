@@ -13,7 +13,7 @@ Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard
 
 Route::resource('/units', UnitController::class)->except(['show']);
 Route::resource('/items', ItemController::class)->except(['show']);
-Route::resource('/concepts', ConceptController::class)->only(['index', 'create', 'store', 'show']);
+Route::resource('/concepts', ConceptController::class)->only(['index', 'create', 'store', 'show', 'edit', 'update']);
 Route::resource('/productions', ProductionController::class)->only(['index', 'create', 'store', 'show', 'destroy']);
 
 Route::post('/productions/{production}/generate', [ProductionController::class, 'generate'])->name('productions.generate');

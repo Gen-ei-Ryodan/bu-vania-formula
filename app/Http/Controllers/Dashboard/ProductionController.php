@@ -59,7 +59,8 @@ class ProductionController extends Controller
 
         $production = Production::query()->create([
             'name' => $validated['name'],
-            'seed_name' => $validated['seed_name'],
+            'location' => $validated['location'] ?? null,
+            'cage' => $validated['cage'] ?? null,
             'production_type' => $validated['production_type'],
             'treatment_day' => $validated['treatment_day'] ?? null,
             'treatment_time' => $validated['treatment_time'] ?? null,

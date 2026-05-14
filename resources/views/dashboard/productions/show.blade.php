@@ -2,7 +2,12 @@
     <div class="grid-4">
         <div class="card">
             <div class="muted">Concept / Resep</div>
-            <strong style="font-size: 18px;">{{ $production->concept?->name }}</strong>
+            <div class="inline" style="align-items: center; gap: 8px;">
+                <strong style="font-size: 18px;">{{ $production->concept?->name }}</strong>
+                @if ($production->concept)
+                    <a class="btn" href="{{ route('concepts.edit', $production->concept) }}">Edit</a>
+                @endif
+            </div>
         </div>
         <div class="card">
             <div class="muted">Jenis</div>
