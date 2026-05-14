@@ -28,6 +28,7 @@
                             <td>{{ $production->is_forever ? 'Selamanya' : $production->duration_days.' hari' }}</td>
                             <td>
                                 <a class="btn" href="{{ route('productions.show', $production) }}">Detail</a>
+                                <a class="btn" href="{{ route('productions.edit', $production) }}">Edit</a>
                                 <a class="btn" href="{{ route('productions.pdf', $production) }}">PDF</a>
                                 <form method="POST" action="{{ route('productions.destroy', $production) }}" style="display: inline;">
                                     @csrf

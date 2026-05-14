@@ -144,6 +144,13 @@ class ConceptController extends Controller
         ]);
     }
 
+    public function destroy(Concept $concept)
+    {
+        $concept->delete();
+
+        return redirect()->route('concepts.index')->with('ok', 'Concept dihapus.');
+    }
+
     public function edit(Concept $concept)
     {
         $concept->load(['items.item']);

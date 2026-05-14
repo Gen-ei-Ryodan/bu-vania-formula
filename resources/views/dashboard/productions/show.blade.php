@@ -30,6 +30,7 @@
         <div class="panel-header">
             <h2>Header Production</h2>
             <div class="actions">
+                <a class="btn" href="{{ route('productions.edit', $production) }}">Edit</a>
                 <a class="btn" href="{{ route('productions.pdf', $production) }}">PDF</a>
                 <a class="btn" href="{{ route('productions.index') }}">Kembali</a>
                 <form method="POST" action="{{ route('productions.destroy', $production) }}" style="display: inline;">

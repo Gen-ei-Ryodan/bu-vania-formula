@@ -13,8 +13,8 @@ Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard
 
 Route::resource('/units', UnitController::class)->except(['show']);
 Route::resource('/items', ItemController::class)->except(['show']);
-Route::resource('/concepts', ConceptController::class)->only(['index', 'create', 'store', 'show', 'edit', 'update']);
-Route::resource('/productions', ProductionController::class)->only(['index', 'create', 'store', 'show', 'destroy']);
+Route::resource('/concepts', ConceptController::class)->only(['index', 'create', 'store', 'show', 'edit', 'update', 'destroy']);
+Route::resource('/productions', ProductionController::class)->only(['index', 'create', 'store', 'show', 'edit', 'update', 'destroy']);
 
 Route::post('/productions/{production}/generate', [ProductionController::class, 'generate'])->name('productions.generate');
 Route::get('/productions/{production}/pdf', [ProductionController::class, 'pdf'])->name('productions.pdf');

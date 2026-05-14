@@ -114,6 +114,74 @@ class ProductionController extends Controller
         ]);
     }
 
+    public function edit(Production $production)
+    {
+        $concepts = Concept::query()->with('items.item')->orderBy('name')->get();
+        $conceptsData = [];
+        foreach ($concepts as $c) {
+            $items = [];
+            foreach ($c->items as $i) {
+                $items[] = [
+                    'item' => $i->item?->name,
+                    'weight_kg' => $i->weight_kg,
+                    'percentage' => $i->percentage,
+                ];
+            }
+            $conceptsData[$c->id] = [
+                'name' => $c->name,
+                'base_weight_kg' => $c->base_weight_kg,
+                'items' => $items,
+            ];
+        }
+        return view('dashboard.productions.edit', [
+            'production' => $production,
+            'concepts' => $concepts,
+            'conceptsData' => $conceptsData,
+            'units' => Unit::query()->orderBy('name')->get(),
+        ]);
+    }
+
+    public function update(Request $request, Production $production)
+    {
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'location' => ['nullable', 'string', 'max:255'],
+            'cage' => ['nullable', 'string', 'max:255'],
+            'production_type' => ['required', 'in:biasa,pengobatan'],
+            'treatment_day' => ['nullable', 'integer', 'min:1'],
+            'treatment_time' => ['nullable', 'in:pagi,siang,malam,full'],
+            'concept_id' => ['required', 'integer', 'exists:concepts,id'],
+            'target_weight_value' => ['required', 'numeric', 'min:0.0001'],
+            'target_weight_unit_id' => ['required', 'integer', 'exists:units,id'],
+            'start_date' => ['nullable', 'date'],
+            'duration_days' => ['nullable', 'integer', 'min:1'],
+            'is_forever' => ['nullable', 'boolean'],
+            'mix_date' => ['nullable', 'date'],
+            'notes' => ['nullable', 'string'],
+        ]);
+
+        $unit = Unit::query()->findOrFail((int) $validated['target_weight_unit_id']);
+        $targetWeightKg = (float) $validated['target_weight_value'] * (float) $unit->conversion_to_kg;
+
+        $production->update([
+            'name' => $validated['name'],
+            'location' => $validated['location'] ?? null,
+            'cage' => $validated['cage'] ?? null,
+            'production_type' => $validated['production_type'],
+            'treatment_day' => $validated['treatment_day'] ?? null,
+            'treatment_time' => $validated['treatment_time'] ?? null,
+            'concept_id' => (int) $validated['concept_id'],
+            'target_weight_kg' => $targetWeightKg,
+            'start_date' => $validated['start_date'] ?? null,
+            'duration_days' => $validated['duration_days'] ?? null,
+            'is_forever' => $request->boolean('is_forever'),
+            'mix_date' => $validated['mix_date'] ?? null,
+            'notes' => $validated['notes'] ?? null,
+        ]);
+
+        return redirect()->route('productions.show', $production)->with('ok', 'Production diupdate.');
+    }
+
     public function generate(Production $production, ProductionSnapshotService $service)
     {
         $production->load('concept.items');

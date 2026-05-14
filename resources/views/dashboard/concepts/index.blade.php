@@ -10,7 +10,7 @@
                     <tr>
                         <th>ID</th>
                         <th>Nama</th>
-                        <th>Base Weight (gram)</th>
+                        <th>Base Weight (kg)</th>
                         <th>Aksi</th>
                     </tr>
                 </thead>
@@ -22,6 +22,12 @@
                             <td>{{ number_format($concept->base_weight_kg, 2) }}</td>
                             <td>
                                 <a class="btn" href="{{ route('concepts.show', $concept) }}">Detail</a>
+                                <a class="btn" href="{{ route('concepts.edit', $concept) }}">Edit</a>
+                                <form method="POST" action="{{ route('concepts.destroy', $concept) }}" style="display: inline;">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button class="btn btn-danger" type="submit">Hapus</button>
+                                </form>
                             </td>
                         </tr>
                     @endforeach

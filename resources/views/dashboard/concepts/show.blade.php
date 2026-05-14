@@ -2,7 +2,15 @@
     <div class="panel">
         <div class="panel-header">
             <h2>Detail Concept</h2>
-            <a class="btn" href="{{ route('concepts.index') }}">Kembali</a>
+            <div class="actions">
+                <a class="btn" href="{{ route('concepts.edit', $concept) }}">Edit</a>
+                <a class="btn" href="{{ route('concepts.index') }}">Kembali</a>
+                <form method="POST" action="{{ route('concepts.destroy', $concept) }}" style="display: inline;">
+                    @csrf
+                    @method('DELETE')
+                    <button class="btn btn-danger" type="submit">Hapus</button>
+                </form>
+            </div>
         </div>
         <div class="panel-body">
             <div class="grid-2">
@@ -22,7 +30,7 @@
                 <thead>
                     <tr>
                         <th>Item</th>
-                        <th>Weight (gram)</th>
+                        <th>Weight (kg)</th>
                         <th>Percentage</th>
                     </tr>
                 </thead>
