@@ -101,6 +101,7 @@ class DatabaseSeeder extends Seeder
                 'duration_days' => 30,
                 'is_forever' => false,
                 'notes' => 'Produksi reguler bulan April.',
+                'production_type' => 'biasa',
             ]);
 
             // Snapshot (auto-scaling dari Resep 1, target=500kg)
@@ -173,7 +174,10 @@ class DatabaseSeeder extends Seeder
                 'mix_date' => Carbon::parse('2025-05-01'),
                 'duration_days' => 14,
                 'is_forever' => false,
+                'treatment_day' => 3,
+                'treatment_time' => 'pagi',
                 'notes' => 'Produksi pengobatan dengan dosis khusus.',
+                'production_type' => 'treatment',
             ]);
 
             ProductionItem::query()->insert([
