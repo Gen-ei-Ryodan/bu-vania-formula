@@ -28,5 +28,13 @@ Thumbs.db
 /laravel/storage/framework/cache/data/*
 /laravel/storage/framework/sessions/*
 /laravel/storage/framework/views/*
+
+# ignore root-level generated dirs from other branches
+/bootstrap
+/storage
+/vendor
+/FORMULA
+/PROGRAM
+/VANIA
 /laravel/storage/logs/*.log
 /database/database.sqlite
