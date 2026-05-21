@@ -1,17 +1,17 @@
-<x-layouts.dashboard title="Edit Produksi" heading="Edit Produksi">
+<x-layouts.dashboard title="Edit Pengobatan" heading="Edit Pengobatan">
     <div class="panel">
         <div class="panel-header">
-            <h2>Form Produksi</h2>
-            <a class="btn" href="{{ route('productions.show', $production) }}">Kembali</a>
+            <h2>Form Pengobatan</h2>
+            <a class="btn" href="{{ route('treatments.show', $production) }}">Kembali</a>
         </div>
         <div class="panel-body">
-            <form method="POST" action="{{ route('productions.update', $production) }}">
+            <form method="POST" action="{{ route('treatments.update', $production) }}">
                 @csrf
                 @method('PUT')
                 <div class="grid-2">
                     <div class="field">
                         <div class="label">Nama</div>
-                        <input type="text" name="name" value="{{ old('name', $production->name) }}" placeholder="Produksi April">
+                        <input type="text" name="name" value="{{ old('name', $production->name) }}" placeholder="Pengobatan April">
                     </div>
                     <div class="field">
                         <div class="label">Tanggal Campur</div>
@@ -24,6 +24,20 @@
                     <div class="field">
                         <div class="label">Kandang</div>
                         <input type="text" name="cage" value="{{ old('cage', $production->cage) }}" placeholder="Kandang 1">
+                    </div>
+                    <div class="field">
+                        <div class="label">Hari Pengobatan Ke</div>
+                        <input type="number" name="treatment_day" value="{{ old('treatment_day', $production->treatment_day) }}" min="1" placeholder="1">
+                    </div>
+                    <div class="field">
+                        <div class="label">Waktu Pengobatan</div>
+                        <select name="treatment_time">
+                            <option value="">Pilih Waktu</option>
+                            <option value="pagi" @selected(old('treatment_time', $production->treatment_time) === 'pagi')>Pagi</option>
+                            <option value="siang" @selected(old('treatment_time', $production->treatment_time) === 'siang')>Siang</option>
+                            <option value="malam" @selected(old('treatment_time', $production->treatment_time) === 'malam')>Malam</option>
+                            <option value="full" @selected(old('treatment_time', $production->treatment_time) === 'full')>Full</option>
+                        </select>
                     </div>
                     <div class="field" style="grid-column: 1 / -1;">
                         <div class="label">Konsep (Resep Dasar)</div>
@@ -74,7 +88,7 @@
 
                 <div class="divider"></div>
                 <div class="actions">
-                    <button class="btn btn-primary" type="submit">Update Produksi</button>
+                    <button class="btn btn-primary" type="submit">Update Pengobatan</button>
                 </div>
             </form>
         </div>
