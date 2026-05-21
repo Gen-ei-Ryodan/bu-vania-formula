@@ -13,11 +13,11 @@
         </select>
     </div>
     <div class="field">
-        <div class="label">Default Unit</div>
+        <div class="label">Unit Default</div>
         <select name="default_unit_id">
             @php($u = (int) old('default_unit_id', $item->default_unit_id ?? 0))
             @foreach ($units as $unit)
-                <option value="{{ $unit->id }}" @selected($u === $unit->id)>{{ $unit->name }}</option>
+                <option value="{{ $unit->id }}" @selected((isset($u) && $u === $unit->id))>{{ $unit->name }}</option>
             @endforeach
         </select>
     </div>

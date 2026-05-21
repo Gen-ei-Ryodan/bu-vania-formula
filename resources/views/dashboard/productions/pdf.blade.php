@@ -2,7 +2,7 @@
 <html lang="id">
     <head>
         <meta charset="utf-8">
-        <title>Production {{ $production->id }}</title>
+        <title>Produksi {{ $production->id }}</title>
         <style>
             body { font-family: DejaVu Sans, sans-serif; font-size: 12px; }
             h1 { font-size: 18px; margin: 0 0 10px; }
@@ -15,26 +15,21 @@
         </style>
     </head>
     <body>
-        <h1>Production #{{ $production->id }} - {{ $production->name }}</h1>
+        <h1>Produksi #{{ $production->id }} - {{ $production->name }}</h1>
 
         <table class="meta">
             <tr>
-                <td><strong>Jenis:</strong> {{ ucfirst($production->production_type) }}</td>
-            </tr>
-            @if ($production->production_type === 'pengobatan')
-            <tr>
-                <td><strong>Pengobatan:</strong> Hari ke-{{ $production->treatment_day }} ({{ $production->treatment_time }})</td>
-            </tr>
-            @endif
-            <tr>
-                <td><strong>Concept:</strong> {{ $production->concept?->name }}</td>
+                <td><strong>Tgl Mulai:</strong> {{ $production->start_date?->format('d-m-Y') }}</td>
             </tr>
             <tr>
-                <td><strong>Target (kg):</strong> {{ number_format($production->target_weight_kg, 2) }}</td>
+                <td><strong>Konsep:</strong> {{ $production->concept?->name }}</td>
+            </tr>
+            <tr>
+                <td><strong>Target (kg):</strong> {{ formatWeight($production->target_weight_kg) }}</td>
             </tr>
             @if ($production->start_date)
                 <tr>
-                    <td><strong>Start Date:</strong> {{ $production->start_date?->format('d-m-Y') }}</td>
+                    <td><strong>Tgl Mulai:</strong> {{ $production->start_date?->format('d-m-Y') }}</td>
                 </tr>
             @endif
             @if ($production->mix_date)
@@ -47,25 +42,25 @@
             </tr>
             @if ($production->notes)
                 <tr>
-                    <td><strong>Notes:</strong> {{ $production->notes }}</td>
+                    <td><strong>Catatan:</strong> {{ $production->notes }}</td>
                 </tr>
             @endif
         </table>
 
-        <h2>Snapshot Production Items</h2>
+        <h2>Snapshot Item Produksi</h2>
         <table>
             <thead>
                 <tr>
                     <th>Item</th>
-                    <th style="width: 140px;">Weight (kg)</th>
-                    <th style="width: 120px;">Source</th>
+                    <th style="width: 140px;">Berat (kg)</th>
+                    <th style="width: 120px;">Sumber</th>
                 </tr>
             </thead>
             <tbody>
                 @foreach ($production->items as $row)
                     <tr>
                         <td>{{ $row->item?->name }}</td>
-                        <td>{{ number_format($row->weight_kg, 2) }}</td>
+                        <td>{{ formatWeight($row->weight_kg) }}</td>
                         <td>{{ $row->source }}</td>
                     </tr>
                 @endforeach
@@ -77,26 +72,33 @@
             </tbody>
         </table>
 
-        <h2>Golongan (Global Add-on)</h2>
+        <h2>Golongan (Add-on Global)</h2>
         @foreach ($production->groups as $group)
             <div><strong>{{ $group->name }}</strong></div>
             <table>
                 <thead>
                     <tr>
-                        <th>Item</th>
-                        <th style="width: 140px;">Weight (kg)</th>
+                        <th>Tambah Item</th>
+                        <th style="width: 120px;">Berat (kg)</th>
+                        <th style="width: 120px;">Dibuat</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach ($group->items as $gi)
+                        @php
+                            $displayW = $gi->weight_input_value && $gi->inputUnit
+                                ? formatWeight($gi->weight_input_value).' '.$gi->inputUnit->name
+                                : formatWeight($gi->weight_kg).' kg';
+                        @endphp
                         <tr>
                             <td>{{ $gi->item?->name }}</td>
-                            <td>{{ number_format($gi->weight_kg, 2) }}</td>
+                            <td>{{ $displayW }}</td>
+                            <td>{{ $gi->created_at?->format('d-m-Y H:i') ?? '-' }}</td>
                         </tr>
                     @endforeach
                     @if ($group->items->isEmpty())
                         <tr>
-                            <td colspan="2">Belum ada item.</td>
+                            <td colspan="3">Belum ada item.</td>
                         </tr>
                     @endif
                 </tbody>
@@ -110,25 +112,32 @@
         @foreach ($production->tabs as $tab)
             <div>
                 <strong>{{ $tab->name }}</strong>
-                (Ambil: {{ number_format($tab->input_weight_kg, 2) }} kg, Sisa: {{ number_format($tab->remaining_weight_kg, 2) }} kg)
+                (Ambil: {{ formatWeight($tab->input_weight_kg) }} kg, Sisa: {{ formatWeight($tab->remaining_weight_kg) }} kg)
             </div>
             <table>
                 <thead>
                     <tr>
-                        <th>Item</th>
-                        <th style="width: 140px;">Weight (kg)</th>
+                        <th>Tambah Item</th>
+                        <th style="width: 120px;">Berat (kg)</th>
+                        <th style="width: 120px;">Dibuat</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach ($tab->items as $ti)
+                        @php
+                            $displayW = $ti->weight_input_value && $ti->inputUnit
+                                ? formatWeight($ti->weight_input_value).' '.$ti->inputUnit->name
+                                : formatWeight($ti->weight_kg).' kg';
+                        @endphp
                         <tr>
                             <td>{{ $ti->item?->name }}</td>
-                            <td>{{ number_format($ti->weight_kg, 2) }}</td>
+                            <td>{{ $displayW }}</td>
+                            <td>{{ $ti->created_at?->format('d-m-Y H:i') ?? '-' }}</td>
                         </tr>
                     @endforeach
                     @if ($tab->items->isEmpty())
                         <tr>
-                            <td colspan="2">Belum ada item.</td>
+                            <td colspan="3">Belum ada item.</td>
                         </tr>
                     @endif
                 </tbody>

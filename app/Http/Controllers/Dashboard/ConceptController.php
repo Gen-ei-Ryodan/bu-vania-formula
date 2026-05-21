@@ -22,9 +22,12 @@ class ConceptController extends Controller
 
     public function create()
     {
+        $unitsMap = Unit::query()->pluck('conversion_to_kg', 'id')->map(fn ($v) => (float) $v)->toArray();
+
         return view('dashboard.concepts.create', [
             'items' => Item::query()->orderBy('name')->get(),
             'units' => Unit::query()->orderBy('name')->get(),
+            'unitsData' => $unitsMap,
         ]);
     }
 
@@ -48,35 +51,23 @@ class ConceptController extends Controller
             $hasPercentage = array_key_exists('percentage', $row) && $row['percentage'] !== null && $row['percentage'] !== '';
             $hasWeight = array_key_exists('weight_value', $row) && $row['weight_value'] !== null && $row['weight_value'] !== '';
 
-            if ($hasPercentage && $hasWeight) {
-                throw ValidationException::withMessages([
-                    'items' => ['Per item hanya boleh isi salah satu: percentage atau weight + unit.'],
-                ]);
-            }
-
-            if (! $hasPercentage && ! $hasWeight) {
-                throw ValidationException::withMessages([
-                    'items' => ['Per item wajib isi percentage atau weight + unit.'],
-                ]);
-            }
-
-            $weightKg = null;
-            $percentage = null;
-
-            if ($hasPercentage) {
-                $percentage = (float) $row['percentage'];
-                $weightKg = ($baseWeightKg * $percentage) / 100.0;
-            } else {
+            if ($hasWeight) {
                 $unitId = (int) ($row['weight_unit_id'] ?? 0);
                 if ($unitId <= 0) {
                     throw ValidationException::withMessages([
                         'items' => ['Jika isi weight, unit wajib dipilih.'],
                     ]);
                 }
-
                 $unit = Unit::query()->findOrFail($unitId);
                 $weightKg = (float) $row['weight_value'] * (float) $unit->conversion_to_kg;
                 $percentage = $baseWeightKg > 0 ? (($weightKg / $baseWeightKg) * 100.0) : 0.0;
+            } elseif ($hasPercentage) {
+                $percentage = (float) $row['percentage'];
+                $weightKg = ($baseWeightKg * $percentage) / 100.0;
+            } else {
+                throw ValidationException::withMessages([
+                    'items' => ['Per item wajib isi weight + unit atau percentage.'],
+                ]);
             }
 
             return [
@@ -132,7 +123,7 @@ class ConceptController extends Controller
             return $concept;
         });
 
-        return redirect()->route('concepts.show', $concept)->with('ok', 'Concept dibuat.');
+        return redirect()->route('concepts.show', $concept)->with('ok', 'Konsep dibuat.');
     }
 
     public function show(Concept $concept)
@@ -148,17 +139,19 @@ class ConceptController extends Controller
     {
         $concept->delete();
 
-        return redirect()->route('concepts.index')->with('ok', 'Concept dihapus.');
+        return redirect()->route('concepts.index')->with('ok', 'Konsep dihapus.');
     }
 
     public function edit(Concept $concept)
     {
         $concept->load(['items.item']);
+        $unitsMap = Unit::query()->pluck('conversion_to_kg', 'id')->map(fn ($v) => (float) $v)->toArray();
 
         return view('dashboard.concepts.edit', [
             'concept' => $concept,
             'items' => Item::query()->orderBy('name')->get(),
             'units' => Unit::query()->orderBy('name')->get(),
+            'unitsData' => $unitsMap,
         ]);
     }
 
@@ -182,35 +175,23 @@ class ConceptController extends Controller
             $hasPercentage = array_key_exists('percentage', $row) && $row['percentage'] !== null && $row['percentage'] !== '';
             $hasWeight = array_key_exists('weight_value', $row) && $row['weight_value'] !== null && $row['weight_value'] !== '';
 
-            if ($hasPercentage && $hasWeight) {
-                throw ValidationException::withMessages([
-                    'items' => ['Per item hanya boleh isi salah satu: percentage atau weight + unit.'],
-                ]);
-            }
-
-            if (! $hasPercentage && ! $hasWeight) {
-                throw ValidationException::withMessages([
-                    'items' => ['Per item wajib isi percentage atau weight + unit.'],
-                ]);
-            }
-
-            $weightKg = null;
-            $percentage = null;
-
-            if ($hasPercentage) {
-                $percentage = (float) $row['percentage'];
-                $weightKg = ($baseWeightKg * $percentage) / 100.0;
-            } else {
+            if ($hasWeight) {
                 $unitId = (int) ($row['weight_unit_id'] ?? 0);
                 if ($unitId <= 0) {
                     throw ValidationException::withMessages([
                         'items' => ['Jika isi weight, unit wajib dipilih.'],
                     ]);
                 }
-
                 $unit = Unit::query()->findOrFail($unitId);
                 $weightKg = (float) $row['weight_value'] * (float) $unit->conversion_to_kg;
                 $percentage = $baseWeightKg > 0 ? (($weightKg / $baseWeightKg) * 100.0) : 0.0;
+            } elseif ($hasPercentage) {
+                $percentage = (float) $row['percentage'];
+                $weightKg = ($baseWeightKg * $percentage) / 100.0;
+            } else {
+                throw ValidationException::withMessages([
+                    'items' => ['Per item wajib isi weight + unit atau percentage.'],
+                ]);
             }
 
             return [
@@ -266,6 +247,6 @@ class ConceptController extends Controller
             ConceptItem::query()->insert($rows);
         });
 
-        return redirect()->route('concepts.show', $concept)->with('ok', 'Concept diupdate.');
+        return redirect()->route('concepts.show', $concept)->with('ok', 'Konsep diupdate.');
     }
 }

@@ -12,7 +12,6 @@ class Production extends Model
         'name',
         'location',
         'cage',
-        'production_type',
         'treatment_day',
         'treatment_time',
         'concept_id',

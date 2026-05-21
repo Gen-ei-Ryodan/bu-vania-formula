@@ -12,6 +12,8 @@ class ProductionTabItem extends Model
         'item_id',
         'weight_kg',
         'is_dosis',
+        'weight_input_value',
+        'weight_input_unit_id',
     ];
 
     public function tab(): BelongsTo
@@ -22,5 +24,10 @@ class ProductionTabItem extends Model
     public function item(): BelongsTo
     {
         return $this->belongsTo(Item::class);
+    }
+
+    public function inputUnit(): BelongsTo
+    {
+        return $this->belongsTo(Unit::class, 'weight_input_unit_id');
     }
 }

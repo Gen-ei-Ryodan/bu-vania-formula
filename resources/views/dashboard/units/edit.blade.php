@@ -1,7 +1,7 @@
-<x-layouts.dashboard title="Edit Unit" heading="Edit Unit">
+<x-layouts.dashboard title="Edit Satuan" heading="Edit Satuan">
     <div class="panel">
         <div class="panel-header">
-            <h2>Form Unit</h2>
+            <h2>Form Satuan</h2>
             <a class="btn" href="{{ route('units.index') }}">Kembali</a>
         </div>
         <div class="panel-body">

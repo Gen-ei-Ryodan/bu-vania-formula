@@ -380,6 +380,28 @@ textarea:focus {
     margin-left: auto;
 }
 
+.grid-form-row {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 0.75fr 0.5fr;
+    gap: 10px;
+    align-items: end;
+}
+
+.grid-form-row .field {
+    min-width: 0;
+}
+
+.grid-item-row {
+    display: grid;
+    grid-template-columns: 2fr 1.2fr 0.8fr auto auto;
+    gap: 10px;
+    align-items: end;
+}
+
+.grid-item-row .field {
+    min-width: 0;
+}
+
 .hidden {
     display: none;
 }

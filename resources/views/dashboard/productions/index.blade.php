@@ -1,7 +1,7 @@
-<x-layouts.dashboard title="Productions" heading="Productions">
+<x-layouts.dashboard title="Produksi" heading="Produksi">
     <div class="panel">
         <div class="panel-header">
-            <h2>Productions</h2>
+            <h2>Produksi</h2>
             <a class="btn btn-primary" href="{{ route('productions.create') }}">Buat</a>
         </div>
         <div class="panel-body">
@@ -10,8 +10,8 @@
                     <tr>
                         <th>ID</th>
                         <th>Nama</th>
-                        <th>Jenis</th>
-                        <th>Concept</th>
+                        <th>Tgl Mulai</th>
+                        <th>Konsep</th>
                         <th>Target (kg)</th>
                         <th>Durasi</th>
                         <th>Aksi</th>
@@ -22,9 +22,9 @@
                         <tr>
                             <td>{{ $production->id }}</td>
                             <td>{{ $production->name }}</td>
-                            <td>{{ ucfirst($production->production_type) }}</td>
+                            <td>{{ $production->start_date?->format('d-m-Y') ?? '-' }}</td>
                             <td>{{ $production->concept?->name }}</td>
-                            <td>{{ number_format($production->target_weight_kg, 2) }}</td>
+                            <td>{{ formatWeight($production->target_weight_kg) }}</td>
                             <td>{{ $production->is_forever ? 'Selamanya' : $production->duration_days.' hari' }}</td>
                             <td>
                                 <a class="btn" href="{{ route('productions.show', $production) }}">Detail</a>

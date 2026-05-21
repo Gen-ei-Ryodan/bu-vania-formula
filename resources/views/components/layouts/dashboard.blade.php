@@ -24,19 +24,19 @@
                         <small>Ringkas</small>
                     </a>
                     <a href="{{ route('units.index') }}" class="{{ request()->routeIs('units.*') ? 'active' : '' }}">
-                        <span>Units</span>
+                        <span>Satuan</span>
                         <small>Master</small>
                     </a>
                     <a href="{{ route('items.index') }}" class="{{ request()->routeIs('items.*') ? 'active' : '' }}">
-                        <span>Items</span>
+                        <span>Item</span>
                         <small>Master</small>
                     </a>
                     <a href="{{ route('concepts.index') }}" class="{{ request()->routeIs('concepts.*') ? 'active' : '' }}">
-                        <span>Concepts</span>
+                        <span>Konsep</span>
                         <small>Resep</small>
                     </a>
                     <a href="{{ route('productions.index') }}" class="{{ request()->routeIs('productions.*') ? 'active' : '' }}">
-                        <span>Productions</span>
+                        <span>Produksi</span>
                         <small>Proses</small>
                     </a>
                 </nav>
@@ -68,5 +68,6 @@
                 </div>
             </main>
         </div>
+        @stack('scripts')
     </body>
 </html>

@@ -1,7 +1,7 @@
-<x-layouts.dashboard :title="'Concept: '.$concept->name" :heading="'Concept: '.$concept->name">
+<x-layouts.dashboard :title="'Konsep: '.$concept->name" :heading="'Konsep: '.$concept->name">
     <div class="panel">
         <div class="panel-header">
-            <h2>Detail Concept</h2>
+            <h2>Detail Konsep</h2>
             <div class="actions">
                 <a class="btn" href="{{ route('concepts.edit', $concept) }}">Edit</a>
                 <a class="btn" href="{{ route('concepts.index') }}">Kembali</a>
@@ -19,8 +19,8 @@
                     <strong style="font-size: 18px;">{{ $concept->name }}</strong>
                 </div>
                 <div class="card">
-                    <div class="muted">Base Weight (kg)</div>
-                    <strong style="font-size: 18px;">{{ number_format($concept->base_weight_kg, 2) }}</strong>
+                    <div class="muted">Berat Dasar (kg)</div>
+                    <strong style="font-size: 18px;">{{ formatWeight($concept->base_weight_kg) }}</strong>
                 </div>
             </div>
 
@@ -30,16 +30,16 @@
                 <thead>
                     <tr>
                         <th>Item</th>
-                        <th>Weight (kg)</th>
-                        <th>Percentage</th>
+                        <th>Berat (kg)</th>
+                        <th>Persen</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach ($concept->items as $row)
                         <tr>
                             <td>{{ $row->item?->name }}</td>
-                            <td>{{ number_format($row->weight_kg, 2) }}</td>
-                            <td>{{ $row->percentage }}%</td>
+                            <td>{{ formatWeight($row->weight_kg) }}</td>
+                            <td>{{ number_format($row->percentage, 2) }}%</td>
                         </tr>
                     @endforeach
                     @if ($concept->items->isEmpty())

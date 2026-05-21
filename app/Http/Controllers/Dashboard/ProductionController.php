@@ -59,7 +59,6 @@ class ProductionController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'location' => ['nullable', 'string', 'max:255'],
             'cage' => ['nullable', 'string', 'max:255'],
-            'production_type' => ['required', 'in:biasa,pengobatan'],
             'treatment_day' => ['nullable', 'integer', 'min:1'],
             'treatment_time' => ['nullable', 'in:pagi,siang,malam,full'],
             'concept_id' => ['required', 'integer', 'exists:concepts,id'],
@@ -79,7 +78,6 @@ class ProductionController extends Controller
             'name' => $validated['name'],
             'location' => $validated['location'] ?? null,
             'cage' => $validated['cage'] ?? null,
-            'production_type' => $validated['production_type'],
             'treatment_day' => $validated['treatment_day'] ?? null,
             'treatment_time' => $validated['treatment_time'] ?? null,
             'concept_id' => (int) $validated['concept_id'],
@@ -91,7 +89,7 @@ class ProductionController extends Controller
             'notes' => $validated['notes'] ?? null,
         ]);
 
-        return redirect()->route('productions.show', $production)->with('ok', 'Production dibuat.');
+        return redirect()->route('productions.show', $production)->with('ok', 'Produksi dibuat.');
     }
 
     public function show(Production $production)
@@ -100,7 +98,9 @@ class ProductionController extends Controller
             'concept',
             'items.item',
             'groups.items.item',
+            'groups.items.inputUnit',
             'tabs.items.item',
+            'tabs.items.inputUnit',
         ]);
 
         $tabUsed = $production->tabs->sum('input_weight_kg');
@@ -147,7 +147,6 @@ class ProductionController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'location' => ['nullable', 'string', 'max:255'],
             'cage' => ['nullable', 'string', 'max:255'],
-            'production_type' => ['required', 'in:biasa,pengobatan'],
             'treatment_day' => ['nullable', 'integer', 'min:1'],
             'treatment_time' => ['nullable', 'in:pagi,siang,malam,full'],
             'concept_id' => ['required', 'integer', 'exists:concepts,id'],
@@ -167,7 +166,6 @@ class ProductionController extends Controller
             'name' => $validated['name'],
             'location' => $validated['location'] ?? null,
             'cage' => $validated['cage'] ?? null,
-            'production_type' => $validated['production_type'],
             'treatment_day' => $validated['treatment_day'] ?? null,
             'treatment_time' => $validated['treatment_time'] ?? null,
             'concept_id' => (int) $validated['concept_id'],
@@ -179,7 +177,7 @@ class ProductionController extends Controller
             'notes' => $validated['notes'] ?? null,
         ]);
 
-        return redirect()->route('productions.show', $production)->with('ok', 'Production diupdate.');
+        return redirect()->route('productions.show', $production)->with('ok', 'Produksi diupdate.');
     }
 
     public function generate(Production $production, ProductionSnapshotService $service)
@@ -221,6 +219,8 @@ class ProductionController extends Controller
             'item_id' => (int) $validated['item_id'],
             'weight_kg' => $weightKg,
             'is_dosis' => $request->boolean('is_dosis'),
+            'weight_input_value' => (float) $validated['weight_value'],
+            'weight_input_unit_id' => (int) $validated['weight_unit_id'],
         ]);
 
         return redirect()->route('productions.show', $group->production_id)->with('ok', 'Item golongan ditambah.');
@@ -264,6 +264,8 @@ class ProductionController extends Controller
             'item_id' => (int) $validated['item_id'],
             'weight_kg' => $weightKg,
             'is_dosis' => $request->boolean('is_dosis'),
+            'weight_input_value' => (float) $validated['weight_value'],
+            'weight_input_unit_id' => (int) $validated['weight_unit_id'],
         ]);
 
         return redirect()->route('productions.show', $tab->production_id)->with('ok', 'Item TAB ditambah.');
@@ -273,7 +275,7 @@ class ProductionController extends Controller
     {
         $production->delete();
 
-        return redirect()->route('productions.index')->with('ok', 'Production dihapus.');
+        return redirect()->route('productions.index')->with('ok', 'Produksi dihapus.');
     }
 
     public function destroyGroup(ProductionGroup $group)
@@ -315,7 +317,9 @@ class ProductionController extends Controller
             'concept.items.item',
             'items.item',
             'groups.items.item',
+            'groups.items.inputUnit',
             'tabs.items.item',
+            'tabs.items.inputUnit',
         ]);
 
         if (! class_exists(Pdf::class)) {

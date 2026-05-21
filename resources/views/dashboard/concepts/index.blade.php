@@ -1,7 +1,7 @@
-<x-layouts.dashboard title="Concepts" heading="Concepts (Resep Dasar)">
+<x-layouts.dashboard title="Konsep" heading="Konsep (Resep Dasar)">
     <div class="panel">
         <div class="panel-header">
-            <h2>Concepts</h2>
+            <h2>Konsep</h2>
             <a class="btn btn-primary" href="{{ route('concepts.create') }}">Buat</a>
         </div>
         <div class="panel-body">
@@ -10,7 +10,7 @@
                     <tr>
                         <th>ID</th>
                         <th>Nama</th>
-                        <th>Base Weight (kg)</th>
+                        <th>Berat Dasar (kg)</th>
                         <th>Aksi</th>
                     </tr>
                 </thead>
@@ -19,7 +19,7 @@
                         <tr>
                             <td>{{ $concept->id }}</td>
                             <td>{{ $concept->name }}</td>
-                            <td>{{ number_format($concept->base_weight_kg, 2) }}</td>
+                            <td>{{ formatWeight($concept->base_weight_kg) }}</td>
                             <td>
                                 <a class="btn" href="{{ route('concepts.show', $concept) }}">Detail</a>
                                 <a class="btn" href="{{ route('concepts.edit', $concept) }}">Edit</a>

@@ -1,7 +1,7 @@
-<x-layouts.dashboard title="Items" heading="Master Items">
+<x-layouts.dashboard title="Item" heading="Master Item">
     <div class="panel">
         <div class="panel-header">
-            <h2>Items</h2>
+            <h2>Item</h2>
             <a class="btn btn-primary" href="{{ route('items.create') }}">Tambah</a>
         </div>
         <div class="panel-body">
@@ -11,7 +11,7 @@
                         <th>ID</th>
                         <th>Nama</th>
                         <th>Kategori</th>
-                        <th>Default Unit</th>
+                        <th>Unit Default</th>
                         <th>Aksi</th>
                     </tr>
                 </thead>

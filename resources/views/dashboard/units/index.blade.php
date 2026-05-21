@@ -1,7 +1,7 @@
-<x-layouts.dashboard title="Units" heading="Master Units">
+<x-layouts.dashboard title="Satuan" heading="Master Satuan">
     <div class="panel">
         <div class="panel-header">
-            <h2>Units</h2>
+            <h2>Satuan</h2>
             <a class="btn btn-primary" href="{{ route('units.create') }}">Tambah</a>
         </div>
         <div class="panel-body">
@@ -10,7 +10,7 @@
                     <tr>
                         <th>ID</th>
                         <th>Nama</th>
-                        <th>Konversi ke gram</th>
+                        <th>Konversi ke kg</th>
                         <th>Aksi</th>
                     </tr>
                 </thead>
@@ -19,7 +19,7 @@
                         <tr>
                             <td>{{ $unit->id }}</td>
                             <td>{{ $unit->name }}</td>
-                            <td>{{ number_format($unit->conversion_to_kg, 4) }}</td>
+                            <td>{{ formatWeight($unit->conversion_to_kg) }}</td>
                             <td>
                                 <div class="actions">
                                     <a class="btn" href="{{ route('units.edit', $unit) }}">Edit</a>

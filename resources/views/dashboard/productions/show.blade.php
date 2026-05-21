@@ -1,65 +1,78 @@
-<x-layouts.dashboard :title="'Production: '.$production->name" :heading="'Production: '.$production->name">
-    <div class="grid-4">
-        <div class="card">
-            <div class="muted">Concept / Resep</div>
-            <div class="inline" style="align-items: center; gap: 8px;">
-                <strong style="font-size: 18px;">{{ $production->concept?->name }}</strong>
-                @if ($production->concept)
-                    <a class="btn" href="{{ route('concepts.edit', $production->concept) }}">Edit</a>
-                @endif
+<x-layouts.dashboard :title="'Produksi: '.$production->name" :heading="'Produksi: '.$production->name">
+    <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 20px; margin-bottom: 16px; padding: 20px; background: #fff; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.06);">
+        <div style="flex: 1; min-width: 0;">
+            <div style="font-size: 22px; font-weight: 700; color: #1a1a2e; margin-bottom: 4px;">{{ $production->name }}</div>
+            <div style="display: flex; flex-wrap: wrap; gap: 12px 24px; color: #555; font-size: 14px; margin-top: 8px;">
+                <div>
+                    <div style="font-size: 11px; color: #999; text-transform: uppercase; letter-spacing: 0.4px;">Resep</div>
+                    <div style="font-weight: 600; color: #333;">{{ $production->concept?->name ?? '-' }}
+                        @if ($production->concept)
+                            <a href="{{ route('concepts.edit', $production->concept) }}" style="font-weight: 400; font-size: 12px; color: #2563eb; text-decoration: none; margin-left: 6px;">Edit</a>
+                        @endif
+                    </div>
+                </div>
+                <div>
+                    <div style="font-size: 11px; color: #999; text-transform: uppercase; letter-spacing: 0.4px;">Target</div>
+                    <div style="font-weight: 600; color: #333;">{{ formatWeight($production->target_weight_kg) }} kg</div>
+                </div>
+                <div>
+                    <div style="font-size: 11px; color: #999; text-transform: uppercase; letter-spacing: 0.4px;">Durasi</div>
+                    <div style="font-weight: 600; color: #333;">{{ $production->is_forever ? 'Selamanya' : $production->duration_days.' hari' }}</div>
+                </div>
+                <div>
+                    <div style="font-size: 11px; color: #999; text-transform: uppercase; letter-spacing: 0.4px;">Mulai</div>
+                    <div style="font-weight: 600; color: #333;">{{ $production->start_date?->format('d-m-Y') ?? '-' }}</div>
+                </div>
             </div>
         </div>
-        <div class="card">
-            <div class="muted">Jenis</div>
-            <strong style="font-size: 18px;">{{ ucfirst($production->production_type) }}</strong>
-            @if ($production->production_type === 'pengobatan')
-                <div>Hari ke-{{ $production->treatment_day }} ({{ $production->treatment_time }})</div>
-            @endif
+        <div style="display: flex; flex-wrap: wrap; gap: 6px; flex-shrink: 0;">
+            <a class="btn" href="{{ route('productions.edit', $production) }}" style="font-size: 13px; padding: 6px 14px;">Edit</a>
+            <a class="btn" href="{{ route('productions.pdf', $production) }}" style="font-size: 13px; padding: 6px 14px;">PDF</a>
+            <a class="btn" href="{{ route('productions.index') }}" style="font-size: 13px; padding: 6px 14px;">Kembali</a>
+            <form method="POST" action="{{ route('productions.destroy', $production) }}" style="display: inline;">
+                @csrf
+                @method('DELETE')
+                <button class="btn btn-danger" type="submit" style="font-size: 13px; padding: 6px 14px;">Hapus</button>
+            </form>
         </div>
-        <div class="card">
-            <div class="muted">Target (kg)</div>
-            <strong style="font-size: 18px;">{{ number_format($production->target_weight_kg, 2) }}</strong>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px;">
+        <div style="padding: 14px 16px; background: #fff; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.06);">
+            <div style="font-size: 11px; color: #999; text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 2px;">Lokasi</div>
+            <div style="font-weight: 600; color: #333;">{{ $production->location ?? '-' }}</div>
         </div>
-        <div class="card">
-            <div class="muted">Durasi</div>
-            <strong style="font-size: 18px;">{{ $production->is_forever ? 'Selamanya' : $production->duration_days.' hari' }}</strong>
+        <div style="padding: 14px 16px; background: #fff; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.06);">
+            <div style="font-size: 11px; color: #999; text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 2px;">Kandang</div>
+            <div style="font-weight: 600; color: #333;">{{ $production->cage ?? '-' }}</div>
+        </div>
+        <div style="padding: 14px 16px; background: #fff; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.06);">
+            <div style="font-size: 11px; color: #999; text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 2px;">Tanggal Campur</div>
+            <div style="font-weight: 600; color: #333;">{{ $production->mix_date?->format('d-m-Y') ?? '-' }}</div>
+        </div>
+        <div style="padding: 14px 16px; background: #fff; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.06);">
+            <div style="font-size: 11px; color: #999; text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 2px;">Tgl Mulai</div>
+            <div style="font-weight: 600; color: #333;">{{ $production->start_date?->format('d-m-Y') ?? '-' }}</div>
+        </div>
+    </div>
+
+    <div style="padding: 14px 16px; background: #fff; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); margin-bottom: 16px;">
+        <div style="display: flex; align-items: center; justify-content: space-between;">
+            <div>
+                <div style="font-size: 11px; color: #999; text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 2px;">Catatan</div>
+                <div style="font-weight: 500; color: #555;">{{ $production->notes ?: 'Tidak ada catatan' }}</div>
+            </div>
         </div>
     </div>
 
     <div class="panel">
         <div class="panel-header">
-            <h2>Header Production</h2>
-            <div class="actions">
-                <a class="btn" href="{{ route('productions.edit', $production) }}">Edit</a>
-                <a class="btn" href="{{ route('productions.pdf', $production) }}">PDF</a>
-                <a class="btn" href="{{ route('productions.index') }}">Kembali</a>
-                <form method="POST" action="{{ route('productions.destroy', $production) }}" style="display: inline;">
-                    @csrf
-                    @method('DELETE')
-                    <button class="btn btn-danger" type="submit">Hapus</button>
-                </form>
-            </div>
-        </div>
-        <div class="panel-body">
-            <div class="grid-2">
-                <div class="card"><div class="muted">Nama</div><strong>{{ $production->name }}</strong></div>
-                <div class="card"><div class="muted">Lokasi</div><strong>{{ $production->location ?? '-' }}</strong></div>
-                <div class="card"><div class="muted">Kandang</div><strong>{{ $production->cage ?? '-' }}</strong></div>
-                <div class="card"><div class="muted">Start Date</div><strong>{{ $production->start_date?->format('d-m-Y') ?? '-' }}</strong></div>
-                <div class="card"><div class="muted">Tanggal Campur</div><strong>{{ $production->mix_date?->format('d-m-Y') ?? '-' }}</strong></div>
-                <div class="card"><div class="muted">Notes</div><strong>{{ $production->notes ?? '-' }}</strong></div>
-            </div>
-        </div>
-    </div>
-
-    <div class="panel">
-        <div class="panel-header">
-            <h2>Snapshot Production Items (Auto Scaling dari Konsep)</h2>
+            <h2>Snapshot Item</h2>
             <div class="actions">
                 @if ($production->items->isEmpty())
                     <form method="POST" action="{{ route('productions.generate', $production) }}">
                         @csrf
-                        <button class="btn btn-primary" type="submit">Generate Snapshot</button>
+                        <button class="btn btn-primary" type="submit">Generate</button>
                     </form>
                 @else
                     <span class="chip">Generated</span>
@@ -71,21 +84,21 @@
                 <thead>
                     <tr>
                         <th>Item</th>
-                        <th>Weight (kg) — Hasil Scaling</th>
-                        <th>Source</th>
+                        <th>Berat (kg)</th>
+                        <th>Sumber</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach ($production->items as $row)
                         <tr>
                             <td>{{ $row->item?->name }}</td>
-                            <td>{{ number_format($row->weight_kg, 2) }}</td>
+                            <td>{{ formatWeight($row->weight_kg) }}</td>
                             <td><span class="chip">{{ $row->source }}</span></td>
                         </tr>
                     @endforeach
                     @if ($production->items->isEmpty())
                         <tr>
-                            <td colspan="3" class="muted">Klik Generate Snapshot untuk membuat item dari konsep dengan auto-scaling ke target {{ number_format($production->target_weight_kg, 2) }} kg.</td>
+                            <td colspan="3" class="muted">Generate snapshot untuk auto-scaling item dari konsep ke target {{ formatWeight($production->target_weight_kg) }} kg.</td>
                         </tr>
                     @endif
                 </tbody>
@@ -93,127 +106,113 @@
         </div>
     </div>
 
-    <div class="panel">
-        <div class="panel-header">
-            <h2>Mode Input</h2>
-        </div>
-        <div class="panel-body">
-            <div class="inline" style="gap: 16px;">
-                <label class="inline" style="align-items: center; gap: 6px; cursor: pointer;">
+    <div class="panel" style="margin-bottom: 16px;">
+        <div class="panel-header" style="padding: 10px 16px;">
+            <div style="display: flex; gap: 12px; align-items: center;">
+                <label style="display: inline-flex; align-items: center; gap: 5px; cursor: pointer; font-size: 13px;">
                     <input type="radio" name="input-mode" value="golongan" checked data-mode-toggle>
-                    Golongan
+                    <span style="font-weight: 600;">Golongan</span>
                 </label>
-                <label class="inline" style="align-items: center; gap: 6px; cursor: pointer;">
+                <label style="display: inline-flex; align-items: center; gap: 5px; cursor: pointer; font-size: 13px;">
                     <input type="radio" name="input-mode" value="tab" data-mode-toggle>
-                    Tab (Split Batch)
+                    <span style="font-weight: 600;">Tab (Split Batch)</span>
                 </label>
             </div>
+            <span class="chip" style="font-size: 12px;">Sisa: {{ formatWeight($tabAvailableKg) }} kg</span>
         </div>
     </div>
 
     <div id="mode-golongan" class="panel">
         <div class="panel-header">
             <h2>Golongan</h2>
-            <span class="chip">Sisa untuk Tab: {{ number_format($tabAvailableKg, 2) }} kg</span>
+            <form method="POST" action="{{ route('productions.groups.store', $production) }}" style="display: flex; gap: 8px; align-items: end;">
+                @csrf
+                <div class="field" style="margin: 0;">
+                    <input type="text" name="name" placeholder="Nama Golongan" style="width: 200px;">
+                </div>
+                <button class="btn btn-primary" type="submit">Tambah</button>
+            </form>
         </div>
         <div class="panel-body">
-            <form method="POST" action="{{ route('productions.groups.store', $production) }}">
-                @csrf
-                <div class="inline">
-                    <div class="field w-280">
-                        <div class="label">Nama Golongan</div>
-                        <input type="text" name="name" placeholder="Golongan 1">
-                    </div>
-                    <button class="btn btn-primary" type="submit">Tambah</button>
-                </div>
-            </form>
-
-            <div class="divider"></div>
-
-            <div class="stack">
-                @foreach ($production->groups as $group)
-                    <div class="panel">
-                        <div class="panel-header">
-                            <h2>{{ $group->name }}</h2>
+            <div class="stack" style="gap: 10px;">
+                @forelse ($production->groups as $group)
+                    <div style="background: #f9fafb; border-radius: 6px; padding: 12px 14px;">
+                        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+                            <div style="font-weight: 700; font-size: 15px; color: #1a1a2e;">{{ $group->name }}</div>
                             <form method="POST" action="{{ route('groups.destroy', $group) }}" style="display: inline;">
                                 @csrf
                                 @method('DELETE')
-                                <button class="btn btn-danger" type="submit">Hapus</button>
+                                <button class="btn btn-danger" type="submit" style="font-size: 12px; padding: 4px 10px;">Hapus</button>
                             </form>
                         </div>
-                        <div class="panel-body">
-                            <form method="POST" action="{{ route('groups.items.store', $group) }}" class="group-item-form">
-                                @csrf
-                                <div class="inline">
-                                    <div class="field w-280">
-                                        <div class="label">Item</div>
-                                        <select name="item_id" class="item-select">
-                                            @foreach ($items as $item)
-                                                <option value="{{ $item->id }}">{{ $item->name }}</option>
-                                            @endforeach
-                                        </select>
-                                    </div>
-                                    <div class="field w-220">
-                                        <div class="label">Weight (kg)</div>
-                                        <input type="number" step="0.0001" name="weight_value" class="weight-input" placeholder="1">
-                                    </div>
-                                    <div class="field w-160">
-                                        <div class="label">Unit</div>
-                                        <select name="weight_unit_id">
-                                            @foreach ($units as $unit)
-                                                <option value="{{ $unit->id }}">{{ $unit->name }}</option>
-                                            @endforeach
-                                        </select>
-                                    </div>
-                                    <div class="field" style="align-self: flex-end;">
-                                        <label class="inline" style="align-items: center; gap: 4px; cursor: pointer;">
-                                            <input type="checkbox" class="dosis-toggle" data-group-id="{{ $group->id }}">
-                                            Dosis
-                                        </label>
-                                    </div>
-                                    <button class="btn btn-primary" type="submit" style="align-self: flex-end;">Tambah</button>
-                                </div>
-                            </form>
 
-                            <div class="divider"></div>
+                        <form method="POST" action="{{ route('groups.items.store', $group) }}" class="group-item-form" style="display: flex; gap: 8px; align-items: end; margin-bottom: 8px;">
+                            @csrf
+                            <div class="field" style="margin: 0; flex: 1;">
+                                <select name="item_id" class="item-select" style="width: 100%;">
+                                    @foreach ($items as $item)
+                                        <option value="{{ $item->id }}">{{ $item->name }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="field" style="margin: 0; width: 100px;">
+                                <input type="number" step="0.0001" name="weight_value" class="weight-input" placeholder="1" style="width: 100%;">
+                            </div>
+                            <div class="field" style="margin: 0; width: 100px;">
+                                <select name="weight_unit_id" style="width: 100%;">
+                                    @foreach ($units as $unit)
+                                        <option value="{{ $unit->id }}">{{ $unit->name }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <label style="display: inline-flex; align-items: center; gap: 4px; cursor: pointer; font-size: 13px; white-space: nowrap; padding: 4px 0;">
+                                <input type="checkbox" name="is_dosis" value="1" class="dosis-toggle" data-group-id="{{ $group->id }}">
+                                Dosis
+                            </label>
+                            <button class="btn btn-primary" type="submit" style="font-size: 12px; padding: 6px 12px;">Tambah</button>
+                        </form>
 
-                            <table class="table">
+                        @if ($group->items->isNotEmpty())
+                            <table class="table" style="font-size: 13px;">
                                 <thead>
                                     <tr>
-                                        <th>Item</th>
-                                        <th>Weight (kg)</th>
+                                        <th>Tambah Item</th>
+                                        <th>Berat</th>
                                         <th>Dosis</th>
+                                        <th>Dibuat</th>
                                         <th>Aksi</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     @foreach ($group->items as $gi)
+                                        @php
+                                            $displayWeight = $gi->weight_input_value && $gi->inputUnit
+                                                ? formatWeight($gi->weight_input_value).' '.$gi->inputUnit->name
+                                                : formatWeight($gi->weight_kg).' kg';
+                                        @endphp
                                         <tr>
                                             <td>{{ $gi->item?->name }}</td>
-                                            <td>{{ number_format($gi->weight_kg, 2) }}</td>
-                                            <td>{!! $gi->is_dosis ? '<span class="chip">Dosis</span>' : '<span class="muted">Non</span>' !!}</td>
+                                            <td>{{ $displayWeight }}</td>
+                                            <td>{!! $gi->is_dosis ? '<span class="chip">Dosis</span>' : '<span class="chip" style="background: #eee; color: #999;">Non</span>' !!}</td>
+                                            <td style="font-size: 12px; color: #888; white-space: nowrap;">{{ $gi->created_at?->format('d-m-Y H:i') ?? '-' }}</td>
                                             <td>
                                                 <form method="POST" action="{{ route('groups.items.destroy', $gi) }}" style="display: inline;">
                                                     @csrf
                                                     @method('DELETE')
-                                                    <button class="btn btn-danger" type="submit">Hapus</button>
+                                                    <button class="btn btn-danger" type="submit" style="font-size: 12px; padding: 3px 8px;">Hapus</button>
                                                 </form>
                                             </td>
                                         </tr>
                                     @endforeach
-                                    @if ($group->items->isEmpty())
-                                        <tr>
-                                            <td colspan="4" class="muted">Belum ada item.</td>
-                                        </tr>
-                                    @endif
                                 </tbody>
                             </table>
-                        </div>
+                        @else
+                            <div style="font-size: 13px; color: #999; padding: 8px 0;">Belum ada item.</div>
+                        @endif
                     </div>
-                @endforeach
-                @if ($production->groups->isEmpty())
-                    <div class="muted">Belum ada golongan.</div>
-                @endif
+                @empty
+                    <div style="font-size: 13px; color: #999;">Belum ada golongan.</div>
+                @endforelse
             </div>
         </div>
     </div>
@@ -221,137 +220,122 @@
     <div id="mode-tab" class="panel" style="display: none;">
         <div class="panel-header">
             <h2>Tab (Split Batch)</h2>
+            <form method="POST" action="{{ route('productions.tabs.store', $production) }}" style="display: flex; gap: 8px; align-items: end;">
+                @csrf
+                <div class="field" style="margin: 0;">
+                    <input type="text" name="name" placeholder="Nama Tab" style="width: 160px;">
+                </div>
+                <div class="field" style="margin: 0; width: 120px;">
+                    <input type="number" step="0.0001" name="input_weight_value" placeholder="Ambil (kg)" style="width: 100%;">
+                </div>
+                <div class="field" style="margin: 0; width: 100px;">
+                    <select name="input_weight_unit_id" style="width: 100%;">
+                        @foreach ($units as $unit)
+                            <option value="{{ $unit->id }}">{{ $unit->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <button class="btn btn-primary" type="submit">Buat Tab</button>
+            </form>
         </div>
         <div class="panel-body">
-            <form method="POST" action="{{ route('productions.tabs.store', $production) }}">
-                @csrf
-                <div class="inline">
-                    <div class="field w-220">
-                        <div class="label">Nama Tab</div>
-                        <input type="text" name="name" placeholder="Tab 1">
-                    </div>
-                    <div class="field w-220">
-                        <div class="label">Ambil Berapa (kg)</div>
-                        <input type="number" step="0.0001" name="input_weight_value" placeholder="1">
-                    </div>
-                    <div class="field w-160">
-                        <div class="label">Unit</div>
-                        <select name="input_weight_unit_id">
-                            @foreach ($units as $unit)
-                                <option value="{{ $unit->id }}">{{ $unit->name }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <button class="btn btn-primary" type="submit">Buat Tab</button>
-                </div>
-            </form>
-
-            <div class="divider"></div>
-
             @if ($production->tabs->isNotEmpty())
                 @php $cumulativeUsed = 0; @endphp
-                <div class="card" style="margin-bottom: 12px;">
-                    <div class="inline" style="gap: 24px;">
-                        <div><strong>Split Batch:</strong></div>
-                        @foreach ($production->tabs as $tab)
-                            @php $cumulativeUsed += (float) $tab->input_weight_kg; @endphp
-                            <div>
-                                <span class="chip">{{ $tab->name }}: {{ number_format($tab->input_weight_kg, 2) }} kg</span>
-                                <span class="chip">Sisa: {{ number_format($tab->remaining_weight_kg, 2) }} kg</span>
-                            </div>
-                        @endforeach
-                        <div><span class="chip">Total Ambil: {{ number_format($cumulativeUsed, 2) }} kg</span></div>
-                        <div><span class="chip">Sisa Global: {{ number_format($tabAvailableKg, 2) }} kg</span></div>
-                    </div>
+                <div style="display: flex; flex-wrap: wrap; gap: 8px; padding: 8px 12px; background: #f0f7ff; border-radius: 6px; margin-bottom: 12px; font-size: 13px;">
+                    <strong>Split Batch:</strong>
+                    @foreach ($production->tabs as $tab)
+                        @php $cumulativeUsed += (float) $tab->input_weight_kg; @endphp
+                        <span class="chip">{{ $tab->name }}: {{ formatWeight($tab->input_weight_kg) }} kg</span>
+                        <span class="chip">Sisa: {{ formatWeight($tab->remaining_weight_kg) }} kg</span>
+                    @endforeach
+                    <span class="chip">Total: {{ formatWeight($cumulativeUsed) }} kg</span>
+                    <span class="chip">Sisa Global: {{ formatWeight($tabAvailableKg) }} kg</span>
                 </div>
             @endif
 
-            <div class="stack">
-                @foreach ($production->tabs as $tab)
-                    <div class="panel">
-                        <div class="panel-header">
-                            <h2>{{ $tab->name }}</h2>
-                            <span class="chip">Ambil: {{ number_format($tab->input_weight_kg, 2) }} kg</span>
-                            <span class="chip">Sisa: {{ number_format($tab->remaining_weight_kg, 2) }} kg</span>
+            <div class="stack" style="gap: 10px;">
+                @forelse ($production->tabs as $tab)
+                    <div style="background: #f9fafb; border-radius: 6px; padding: 12px 14px;">
+                        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+                            <div style="display: flex; gap: 12px; align-items: center;">
+                                <span style="font-weight: 700; font-size: 15px; color: #1a1a2e;">{{ $tab->name }}</span>
+                                <span class="chip">Ambil: {{ formatWeight($tab->input_weight_kg) }} kg</span>
+                                <span class="chip">Sisa: {{ formatWeight($tab->remaining_weight_kg) }} kg</span>
+                            </div>
                             <form method="POST" action="{{ route('tabs.destroy', $tab) }}" style="display: inline;">
                                 @csrf
                                 @method('DELETE')
-                                <button class="btn btn-danger" type="submit">Hapus</button>
+                                <button class="btn btn-danger" type="submit" style="font-size: 12px; padding: 4px 10px;">Hapus</button>
                             </form>
                         </div>
-                        <div class="panel-body">
-                            <form method="POST" action="{{ route('tabs.items.store', $tab) }}" class="tab-item-form">
-                                @csrf
-                                <div class="inline">
-                                    <div class="field w-280">
-                                        <div class="label">Item</div>
-                                        <select name="item_id" class="item-select">
-                                            @foreach ($items as $item)
-                                                <option value="{{ $item->id }}">{{ $item->name }}</option>
-                                            @endforeach
-                                        </select>
-                                    </div>
-                                    <div class="field w-220">
-                                        <div class="label">Weight (kg)</div>
-                                        <input type="number" step="0.0001" name="weight_value" class="weight-input" placeholder="1">
-                                    </div>
-                                    <div class="field w-160">
-                                        <div class="label">Unit</div>
-                                        <select name="weight_unit_id">
-                                            @foreach ($units as $unit)
-                                                <option value="{{ $unit->id }}">{{ $unit->name }}</option>
-                                            @endforeach
-                                        </select>
-                                    </div>
-                                    <div class="field" style="align-self: flex-end;">
-                                        <label class="inline" style="align-items: center; gap: 4px; cursor: pointer;">
-                                            <input type="checkbox" class="dosis-toggle" data-tab-id="{{ $tab->id }}">
-                                            Dosis
-                                        </label>
-                                    </div>
-                                    <button class="btn btn-primary" type="submit" style="align-self: flex-end;">Tambah</button>
-                                </div>
-                            </form>
 
-                            <div class="divider"></div>
+                        <form method="POST" action="{{ route('tabs.items.store', $tab) }}" class="tab-item-form" style="display: flex; gap: 8px; align-items: end; margin-bottom: 8px;">
+                            @csrf
+                            <div class="field" style="margin: 0; flex: 1;">
+                                <select name="item_id" class="item-select" style="width: 100%;">
+                                    @foreach ($items as $item)
+                                        <option value="{{ $item->id }}">{{ $item->name }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="field" style="margin: 0; width: 100px;">
+                                <input type="number" step="0.0001" name="weight_value" class="weight-input" placeholder="1" style="width: 100%;">
+                            </div>
+                            <div class="field" style="margin: 0; width: 100px;">
+                                <select name="weight_unit_id" style="width: 100%;">
+                                    @foreach ($units as $unit)
+                                        <option value="{{ $unit->id }}">{{ $unit->name }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <label style="display: inline-flex; align-items: center; gap: 4px; cursor: pointer; font-size: 13px; white-space: nowrap; padding: 4px 0;">
+                                <input type="checkbox" name="is_dosis" value="1" class="dosis-toggle" data-tab-id="{{ $tab->id }}">
+                                Dosis
+                            </label>
+                            <button class="btn btn-primary" type="submit" style="font-size: 12px; padding: 6px 12px;">Tambah</button>
+                        </form>
 
-                            <table class="table">
+                        @if ($tab->items->isNotEmpty())
+                            <table class="table" style="font-size: 13px;">
                                 <thead>
                                     <tr>
-                                        <th>Item</th>
-                                        <th>Weight (kg)</th>
+                                        <th>Tambah Item</th>
+                                        <th>Berat</th>
                                         <th>Dosis</th>
+                                        <th>Dibuat</th>
                                         <th>Aksi</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     @foreach ($tab->items as $ti)
+                                        @php
+                                            $displayWeight = $ti->weight_input_value && $ti->inputUnit
+                                                ? formatWeight($ti->weight_input_value).' '.$ti->inputUnit->name
+                                                : formatWeight($ti->weight_kg).' kg';
+                                        @endphp
                                         <tr>
                                             <td>{{ $ti->item?->name }}</td>
-                                            <td>{{ number_format($ti->weight_kg, 2) }}</td>
-                                            <td>{!! $ti->is_dosis ? '<span class="chip">Dosis</span>' : '<span class="muted">Non</span>' !!}</td>
+                                            <td>{{ $displayWeight }}</td>
+                                            <td>{!! $ti->is_dosis ? '<span class="chip">Dosis</span>' : '<span class="chip" style="background: #eee; color: #999;">Non</span>' !!}</td>
+                                            <td style="font-size: 12px; color: #888; white-space: nowrap;">{{ $ti->created_at?->format('d-m-Y H:i') ?? '-' }}</td>
                                             <td>
                                                 <form method="POST" action="{{ route('tabs.items.destroy', $ti) }}" style="display: inline;">
                                                     @csrf
                                                     @method('DELETE')
-                                                    <button class="btn btn-danger" type="submit">Hapus</button>
+                                                    <button class="btn btn-danger" type="submit" style="font-size: 12px; padding: 3px 8px;">Hapus</button>
                                                 </form>
                                             </td>
                                         </tr>
                                     @endforeach
-                                    @if ($tab->items->isEmpty())
-                                        <tr>
-                                            <td colspan="4" class="muted">Belum ada item.</td>
-                                        </tr>
-                                    @endif
                                 </tbody>
                             </table>
-                        </div>
+                        @else
+                            <div style="font-size: 13px; color: #999; padding: 8px 0;">Belum ada item.</div>
+                        @endif
                     </div>
-                @endforeach
-                @if ($production->tabs->isEmpty())
-                    <div class="muted">Belum ada Tab.</div>
-                @endif
+                @empty
+                    <div style="font-size: 13px; color: #999;">Belum ada Tab.</div>
+                @endforelse
             </div>
         </div>
     </div>
@@ -363,7 +347,7 @@
                 <button type="button" class="btn" id="dosis-close">Tutup</button>
             </div>
             <div class="modal-body">
-                <div class="card" style="background: #f9f9f9;">
+                <div style="background: #f5f7fa; border-radius: 6px; padding: 16px;">
                     <div class="grid-2">
                         <div class="field">
                             <div class="label">Item</div>
@@ -371,10 +355,10 @@
                         </div>
                         <div class="field">
                             <div class="label">Target Produksi</div>
-                            <input type="text" id="dosis-target" readonly value="{{ number_format($production->target_weight_kg, 2) }} kg">
+                            <input type="text" id="dosis-target" readonly value="{{ formatWeight($production->target_weight_kg) }} kg">
                         </div>
                     </div>
-                    <div class="divider"></div>
+                    <div style="border-top: 1px solid #e0e4e8; margin: 12px 0;"></div>
                     <div class="grid-2">
                         <div class="field">
                             <div class="label">Berat Dosis</div>
@@ -383,9 +367,9 @@
                         <div class="field">
                             <div class="label">Satuan</div>
                             <select id="dosis-unit">
-                                <option value="kg">kg</option>
-                                <option value="gram">gram</option>
-                                <option value="mg">mg</option>
+                                @foreach ($units as $unit)
+                                    <option value="{{ $unit->conversion_to_kg }}">{{ $unit->name }}</option>
+                                @endforeach
                             </select>
                         </div>
                         <div class="field">
@@ -395,15 +379,15 @@
                         <div class="field">
                             <div class="label">Satuan Per</div>
                             <select id="dosis-per-unit">
-                                <option value="kg">kg</option>
-                                <option value="gram">gram</option>
-                                <option value="mg">mg</option>
+                                @foreach ($units as $unit)
+                                    <option value="{{ $unit->conversion_to_kg }}">{{ $unit->name }}</option>
+                                @endforeach
                             </select>
                         </div>
                     </div>
-                    <div class="divider"></div>
-                    <div class="card" style="background: #e8f5e9; text-align: center;">
-                        <div class="muted">Hasil Perhitungan:</div>
+                    <div style="border-top: 1px solid #e0e4e8; margin: 12px 0;"></div>
+                    <div style="background: #e8f5e9; border-radius: 6px; text-align: center; padding: 12px;">
+                        <div style="font-size: 12px; color: #666;">Hasil Perhitungan:</div>
                         <strong style="font-size: 24px;" id="dosis-result">0 kg</strong>
                     </div>
                 </div>
@@ -437,13 +421,11 @@
             }
         }
 
-        // track current mode to enable confirm on switch
         let currentMode = document.querySelector('[data-mode-toggle]:checked') ? document.querySelector('[data-mode-toggle]:checked').value : 'golongan';
 
         function panelHasUnsavedInputs(mode) {
             const panel = (mode === 'golongan') ? document.getElementById('mode-golongan') : document.getElementById('mode-tab');
             if (!panel) return false;
-            // look for any weight inputs with values or any text inputs inside the panel
             const inputs = panel.querySelectorAll('input[type="number"], input[type="text"], textarea, select');
             for (let i = 0; i < inputs.length; i++) {
                 const el = inputs[i];
@@ -459,19 +441,15 @@
         document.querySelectorAll('[data-mode-toggle]').forEach(function (radio) {
             radio.addEventListener('click', function (e) {
                 const newMode = this.value;
-                if (newMode === currentMode) return; // nothing to do
+                if (newMode === currentMode) return;
 
-                // if current panel has data, ask confirmation
                 if (panelHasUnsavedInputs(currentMode)) {
                     const ok = confirm('Anda sudah mengisi beberapa data. Mengganti mode akan menghapus input yang belum disimpan. Lanjutkan?');
                     if (!ok) {
-                        // revert radio selection
                         e.preventDefault();
-                        // re-check previous radio
                         document.querySelectorAll('[data-mode-toggle]').forEach(function (r) { r.checked = (r.value === currentMode); });
                         return;
                     } else {
-                        // clear inputs in current panel
                         const panel = (currentMode === 'golongan') ? document.getElementById('mode-golongan') : document.getElementById('mode-tab');
                         if (panel) {
                             const inputsToClear = panel.querySelectorAll('input[type="number"], input[type="text"], textarea');
@@ -484,7 +462,6 @@
                     }
                 }
 
-                // perform switch
                 switchMode(newMode);
                 currentMode = newMode;
             });
@@ -505,7 +482,7 @@
         let activeItemSelect = null;
         let isTabContext = false;
         let contextId = null;
-        let pendingDosisToggle = null; // checkbox that triggered modal, not yet applied
+        let pendingDosisToggle = null;
 
         function openDosisModal(form, toggleCb) {
             activeForm = form;
@@ -555,37 +532,30 @@
             });
         });
 
+        function toKg(val, conv) {
+            return val * parseFloat(conv);
+        }
+
+        function fmtWeight(kg) {
+            if (isNaN(kg) || kg <= 0) return '0 kg';
+            return kg.toFixed(2) + ' kg';
+        }
+
         function calculateDosis() {
             const weight = parseFloat(dosisWeight.value) || 0;
             const per = parseFloat(dosisPer.value) || 1;
-            let weightKg = weight;
-            let perKg = per;
 
-            if (dosisUnit.value === 'gram') weightKg = weight / 1000;
-            else if (dosisUnit.value === 'mg') weightKg = weight / 1000000;
-
-            if (dosisPerUnit.value === 'gram') perKg = per / 1000;
-            else if (dosisPerUnit.value === 'mg') perKg = per / 1000000;
+            const weightKg = toKg(weight, dosisUnit.value);
+            const perKg = toKg(per, dosisPerUnit.value);
 
             let targetKg = {{ $production->target_weight_kg }};
-            if (isTabContext && contextId) {
-                const tabPanel = document.querySelector('[data-tab-id="' + contextId + '"]') ? document.querySelector('[data-tab-id="' + contextId + '"]') .closest('.panel') : null;
-                if (tabPanel) {
-                    const chipSpans = tabPanel.querySelectorAll('.chip');
-                    chipSpans.forEach(function (chip) {
-                        const text = chip.textContent;
-                        const match = text.match(/Ambil:\s*([\d,.]+)/);
-                        if (match) {
-                            targetKg = parseFloat(match[1].replace(/,/g, '')) || targetKg;
-                        }
-                    });
-                }
-            }
 
             if (perKg > 0 && weightKg > 0) {
                 const result = (weightKg / perKg) * targetKg;
-                dosisResult.textContent = result.toFixed(4) + ' kg';
+                dosisResult.dataset.kg = result;
+                dosisResult.textContent = fmtWeight(result);
             } else {
+                dosisResult.dataset.kg = '0';
                 dosisResult.textContent = '0 kg';
             }
         }
@@ -596,14 +566,12 @@
         dosisPerUnit.addEventListener('change', calculateDosis);
 
         document.getElementById('dosis-pakai').addEventListener('click', function () {
-            const resultText = dosisResult.textContent;
-            const resultKg = parseFloat(resultText) || 0;
+            const resultKg = parseFloat(dosisResult.dataset.kg) || 0;
             if (activeForm) {
                 const weightInput = activeForm.querySelector('.weight-input');
                 if (weightInput) {
                     weightInput.value = resultKg.toFixed(4);
                 }
-                // mark the checkbox as applied
                 if (pendingDosisToggle) pendingDosisToggle.checked = true;
             }
             closeDosis(true);
