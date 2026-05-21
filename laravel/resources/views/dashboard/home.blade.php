@@ -16,6 +16,10 @@
             <div class="muted">Produksi</div>
             <strong>{{ $counts['productions'] }}</strong>
         </div>
+        <div class="card">
+            <div class="muted">Pengobatan</div>
+            <strong>{{ $counts['treatments'] }}</strong>
+        </div>
     </div>
 
     <div class="panel">
@@ -28,6 +32,7 @@
                 <a class="btn btn-primary" href="{{ route('items.create') }}">Tambah Item</a>
                 <a class="btn btn-primary" href="{{ route('concepts.create') }}">Buat Konsep</a>
                 <a class="btn btn-primary" href="{{ route('productions.create') }}">Buat Produksi</a>
+                <a class="btn btn-primary" href="{{ route('treatments.create') }}">Buat Pengobatan</a>
             </div>
         </div>
     </div>

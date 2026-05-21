@@ -21,6 +21,7 @@ class Production extends Model
         'is_forever',
         'mix_date',
         'notes',
+        'production_type',
     ];
 
     protected $casts = [
@@ -47,5 +48,15 @@ class Production extends Model
     public function tabs(): HasMany
     {
         return $this->hasMany(ProductionTab::class);
+    }
+
+    public function scopeBiasa($query)
+    {
+        return $query->where('production_type', 'biasa');
+    }
+
+    public function scopeTreatment($query)
+    {
+        return $query->where('production_type', 'treatment');
     }
 }

@@ -1,35 +1,48 @@
-<x-layouts.dashboard title="Edit Produksi" heading="Edit Produksi">
+<x-layouts.dashboard title="Buat Produksi Pengobatan" heading="Buat Produksi Pengobatan">
     <div class="panel">
         <div class="panel-header">
-            <h2>Form Produksi</h2>
-            <a class="btn" href="{{ route('productions.show', $production) }}">Kembali</a>
+            <h2>Form Pengobatan</h2>
+            <a class="btn" href="{{ route('treatments.index') }}">Kembali</a>
         </div>
         <div class="panel-body">
-            <form method="POST" action="{{ route('productions.update', $production) }}">
+            <form method="POST" action="{{ route('treatments.store') }}">
                 @csrf
-                @method('PUT')
                 <div class="grid-2">
                     <div class="field">
                         <div class="label">Nama</div>
-                        <input type="text" name="name" value="{{ old('name', $production->name) }}" placeholder="Produksi April">
+                        <input type="text" name="name" value="{{ old('name') }}" placeholder="Pengobatan April">
                     </div>
                     <div class="field">
                         <div class="label">Tanggal Campur</div>
-                        <input type="date" name="mix_date" value="{{ old('mix_date', $production->mix_date?->format('Y-m-d')) }}">
+                        <input type="date" name="mix_date" value="{{ old('mix_date') }}">
                     </div>
                     <div class="field">
                         <div class="label">Lokasi</div>
-                        <input type="text" name="location" value="{{ old('location', $production->location) }}" placeholder="Lokasi A">
+                        <input type="text" name="location" value="{{ old('location') }}" placeholder="Lokasi A">
                     </div>
                     <div class="field">
                         <div class="label">Kandang</div>
-                        <input type="text" name="cage" value="{{ old('cage', $production->cage) }}" placeholder="Kandang 1">
+                        <input type="text" name="cage" value="{{ old('cage') }}" placeholder="Kandang 1">
+                    </div>
+                    <div class="field">
+                        <div class="label">Hari Pengobatan Ke</div>
+                        <input type="number" name="treatment_day" value="{{ old('treatment_day') }}" min="1" placeholder="1">
+                    </div>
+                    <div class="field">
+                        <div class="label">Waktu Pengobatan</div>
+                        <select name="treatment_time">
+                            <option value="">Pilih Waktu</option>
+                            <option value="pagi" @selected(old('treatment_time') === 'pagi')>Pagi</option>
+                            <option value="siang" @selected(old('treatment_time') === 'siang')>Siang</option>
+                            <option value="malam" @selected(old('treatment_time') === 'malam')>Malam</option>
+                            <option value="full" @selected(old('treatment_time') === 'full')>Full</option>
+                        </select>
                     </div>
                     <div class="field" style="grid-column: 1 / -1;">
                         <div class="label">Konsep (Resep Dasar)</div>
                         <select name="concept_id" id="concept-select">
                             @php
-                                $c = (int) old('concept_id', $production->concept_id);
+                                $c = (int) old('concept_id', $concepts->first()?->id ?? 0);
                             @endphp
                             @foreach ($concepts as $concept)
                                 <option value="{{ $concept->id }}" @selected($c === $concept->id)>{{ $concept->name }}</option>
@@ -40,45 +53,50 @@
                     <div class="field">
                         <div class="label">Target Berat</div>
                         <div style="display: grid; grid-template-columns: 1fr 120px; gap: 10px;">
-                            <input type="number" step="0.0001" name="target_weight_value" value="{{ old('target_weight_value', $production->target_weight_kg) }}" placeholder="1" id="target-weight-value">
+                            <input type="number" step="0.0001" name="target_weight_value" value="{{ old('target_weight_value', 1) }}" placeholder="1" id="target-weight-value">
                             <select name="target_weight_unit_id" id="target-weight-unit">
-                                @php($u = (int) old('target_weight_unit_id', 0))
+                                @php
+                                    $defaultUnitId = 0;
+                                    foreach ($units as $unit) {
+                                        if ($unit->conversion_to_kg == 1) { $defaultUnitId = $unit->id; break; }
+                                    }
+                                    $u = (int) old('target_weight_unit_id', $defaultUnitId ?: ($units->first()?->id ?? 0));
+                                @endphp
                                 @foreach ($units as $unit)
-                                    @if ($unit->conversion_to_kg == 1)
-                                        @php($u = $u ?: $unit->id)
-                                    @endif
                                     <option value="{{ $unit->id }}" data-conv="{{ $unit->conversion_to_kg }}" @selected((isset($u) && $u === $unit->id))>{{ $unit->name }}</option>
                                 @endforeach
                             </select>
                         </div>
+                        
                     </div>
                     <div class="field">
                         <div class="label">Tgl Mulai</div>
-                        <input type="date" name="start_date" value="{{ old('start_date', $production->start_date?->format('Y-m-d')) }}">
+                        <input type="date" name="start_date" value="{{ old('start_date') }}">
                     </div>
                     <div class="field">
                         <div class="label">Durasi (hari)</div>
                         <div class="inline">
-                            <input type="number" name="duration_days" value="{{ old('duration_days', $production->duration_days) }}" min="1" placeholder="20" id="duration-days" style="width: 140px;">
+                            <input type="number" name="duration_days" value="{{ old('duration_days') }}" min="1" placeholder="20" id="duration-days" style="width: 140px;">
                             <label class="inline" style="align-items: center;">
-                                <input type="checkbox" name="is_forever" value="1" @checked(old('is_forever', $production->is_forever)) id="is-forever">
+                                <input type="checkbox" name="is_forever" value="1" @checked(old('is_forever')) id="is-forever">
                                 Selamanya
                             </label>
                         </div>
                     </div>
                     <div class="field" style="grid-column: 1 / -1;">
                         <div class="label">Catatan</div>
-                        <textarea name="notes">{{ old('notes', $production->notes) }}</textarea>
+                        <textarea name="notes">{{ old('notes') }}</textarea>
                     </div>
                 </div>
 
                 <div class="divider"></div>
                 <div class="actions">
-                    <button class="btn btn-primary" type="submit">Update Produksi</button>
+                    <button class="btn btn-primary" type="submit">Simpan Pengobatan</button>
                 </div>
             </form>
         </div>
     </div>
+
     @push('scripts')
     <script>
     document.addEventListener('DOMContentLoaded', function () {

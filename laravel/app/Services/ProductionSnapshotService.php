@@ -23,6 +23,18 @@ class ProductionSnapshotService
             ]);
         }
 
+        $this->buildItems($production);
+    }
+
+    public function regenerate(Production $production): void
+    {
+        $production->items()->delete();
+
+        $this->buildItems($production);
+    }
+
+    protected function buildItems(Production $production): void
+    {
         $conceptItems = $production->concept->items()->get(['item_id', 'percentage']);
 
         if ($conceptItems->isEmpty()) {

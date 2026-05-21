@@ -17,7 +17,8 @@ class DashboardController extends Controller
                 'units' => Unit::query()->count(),
                 'items' => Item::query()->count(),
                 'concepts' => Concept::query()->count(),
-                'productions' => Production::query()->count(),
+                'productions' => Production::query()->biasa()->count(),
+                'treatments' => Production::query()->treatment()->count(),
             ],
         ]);
     }

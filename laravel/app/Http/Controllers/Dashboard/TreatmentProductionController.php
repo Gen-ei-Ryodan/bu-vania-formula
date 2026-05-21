@@ -19,12 +19,12 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 use Symfony\Component\HttpFoundation\Response;
 
-class ProductionController extends Controller
+class TreatmentProductionController extends Controller
 {
     public function index()
     {
-        return view('dashboard.productions.index', [
-            'productions' => Production::query()->biasa()->with('concept')->orderByDesc('id')->get(),
+        return view('dashboard.treatments.index', [
+            'productions' => Production::query()->treatment()->with('concept')->orderByDesc('id')->get(),
         ]);
     }
 
@@ -47,7 +47,7 @@ class ProductionController extends Controller
                 'items' => $items,
             ];
         }
-        return view('dashboard.productions.create', [
+        return view('dashboard.treatments.create', [
             'concepts' => $concepts,
             'conceptsData' => $conceptsData,
             'units' => Unit::query()->orderBy('name')->get(),
@@ -60,8 +60,8 @@ class ProductionController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'location' => ['nullable', 'string', 'max:255'],
             'cage' => ['nullable', 'string', 'max:255'],
-            'treatment_day' => ['nullable', 'integer', 'min:1'],
-            'treatment_time' => ['nullable', 'in:pagi,siang,malam,full'],
+            'treatment_day' => ['required', 'integer', 'min:1'],
+            'treatment_time' => ['required', 'in:pagi,siang,malam,full'],
             'concept_id' => ['required', 'integer', 'exists:concepts,id'],
             'target_weight_value' => ['required', 'numeric', 'min:0.0001'],
             'target_weight_unit_id' => ['required', 'integer', 'exists:units,id'],
@@ -80,8 +80,8 @@ class ProductionController extends Controller
                 'name' => $validated['name'],
                 'location' => $validated['location'] ?? null,
                 'cage' => $validated['cage'] ?? null,
-                'treatment_day' => $validated['treatment_day'] ?? null,
-                'treatment_time' => $validated['treatment_time'] ?? null,
+                'treatment_day' => $validated['treatment_day'],
+                'treatment_time' => $validated['treatment_time'],
                 'concept_id' => (int) $validated['concept_id'],
                 'target_weight_kg' => $targetWeightKg,
                 'start_date' => $validated['start_date'] ?? null,
@@ -89,7 +89,7 @@ class ProductionController extends Controller
                 'is_forever' => $request->boolean('is_forever'),
                 'mix_date' => $validated['mix_date'] ?? null,
                 'notes' => $validated['notes'] ?? null,
-                'production_type' => 'biasa',
+                'production_type' => 'treatment',
             ]);
 
             $production->load('concept.items');
@@ -98,11 +98,15 @@ class ProductionController extends Controller
             return $production;
         });
 
-        return redirect()->route('productions.show', $production)->with('ok', 'Produksi dibuat.');
+        return redirect()->route('treatments.show', $production)->with('ok', 'Produksi Pengobatan dibuat.');
     }
 
     public function show(Production $production)
     {
+        if ($production->production_type !== 'treatment') {
+            abort(Response::HTTP_NOT_FOUND);
+        }
+
         $production->load([
             'concept',
             'items.item',
@@ -115,7 +119,7 @@ class ProductionController extends Controller
         $tabUsed = $production->tabs->sum('input_weight_kg');
         $tabAvailable = (float) $production->target_weight_kg - (float) $tabUsed;
 
-        return view('dashboard.productions.show', [
+        return view('dashboard.treatments.show', [
             'production' => $production,
             'items' => Item::query()->orderBy('name')->get(),
             'units' => Unit::query()->orderBy('name')->get(),
@@ -125,6 +129,10 @@ class ProductionController extends Controller
 
     public function edit(Production $production)
     {
+        if ($production->production_type !== 'treatment') {
+            abort(Response::HTTP_NOT_FOUND);
+        }
+
         $concepts = Concept::query()->with('items.item')->orderBy('name')->get();
         $conceptsData = [];
         foreach ($concepts as $c) {
@@ -142,7 +150,7 @@ class ProductionController extends Controller
                 'items' => $items,
             ];
         }
-        return view('dashboard.productions.edit', [
+        return view('dashboard.treatments.edit', [
             'production' => $production,
             'concepts' => $concepts,
             'conceptsData' => $conceptsData,
@@ -152,12 +160,16 @@ class ProductionController extends Controller
 
     public function update(Request $request, Production $production, ProductionSnapshotService $service)
     {
+        if ($production->production_type !== 'treatment') {
+            abort(Response::HTTP_NOT_FOUND);
+        }
+
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'location' => ['nullable', 'string', 'max:255'],
             'cage' => ['nullable', 'string', 'max:255'],
-            'treatment_day' => ['nullable', 'integer', 'min:1'],
-            'treatment_time' => ['nullable', 'in:pagi,siang,malam,full'],
+            'treatment_day' => ['required', 'integer', 'min:1'],
+            'treatment_time' => ['required', 'in:pagi,siang,malam,full'],
             'concept_id' => ['required', 'integer', 'exists:concepts,id'],
             'target_weight_value' => ['required', 'numeric', 'min:0.0001'],
             'target_weight_unit_id' => ['required', 'integer', 'exists:units,id'],
@@ -185,8 +197,8 @@ class ProductionController extends Controller
                 'name' => $validated['name'],
                 'location' => $validated['location'] ?? null,
                 'cage' => $validated['cage'] ?? null,
-                'treatment_day' => $validated['treatment_day'] ?? null,
-                'treatment_time' => $validated['treatment_time'] ?? null,
+                'treatment_day' => $validated['treatment_day'],
+                'treatment_time' => $validated['treatment_time'],
                 'concept_id' => (int) $validated['concept_id'],
                 'target_weight_kg' => $targetWeightKg,
                 'start_date' => $validated['start_date'] ?? null,
@@ -194,18 +206,22 @@ class ProductionController extends Controller
                 'is_forever' => $request->boolean('is_forever'),
                 'mix_date' => $validated['mix_date'] ?? null,
                 'notes' => $validated['notes'] ?? null,
-                'production_type' => 'biasa',
+                'production_type' => 'treatment',
             ]);
 
             $production->load('concept.items');
             $service->regenerate($production);
         });
 
-        return redirect()->route('productions.show', $production)->with('ok', 'Produksi diupdate.');
+        return redirect()->route('treatments.show', $production)->with('ok', 'Produksi Pengobatan diupdate.');
     }
 
     public function storeGroup(Request $request, Production $production)
     {
+        if ($production->production_type !== 'treatment') {
+            abort(Response::HTTP_NOT_FOUND);
+        }
+
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
         ]);
@@ -215,11 +231,16 @@ class ProductionController extends Controller
             'name' => $validated['name'],
         ]);
 
-        return redirect()->route('productions.show', $production)->with('ok', 'Golongan ditambah.');
+        return redirect()->route('treatments.show', $production)->with('ok', 'Golongan ditambah.');
     }
 
     public function storeGroupItem(Request $request, ProductionGroup $group)
     {
+        $production = $group->production;
+        if ($production->production_type !== 'treatment') {
+            abort(Response::HTTP_NOT_FOUND);
+        }
+
         $validated = $request->validate([
             'item_id' => ['required', 'integer', 'exists:items,id'],
             'weight_value' => ['required', 'numeric', 'min:0.0001'],
@@ -238,11 +259,15 @@ class ProductionController extends Controller
             'weight_input_unit_id' => (int) $validated['weight_unit_id'],
         ]);
 
-        return redirect()->route('productions.show', $group->production_id)->with('ok', 'Item golongan ditambah.');
+        return redirect()->route('treatments.show', $production)->with('ok', 'Item golongan ditambah.');
     }
 
     public function storeTab(Request $request, Production $production, ProductionTabService $service)
     {
+        if ($production->production_type !== 'treatment') {
+            abort(Response::HTTP_NOT_FOUND);
+        }
+
         if (! $production->items()->exists()) {
             throw ValidationException::withMessages([
                 'production' => ['Production belum di-generate snapshot.'],
@@ -260,11 +285,16 @@ class ProductionController extends Controller
 
         $service->createTab($production, $validated['name'], $inputKg);
 
-        return redirect()->to(route('productions.show', $production) . '#tab')->with('ok', 'TAB dibuat.');
+        return redirect()->to(route('treatments.show', $production) . '#tab')->with('ok', 'TAB dibuat.');
     }
 
     public function storeTabItem(Request $request, ProductionTab $tab)
     {
+        $production = $tab->production;
+        if ($production->production_type !== 'treatment') {
+            abort(Response::HTTP_NOT_FOUND);
+        }
+
         $validated = $request->validate([
             'item_id' => ['required', 'integer', 'exists:items,id'],
             'weight_value' => ['required', 'numeric', 'min:0.0001'],
@@ -283,50 +313,78 @@ class ProductionController extends Controller
             'weight_input_unit_id' => (int) $validated['weight_unit_id'],
         ]);
 
-        return redirect()->to(route('productions.show', $tab->production_id) . '#tab')->with('ok', 'Item TAB ditambah.');
+        return redirect()->to(route('treatments.show', $production) . '#tab')->with('ok', 'Item TAB ditambah.');
     }
 
     public function destroy(Production $production)
     {
+        if ($production->production_type !== 'treatment') {
+            abort(Response::HTTP_NOT_FOUND);
+        }
+
         $production->delete();
 
-        return redirect()->route('productions.index')->with('ok', 'Produksi dihapus.');
+        return redirect()->route('treatments.index')->with('ok', 'Produksi Pengobatan dihapus.');
     }
 
     public function destroyGroup(ProductionGroup $group)
     {
+        $production = $group->production;
+        if ($production->production_type !== 'treatment') {
+            abort(Response::HTTP_NOT_FOUND);
+        }
+
         $productionId = $group->production_id;
         $group->delete();
 
-        return redirect()->route('productions.show', $productionId)->with('ok', 'Golongan dihapus.');
+        return redirect()->route('treatments.show', $productionId)->with('ok', 'Golongan dihapus.');
     }
 
     public function destroyGroupItem(ProductionGroupItem $groupItem)
     {
+        $production = $groupItem->group?->production;
+        if ($production && $production->production_type !== 'treatment') {
+            abort(Response::HTTP_NOT_FOUND);
+        }
+
         $productionId = $groupItem->group?->production_id;
         $groupItem->delete();
 
-        return redirect()->route('productions.show', $productionId)->with('ok', 'Item golongan dihapus.');
+        return redirect()->route('treatments.show', $productionId)->with('ok', 'Item golongan dihapus.');
     }
 
     public function destroyTab(ProductionTab $tab)
     {
+        $production = $tab->production;
+        if ($production->production_type !== 'treatment') {
+            abort(Response::HTTP_NOT_FOUND);
+        }
+
         $productionId = $tab->production_id;
         $tab->delete();
 
-        return redirect()->to(route('productions.show', $productionId) . '#tab')->with('ok', 'TAB dihapus.');
+        return redirect()->to(route('treatments.show', $productionId) . '#tab')->with('ok', 'TAB dihapus.');
     }
 
     public function destroyTabItem(ProductionTabItem $tabItem)
     {
+        $production = $tabItem->tab?->production;
+        if ($production && $production->production_type !== 'treatment') {
+            abort(Response::HTTP_NOT_FOUND);
+        }
+
         $productionId = $tabItem->tab?->production_id;
         $tabItem->delete();
 
-        return redirect()->to(route('productions.show', $productionId) . '#tab')->with('ok', 'Item TAB dihapus.');
+        return redirect()->to(route('treatments.show', $productionId) . '#tab')->with('ok', 'Item TAB dihapus.');
     }
 
     public function pdf(Production $production)
     {
+        if ($production->production_type !== 'treatment') {
+            abort(Response::HTTP_NOT_FOUND);
+        }
+
         $production->load([
             'concept',
             'concept.items.item',
@@ -341,10 +399,10 @@ class ProductionController extends Controller
             abort(Response::HTTP_INTERNAL_SERVER_ERROR, 'PDF generator belum terpasang.');
         }
 
-        $pdf = Pdf::loadView('dashboard.productions.pdf', [
+        $pdf = Pdf::loadView('dashboard.treatments.pdf', [
             'production' => $production,
         ]);
 
-        return $pdf->download('production-'.$production->id.'.pdf');
+        return $pdf->download('treatment-'.$production->id.'.pdf');
     }
 }

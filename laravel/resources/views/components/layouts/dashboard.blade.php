@@ -39,6 +39,10 @@
                         <span>Produksi</span>
                         <small>Proses</small>
                     </a>
+                    <a href="{{ route('treatments.index') }}" class="{{ request()->routeIs('treatments.*') ? 'active' : '' }}">
+                        <span>Pengobatan</span>
+                        <small>Proses</small>
+                    </a>
                 </nav>
             </aside>
 
