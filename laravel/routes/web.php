@@ -27,7 +27,7 @@ Route::delete('/tabs/{tab}', [ProductionController::class, 'destroyTab'])->name(
 Route::post('/tabs/{tab}/items', [ProductionController::class, 'storeTabItem'])->name('tabs.items.store');
 Route::delete('/tab-items/{tabItem}', [ProductionController::class, 'destroyTabItem'])->name('tabs.items.destroy');
 
-Route::resource('/treatments', TreatmentProductionController::class)->only(['index', 'create', 'store', 'show', 'edit', 'update', 'destroy']);
+Route::resource('/treatments', TreatmentProductionController::class, ['parameters' => ['treatments' => 'production']])->only(['index', 'create', 'store', 'show', 'edit', 'update', 'destroy']);
 Route::get('/treatments/{production}/pdf', [TreatmentProductionController::class, 'pdf'])->name('treatments.pdf');
 Route::post('/treatments/{production}/groups', [TreatmentProductionController::class, 'storeGroup'])->name('treatments.groups.store');
 Route::delete('/treatments/groups/{group}', [TreatmentProductionController::class, 'destroyGroup'])->name('treatments.groups.destroy');
