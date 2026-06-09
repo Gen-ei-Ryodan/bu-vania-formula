@@ -14,6 +14,7 @@ class Production extends Model
         'cage',
         'treatment_day',
         'treatment_time',
+        'treatment_duration_days',
         'concept_id',
         'target_weight_kg',
         'start_date',
@@ -22,12 +23,14 @@ class Production extends Model
         'mix_date',
         'notes',
         'production_type',
+        'is_active',
     ];
 
     protected $casts = [
         'start_date' => 'date',
         'mix_date' => 'date',
         'is_forever' => 'boolean',
+        'is_active' => 'boolean',
     ];
 
     public function concept(): BelongsTo

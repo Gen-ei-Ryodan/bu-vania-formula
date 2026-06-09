@@ -53,10 +53,6 @@
                     <a href="{{ route('reports.index') }}" class="{{ request()->routeIs('reports.*') ? 'active' : '' }}">
                         Laporan
                     </a>
-                    <a href="{{ route('treatments.index') }}" class="{{ request()->routeIs('treatments.*') ? 'active' : '' }}">
-                        <span>Pengobatan</span>
-                        <small>Proses</small>
-                    </a>
                 </nav>
             </aside>
 

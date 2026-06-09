@@ -14,16 +14,28 @@
                         <input type="text" name="name" value="{{ old('name', $production->name) }}" placeholder="Produksi April">
                     </div>
                     <div class="field">
-                        <div class="label">Tanggal Campur</div>
+                        <div class="label">Tanggal Campur <span style="color: #999; font-size: 11px;">(opsional)</span></div>
                         <input type="date" name="mix_date" value="{{ old('mix_date', $production->mix_date?->format('Y-m-d')) }}">
                     </div>
                     <div class="field">
                         <div class="label">Lokasi</div>
-                        <input type="text" name="location" value="{{ old('location', $production->location) }}" placeholder="Lokasi A">
+                        <select name="location" id="location-select">
+                            <option value="">Pilih Lokasi</option>
+                            @foreach ($locations as $loc)
+                                <option value="{{ $loc->name }}" @selected(old('location', $production->location) === $loc->name)>{{ $loc->name }}</option>
+                            @endforeach
+                        </select>
                     </div>
                     <div class="field">
                         <div class="label">Kandang</div>
-                        <input type="text" name="cage" value="{{ old('cage', $production->cage) }}" placeholder="Kandang 1">
+                        <select name="cage" id="cage-select">
+                            <option value="">Pilih Kandang</option>
+                            @foreach ($locations as $loc)
+                                @foreach ($loc->cages as $cage)
+                                    <option value="{{ $cage->name }}" data-location="{{ $loc->name }}" class="cage-option" @selected(old('cage', $production->cage) === $cage->name)>{{ $cage->name }} ({{ $loc->name }})</option>
+                                @endforeach
+                            @endforeach
+                        </select>
                     </div>
                     <div class="field" style="grid-column: 1 / -1;">
                         <div class="label">Konsep (Resep Dasar)</div>
@@ -38,7 +50,7 @@
                         <div id="concept-preview" class="stack" style="margin-top: 8px;"></div>
                     </div>
                     <div class="field">
-                        <div class="label">Target Berat</div>
+                        <div class="label">Kapasitas</div>
                         <div style="display: grid; grid-template-columns: 1fr 120px; gap: 10px;">
                             <input type="number" step="0.0001" name="target_weight_value" value="{{ old('target_weight_value', $production->target_weight_kg) }}" placeholder="1" id="target-weight-value">
                             <select name="target_weight_unit_id" id="target-weight-unit">
@@ -53,7 +65,7 @@
                         </div>
                     </div>
                     <div class="field">
-                        <div class="label">Tgl Mulai</div>
+                        <div class="label">Tanggal Mulai Pakai Konsep</div>
                         <input type="date" name="start_date" value="{{ old('start_date', $production->start_date?->format('Y-m-d')) }}">
                     </div>
                     <div class="field">
@@ -69,6 +81,13 @@
                     <div class="field" style="grid-column: 1 / -1;">
                         <div class="label">Catatan</div>
                         <textarea name="notes">{{ old('notes', $production->notes) }}</textarea>
+                    </div>
+                    <div class="field">
+                        <div class="label">Status</div>
+                        <label class="inline" style="align-items: center;">
+                            <input type="checkbox" name="is_active" value="1" @checked(old('is_active', $production->is_active) !== false)>
+                            Aktif
+                        </label>
                     </div>
                 </div>
 
@@ -88,6 +107,8 @@
         const conceptPreview = document.getElementById('concept-preview');
         const targetWeightInput = document.getElementById('target-weight-value');
         const targetWeightUnit = document.getElementById('target-weight-unit');
+        const locationSelect = document.getElementById('location-select');
+        const cageSelect = document.getElementById('cage-select');
 
         const concepts = @json($conceptsData ?? []);
 
@@ -122,6 +143,23 @@
             durationInput.disabled = this.checked;
             if (this.checked) durationInput.value = '';
         });
+
+        locationSelect.addEventListener('change', function () {
+            const selectedLocation = this.value;
+            Array.from(cageSelect.options).forEach(function (opt) {
+                if (opt.dataset.location) {
+                    opt.style.display = opt.dataset.location === selectedLocation ? '' : 'none';
+                }
+            });
+            cageSelect.value = '';
+            const firstVisible = cageSelect.querySelector('option[data-location="' + selectedLocation + '"]');
+            if (firstVisible) cageSelect.value = firstVisible.value;
+        });
+
+        // Init cage filter
+        if (locationSelect.value) {
+            locationSelect.dispatchEvent(new Event('change'));
+        }
 
         function refreshPreview() { showConceptPreview(conceptSelect.value); }
 
