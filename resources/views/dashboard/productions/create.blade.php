@@ -1,5 +1,26 @@
 <x-layouts.dashboard title="Buat Produksi" heading="Buat Produksi">
-    <div class="panel">
+    @if ($recentProductions->isNotEmpty())
+    <form method="POST" action="{{ route('productions.duplicate') }}">
+        @csrf
+        <div class="panel" style="background: #fffbe6; border: 1px solid #f5d47a;">
+            <div class="panel-body">
+                <div class="field" style="margin: 0;">
+                    <div class="label">Salin dari Produksi Sebelumnya (termasuk Golongan & TAB)</div>
+                    <div style="display: flex; gap: 8px;">
+                        <select name="source_id" style="flex: 1;" onchange="if(this.value){if(confirm('Salin data dari produksi ini? Semua golongan dan TAB juga akan disalin.')){this.form.submit()}else{this.value=''}}">
+                            <option value="">-- Pilih --</option>
+                            @foreach ($recentProductions as $rp)
+                                <option value="{{ $rp->id }}">#{{ $rp->id }} - {{ $rp->name }} ({{ $rp->concept?->name }})</option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+    @endif
+
+    <div class="panel" style="margin-top: 16px;">
         <div class="panel-header">
             <h2>Form Produksi</h2>
             <a class="btn" href="{{ route('productions.index') }}">Kembali</a>
@@ -13,16 +34,28 @@
                         <input type="text" name="name" value="{{ old('name') }}" placeholder="Produksi April">
                     </div>
                     <div class="field">
-                        <div class="label">Tanggal Campur</div>
+                        <div class="label">Tanggal Campur <span style="color: #999; font-size: 11px;">(opsional)</span></div>
                         <input type="date" name="mix_date" value="{{ old('mix_date') }}">
                     </div>
                     <div class="field">
                         <div class="label">Lokasi</div>
-                        <input type="text" name="location" value="{{ old('location') }}" placeholder="Lokasi A">
+                        <select name="location" id="location-select">
+                            <option value="">Pilih Lokasi</option>
+                            @foreach ($locations as $loc)
+                                <option value="{{ $loc->name }}" @selected(old('location') === $loc->name)>{{ $loc->name }}</option>
+                            @endforeach
+                        </select>
                     </div>
                     <div class="field">
                         <div class="label">Kandang</div>
-                        <input type="text" name="cage" value="{{ old('cage') }}" placeholder="Kandang 1">
+                        <select name="cage" id="cage-select">
+                            <option value="">Pilih Kandang</option>
+                            @foreach ($locations as $loc)
+                                @foreach ($loc->cages as $cage)
+                                    <option value="{{ $cage->name }}" data-location="{{ $loc->name }}" class="cage-option" @selected(old('cage') === $cage->name)>{{ $cage->name }} ({{ $loc->name }})</option>
+                                @endforeach
+                            @endforeach
+                        </select>
                     </div>
                     <div class="field" style="grid-column: 1 / -1;">
                         <div class="label">Konsep (Resep Dasar)</div>
@@ -37,7 +70,7 @@
                         <div id="concept-preview" class="stack" style="margin-top: 8px;"></div>
                     </div>
                     <div class="field">
-                        <div class="label">Target Berat</div>
+                        <div class="label">Kapasitas</div>
                         <div style="display: grid; grid-template-columns: 1fr 120px; gap: 10px;">
                             <input type="number" step="0.0001" name="target_weight_value" value="{{ old('target_weight_value', 1) }}" placeholder="1" id="target-weight-value">
                             <select name="target_weight_unit_id" id="target-weight-unit">
@@ -56,7 +89,7 @@
                         
                     </div>
                     <div class="field">
-                        <div class="label">Tgl Mulai</div>
+                        <div class="label">Tanggal Mulai Pakai Konsep</div>
                         <input type="date" name="start_date" value="{{ old('start_date') }}">
                     </div>
                     <div class="field">
@@ -72,6 +105,13 @@
                     <div class="field" style="grid-column: 1 / -1;">
                         <div class="label">Catatan</div>
                         <textarea name="notes">{{ old('notes') }}</textarea>
+                    </div>
+                    <div class="field">
+                        <div class="label">Status</div>
+                        <label class="inline" style="align-items: center;">
+                            <input type="checkbox" name="is_active" value="1" @checked(old('is_active', true))>
+                            Aktif
+                        </label>
                     </div>
                 </div>
 
@@ -92,6 +132,8 @@
         const conceptPreview = document.getElementById('concept-preview');
         const targetWeightInput = document.getElementById('target-weight-value');
         const targetWeightUnit = document.getElementById('target-weight-unit');
+        const locationSelect = document.getElementById('location-select');
+        const cageSelect = document.getElementById('cage-select');
 
         const concepts = @json($conceptsData ?? []);
 
@@ -125,6 +167,19 @@
         foreverCheck.addEventListener('change', function () {
             durationInput.disabled = this.checked;
             if (this.checked) durationInput.value = '';
+        });
+
+        locationSelect.addEventListener('change', function () {
+            const selectedLocation = this.value;
+            Array.from(cageSelect.options).forEach(function (opt) {
+                if (opt.dataset.location) {
+                    opt.style.display = opt.dataset.location === selectedLocation ? '' : 'none';
+                }
+            });
+            cageSelect.value = '';
+            // Show first matching cage
+            const firstVisible = cageSelect.querySelector('option[data-location="' + selectedLocation + '"]');
+            if (firstVisible) cageSelect.value = firstVisible.value;
         });
 
         function refreshPreview() { showConceptPreview(conceptSelect.value); }

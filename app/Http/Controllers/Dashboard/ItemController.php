@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Dashboard;
 
 use App\Http\Controllers\Controller;
+use App\Models\Category;
 use App\Models\Item;
 use App\Models\Unit;
 use Illuminate\Http\Request;
@@ -12,7 +13,7 @@ class ItemController extends Controller
     public function index()
     {
         return view('dashboard.items.index', [
-            'items' => Item::query()->with('defaultUnit')->orderBy('name')->get(),
+            'items' => Item::query()->with(['defaultUnit', 'category'])->orderBy('name')->get(),
         ]);
     }
 
@@ -20,6 +21,7 @@ class ItemController extends Controller
     {
         return view('dashboard.items.create', [
             'units' => Unit::query()->orderBy('name')->get(),
+            'categories' => Category::query()->orderBy('name')->get(),
         ]);
     }
 
@@ -27,7 +29,7 @@ class ItemController extends Controller
     {
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
-            'category' => ['required', 'in:bahan_pokok,vitamin,obat'],
+            'category_id' => ['required', 'integer', 'exists:categories,id'],
             'default_unit_id' => ['required', 'integer', 'exists:units,id'],
         ]);
 
@@ -41,6 +43,7 @@ class ItemController extends Controller
         return view('dashboard.items.edit', [
             'item' => $item,
             'units' => Unit::query()->orderBy('name')->get(),
+            'categories' => Category::query()->orderBy('name')->get(),
         ]);
     }
 
@@ -48,7 +51,7 @@ class ItemController extends Controller
     {
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
-            'category' => ['required', 'in:bahan_pokok,vitamin,obat'],
+            'category_id' => ['required', 'integer', 'exists:categories,id'],
             'default_unit_id' => ['required', 'integer', 'exists:units,id'],
         ]);
 

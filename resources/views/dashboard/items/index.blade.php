@@ -20,7 +20,7 @@
                         <tr>
                             <td>{{ $item->id }}</td>
                             <td>{{ $item->name }}</td>
-                            <td><span class="chip">{{ $item->category }}</span></td>
+                            <td><span class="chip">{{ $item->category?->name }}</span></td>
                             <td>{{ $item->defaultUnit?->name }}</td>
                             <td>
                                 <div class="actions">

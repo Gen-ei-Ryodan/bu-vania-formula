@@ -19,29 +19,39 @@
                 </div>
 
                 <nav class="nav">
+                    <div class="nav-section">Dashboard</div>
                     <a href="{{ route('dashboard') }}" class="{{ request()->routeIs('dashboard') ? 'active' : '' }}">
-                        <span>Dashboard</span>
-                        <small>Ringkas</small>
+                        Dashboard
                     </a>
+
+                    <div class="nav-section">Master</div>
                     <a href="{{ route('units.index') }}" class="{{ request()->routeIs('units.*') ? 'active' : '' }}">
-                        <span>Satuan</span>
-                        <small>Master</small>
+                        Satuan
+                    </a>
+                    <a href="{{ route('categories.index') }}" class="{{ request()->routeIs('categories.*') ? 'active' : '' }}">
+                        Kategori
+                    </a>
+                    <a href="{{ route('locations.index') }}" class="{{ request()->routeIs('locations.*') || request()->routeIs('cages.*') ? 'active' : '' }}">
+                        Lokasi
                     </a>
                     <a href="{{ route('items.index') }}" class="{{ request()->routeIs('items.*') ? 'active' : '' }}">
-                        <span>Item</span>
-                        <small>Master</small>
+                        Item
                     </a>
                     <a href="{{ route('concepts.index') }}" class="{{ request()->routeIs('concepts.*') ? 'active' : '' }}">
-                        <span>Konsep</span>
-                        <small>Resep</small>
+                        Konsep
                     </a>
+
+                    <div class="nav-section">Proses</div>
                     <a href="{{ route('productions.index') }}" class="{{ request()->routeIs('productions.*') ? 'active' : '' }}">
-                        <span>Produksi</span>
-                        <small>Proses</small>
+                        Produksi
                     </a>
                     <a href="{{ route('treatments.index') }}" class="{{ request()->routeIs('treatments.*') ? 'active' : '' }}">
-                        <span>Pengobatan</span>
-                        <small>Proses</small>
+                        Pengobatan
+                    </a>
+
+                    <div class="nav-section">Report</div>
+                    <a href="{{ route('reports.index') }}" class="{{ request()->routeIs('reports.*') ? 'active' : '' }}">
+                        Laporan
                     </a>
                 </nav>
             </aside>
@@ -56,6 +66,10 @@
                 <div class="page">
                     @if (session('ok'))
                         <div class="alert alert-ok">{{ session('ok') }}</div>
+                    @endif
+
+                    @if (session('error'))
+                        <div class="alert alert-danger">{{ session('error') }}</div>
                     @endif
 
                     @if ($errors->any())

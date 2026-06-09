@@ -12,23 +12,29 @@
                     </div>
                 </div>
                 <div>
-                    <div style="font-size: 11px; color: #999; text-transform: uppercase; letter-spacing: 0.4px;">Target</div>
+                    <div style="font-size: 11px; color: #999; text-transform: uppercase; letter-spacing: 0.4px;">Kapasitas</div>
                     <div style="font-weight: 600; color: #333;">{{ formatWeight($production->target_weight_kg) }} kg</div>
                 </div>
                 <div>
-                    <div style="font-size: 11px; color: #999; text-transform: uppercase; letter-spacing: 0.4px;">Hari Ke</div>
+                    <div style="font-size: 11px; color: #999; text-transform: uppercase; letter-spacing: 0.4px;">Pengobatan Hari Ke</div>
                     <div style="font-weight: 600; color: #333;">{{ $production->treatment_day ?? '-' }}</div>
                 </div>
                 <div>
                     <div style="font-size: 11px; color: #999; text-transform: uppercase; letter-spacing: 0.4px;">Waktu</div>
                     <div style="font-weight: 600; color: #333;"><span class="chip">{{ $production->treatment_time ?? '-' }}</span></div>
                 </div>
+                @if ($production->treatment_duration_days)
+                <div>
+                    <div style="font-size: 11px; color: #999; text-transform: uppercase; letter-spacing: 0.4px;">Lama Pengobatan</div>
+                    <div style="font-weight: 600; color: #333;">{{ $production->treatment_duration_days }} hari</div>
+                </div>
+                @endif
                 <div>
                     <div style="font-size: 11px; color: #999; text-transform: uppercase; letter-spacing: 0.4px;">Durasi</div>
                     <div style="font-weight: 600; color: #333;">{{ $production->is_forever ? 'Selamanya' : $production->duration_days.' hari' }}</div>
                 </div>
                 <div>
-                    <div style="font-size: 11px; color: #999; text-transform: uppercase; letter-spacing: 0.4px;">Mulai</div>
+                    <div style="font-size: 11px; color: #999; text-transform: uppercase; letter-spacing: 0.4px;">Mulai Pakai Konsep</div>
                     <div style="font-weight: 600; color: #333;">{{ $production->start_date?->format('d-m-Y') ?? '-' }}</div>
                 </div>
             </div>
@@ -59,7 +65,7 @@
             <div style="font-weight: 600; color: #333;">{{ $production->mix_date?->format('d-m-Y') ?? '-' }}</div>
         </div>
         <div style="padding: 14px 16px; background: #fff; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.06);">
-            <div style="font-size: 11px; color: #999; text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 2px;">Tgl Mulai</div>
+            <div style="font-size: 11px; color: #999; text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 2px;">Tanggal Mulai Pakai Konsep</div>
             <div style="font-weight: 600; color: #333;">{{ $production->start_date?->format('d-m-Y') ?? '-' }}</div>
         </div>
     </div>
@@ -171,10 +177,9 @@
                             <table class="table" style="font-size: 13px;">
                                 <thead>
                                     <tr>
-                                        <th>Tambah Item</th>
+                                        <th>Item</th>
                                         <th>Berat</th>
                                         <th>Dosis</th>
-                                        <th>Dibuat</th>
                                         <th>Aksi</th>
                                     </tr>
                                 </thead>
@@ -187,10 +192,24 @@
                                         @endphp
                                         <tr>
                                             <td>{{ $gi->item?->name }}</td>
-                                            <td>{{ $displayWeight }}</td>
+                                            <td class="weight-cell">
+                                                <span class="weight-display">{{ $displayWeight }}</span>
+                                                <form method="POST" action="{{ route('treatments.groups.items.update', $gi) }}" class="edit-weight-form" style="display: none; gap: 4px; align-items: center;">
+                                                    @csrf
+                                                    @method('PUT')
+                                                    <input type="number" step="0.0001" name="weight_value" value="{{ $gi->weight_input_value ?? formatWeight($gi->weight_kg) }}" style="width: 80px;">
+                                                    <select name="weight_unit_id" style="width: 70px;">
+                                                        @foreach ($units as $unit)
+                                                            <option value="{{ $unit->id }}" @selected($gi->weight_input_unit_id == $unit->id)>{{ $unit->name }}</option>
+                                                        @endforeach
+                                                    </select>
+                                                    <button class="btn" type="submit" style="font-size: 11px; padding: 2px 8px;">Simpan</button>
+                                                    <button type="button" class="btn cancel-edit" style="font-size: 11px; padding: 2px 8px;">Batal</button>
+                                                </form>
+                                            </td>
                                             <td>{!! $gi->is_dosis ? '<span class="chip">Dosis</span>' : '<span class="chip" style="background: #eee; color: #999;">Non</span>' !!}</td>
-                                            <td>{{ $gi->created_at?->format('d-m-Y H:i') ?? '-' }}</td>
                                             <td>
+                                                <button type="button" class="btn btn-edit-weight" style="font-size: 12px; padding: 3px 8px;">Edit</button>
                                                 <form method="POST" action="{{ route('treatments.groups.items.destroy', $gi) }}" style="display: inline;">
                                                     @csrf
                                                     @method('DELETE')
@@ -296,7 +315,6 @@
                                         <th>Item</th>
                                         <th>Berat</th>
                                         <th>Dosis</th>
-                                        <th>Dibuat</th>
                                         <th>Aksi</th>
                                     </tr>
                                 </thead>
@@ -309,10 +327,24 @@
                                         @endphp
                                         <tr>
                                             <td>{{ $ti->item?->name }}</td>
-                                            <td>{{ $displayWeight }}</td>
+                                            <td class="weight-cell">
+                                                <span class="weight-display">{{ $displayWeight }}</span>
+                                                <form method="POST" action="{{ route('treatments.tabs.items.update', $ti) }}" class="edit-weight-form" style="display: none; gap: 4px; align-items: center;">
+                                                    @csrf
+                                                    @method('PUT')
+                                                    <input type="number" step="0.0001" name="weight_value" value="{{ $ti->weight_input_value ?? formatWeight($ti->weight_kg) }}" style="width: 80px;">
+                                                    <select name="weight_unit_id" style="width: 70px;">
+                                                        @foreach ($units as $unit)
+                                                            <option value="{{ $unit->id }}" @selected($ti->weight_input_unit_id == $unit->id)>{{ $unit->name }}</option>
+                                                        @endforeach
+                                                    </select>
+                                                    <button class="btn" type="submit" style="font-size: 11px; padding: 2px 8px;">Simpan</button>
+                                                    <button type="button" class="btn cancel-edit" style="font-size: 11px; padding: 2px 8px;">Batal</button>
+                                                </form>
+                                            </td>
                                             <td>{!! $ti->is_dosis ? '<span class="chip">Dosis</span>' : '<span class="chip" style="background: #eee; color: #999;">Non</span>' !!}</td>
-                                            <td>{{ $ti->created_at?->format('d-m-Y H:i') ?? '-' }}</td>
                                             <td>
+                                                <button type="button" class="btn btn-edit-weight" style="font-size: 12px; padding: 3px 8px;">Edit</button>
                                                 <form method="POST" action="{{ route('treatments.tabs.items.destroy', $ti) }}" style="display: inline;">
                                                     @csrf
                                                     @method('DELETE')
@@ -503,96 +535,135 @@
                 dosisTarget.value = remaining.toFixed(2) + ' kg (sisa tab)';
             } else {
                 dosisTargetKg = productionTargetKg;
-                dosisTarget.value = productionTargetKg.toFixed(2) + ' kg';
+                dosisTarget.value = {{ formatWeight($production->target_weight_kg) }} + ' kg';
             }
 
+            // Disable manual weight inputs when dosis mode is active
             if (weightInput) {
                 weightInput.disabled = true;
-                weightInput.style.opacity = '0.5';
+                weightInput.placeholder = 'Dosis (auto)';
             }
+            const unitSelect = form.querySelector('select[name="weight_unit_id"]');
+            if (unitSelect) unitSelect.disabled = true;
 
-            dosisWeight.value = '';
-            dosisPer.value = '1';
-            dosisResult.textContent = '0 kg';
             dosisModal.style.display = 'flex';
+            recalcDosis();
         }
 
-        function closeDosis(keepChecked = false) {
+        function recalcDosis() {
+            const w = parseFloat(dosisWeight.value) || 0;
+            const c = parseFloat(dosisUnit.value) || 1;
+            const p = parseFloat(dosisPer.value) || 1;
+            const pc = parseFloat(dosisPerUnit.value) || 1;
+            if (w <= 0) { dosisResult.textContent = '0 kg'; return; }
+            const perKg = (w * c) / (p * pc);
+            const result = perKg * dosisTargetKg;
+            dosisResult.textContent = result.toFixed(4) + ' kg';
+        }
+
+        dosisWeight.addEventListener('input', recalcDosis);
+        dosisUnit.addEventListener('change', recalcDosis);
+        dosisPer.addEventListener('input', recalcDosis);
+        dosisPerUnit.addEventListener('change', recalcDosis);
+
+        document.getElementById('dosis-pakai').addEventListener('click', function () {
+            const w = parseFloat(dosisWeight.value) || 0;
+            const c = parseFloat(dosisUnit.value) || 1;
+            const p = parseFloat(dosisPer.value) || 1;
+            const pc = parseFloat(dosisPerUnit.value) || 1;
+            if (w <= 0) return;
+            const perKg = (w * c) / (p * pc);
+            const result = perKg * dosisTargetKg;
+
+            const weightInput = activeForm.querySelector('.weight-input');
+            const unitSelect = activeForm.querySelector('select[name="weight_unit_id"]');
+
+            // Enable fields so they get submitted with the form
+            if (weightInput) {
+                weightInput.value = result.toFixed(4);
+                weightInput.disabled = false;
+            }
+            // Set unit to kg (conversion factor = 1)
+            if (unitSelect) {
+                const kgOption = Array.from(unitSelect.options).find(o => parseFloat(o.value) === 1);
+                if (kgOption) kgOption.selected = true;
+                unitSelect.disabled = false;
+            }
+
+            dosisModal.style.display = 'none';
+            // Reset dosis toggle reference
+            activeForm = null;
+            pendingDosisToggle = null;
+            activeForm.submit();
+        });
+
+        function closeDosisModal() {
             dosisModal.style.display = 'none';
             if (activeForm) {
                 const weightInput = activeForm.querySelector('.weight-input');
                 if (weightInput) {
                     weightInput.disabled = false;
-                    weightInput.style.opacity = '1';
+                    weightInput.placeholder = 'Berat';
                 }
-                if (pendingDosisToggle && !keepChecked) pendingDosisToggle.checked = false;
-                pendingDosisToggle = null;
+                const unitSelect = activeForm.querySelector('select[name="weight_unit_id"]');
+                if (unitSelect) unitSelect.disabled = false;
+                if (pendingDosisToggle) {
+                    pendingDosisToggle.checked = false;
+                }
             }
             activeForm = null;
+            pendingDosisToggle = null;
         }
 
+        document.getElementById('dosis-close').addEventListener('click', closeDosisModal);
+        document.getElementById('dosis-close-btn').addEventListener('click', closeDosisModal);
+
+        // Dosis toggle: open modal on check
         document.querySelectorAll('.dosis-toggle').forEach(function (cb) {
-            cb.addEventListener('click', function (e) {
-                e.preventDefault();
-                const form = this.closest('form');
-                openDosisModal(form, this);
+            cb.addEventListener('change', function () {
+                if (this.checked) {
+                    const form = this.closest('form');
+                    const itemSelect = form.querySelector('.item-select');
+                    if (!itemSelect || !itemSelect.value) {
+                        alert('Pilih item terlebih dahulu.');
+                        this.checked = false;
+                        return;
+                    }
+                    openDosisModal(form, this);
+                } else {
+                    const form = this.closest('form');
+                    const weightInput = form.querySelector('.weight-input');
+                    if (weightInput) {
+                        weightInput.disabled = false;
+                        weightInput.placeholder = 'Berat';
+                    }
+                    const unitSelect = form.querySelector('select[name="weight_unit_id"]');
+                    if (unitSelect) unitSelect.disabled = false;
+                }
             });
         });
 
-        function toKg(val, conv) {
-            return val * parseFloat(conv);
-        }
-
-        function fmtWeight(kg) {
-            if (isNaN(kg) || kg <= 0) return '0 kg';
-            return kg.toFixed(2) + ' kg';
-        }
-
-        function calculateDosis() {
-            const weight = parseFloat(dosisWeight.value) || 0;
-            const per = parseFloat(dosisPer.value) || 1;
-
-            const weightKg = toKg(weight, dosisUnit.value);
-            const perKg = toKg(per, dosisPerUnit.value);
-
-            if (perKg > 0 && weightKg > 0) {
-                const result = (weightKg / perKg) * dosisTargetKg;
-                dosisResult.dataset.kg = result;
-                dosisResult.textContent = fmtWeight(result);
-            } else {
-                dosisResult.dataset.kg = '0';
-                dosisResult.textContent = '0 kg';
-            }
-        }
-
-        dosisWeight.addEventListener('input', calculateDosis);
-        dosisUnit.addEventListener('change', calculateDosis);
-        dosisPer.addEventListener('input', calculateDosis);
-        dosisPerUnit.addEventListener('change', calculateDosis);
-
-        document.getElementById('dosis-pakai').addEventListener('click', function () {
-            const resultKg = parseFloat(dosisResult.dataset.kg) || 0;
-            if (activeForm) {
-                const weightInput = activeForm.querySelector('.weight-input');
-                if (weightInput) {
-                    weightInput.value = resultKg.toFixed(4);
-                }
-                if (pendingDosisToggle) pendingDosisToggle.checked = true;
-            }
-            closeDosis(true);
+        // Edit weight button logic
+        document.querySelectorAll('.btn-edit-weight').forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                const row = this.closest('tr');
+                const display = row.querySelector('.weight-display');
+                const form = row.querySelector('.edit-weight-form');
+                if (display) display.style.display = 'none';
+                if (form) form.style.display = 'inline-flex';
+                this.style.display = 'none';
+            });
         });
 
-        document.getElementById('dosis-close').addEventListener('click', function () { closeDosis(false); });
-        document.getElementById('dosis-close-btn').addEventListener('click', function () { closeDosis(false); });
-        dosisModal.addEventListener('click', function (e) { if (e.target === this) closeDosis(false); });
-
-        document.querySelectorAll('.item-select').forEach(function (sel) {
-            sel.addEventListener('change', function () {
-                const form = this.closest('form');
-                const selectedOption = this.options[this.selectedIndex];
-                if (dosisModal.style.display !== 'none') {
-                    dosisItemName.value = selectedOption ? selectedOption.text : '';
-                }
+        document.querySelectorAll('.cancel-edit').forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                const row = this.closest('tr');
+                const display = row.querySelector('.weight-display');
+                const form = row.querySelector('.edit-weight-form');
+                const editBtn = row.querySelector('.btn-edit-weight');
+                if (display) display.style.display = '';
+                if (form) form.style.display = 'none';
+                if (editBtn) editBtn.style.display = '';
             });
         });
     });

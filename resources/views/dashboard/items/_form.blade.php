@@ -5,11 +5,11 @@
     </div>
     <div class="field">
         <div class="label">Kategori</div>
-        <select name="category">
-            @php($val = old('category', $item->category ?? 'bahan_pokok'))
-            <option value="bahan_pokok" @selected($val === 'bahan_pokok')>bahan_pokok</option>
-            <option value="vitamin" @selected($val === 'vitamin')>vitamin</option>
-            <option value="obat" @selected($val === 'obat')>obat</option>
+        <select name="category_id">
+            @php($val = (int) old('category_id', $item->category_id ?? 0))
+            @foreach ($categories as $cat)
+                <option value="{{ $cat->id }}" @selected($val === $cat->id)>{{ $cat->name }}</option>
+            @endforeach
         </select>
     </div>
     <div class="field">
