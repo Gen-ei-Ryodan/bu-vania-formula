@@ -79,6 +79,25 @@
                 </div>
 
                 <div class="divider"></div>
+
+                <div class="panel" style="background: #f0f7ff; border: 1px solid #b3d4ff;">
+                    <div class="panel-body" style="display: flex; gap: 24px; flex-wrap: wrap;">
+                        <div class="card" style="flex: 1; min-width: 150px;">
+                            <div class="muted">Total Berat (kg)</div>
+                            <strong style="font-size: 18px;" id="total-weight-display">0.0000</strong>
+                        </div>
+                        <div class="card" style="flex: 1; min-width: 150px;">
+                            <div class="muted">Target Berat Dasar (kg)</div>
+                            <strong style="font-size: 18px;" id="target-weight-display">0.0000</strong>
+                        </div>
+                        <div class="card" style="flex: 1; min-width: 150px;">
+                            <div class="muted">Kurang (kg)</div>
+                            <strong style="font-size: 18px; color: #dc2626;" id="remaining-weight-display">0.0000</strong>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="divider"></div>
                 <div class="actions">
                     <button class="btn btn-primary" type="submit">Update Konsep</button>
                 </div>
@@ -169,6 +188,25 @@
             rows.forEach(row => {
                 recalcRow(row);
             });
+
+            updateWeightInfo();
+        }
+
+        function updateWeightInfo() {
+            const baseKg = getBaseKg();
+            let totalKg = 0;
+            document.querySelectorAll('[data-repeatable-row]').forEach(row => {
+                const weightInput = row.querySelector('[data-calc-percentage]');
+                const unitSelect = row.querySelector('[data-name="weight_unit_id"]');
+                const weight = parseFloat(weightInput.value) || 0;
+                const conv = getUnitConversion(unitSelect.value);
+                totalKg += weight * conv;
+            });
+            const remaining = baseKg - totalKg;
+
+            document.getElementById('target-weight-display').textContent = baseKg.toFixed(4);
+            document.getElementById('total-weight-display').textContent = totalKg.toFixed(4);
+            document.getElementById('remaining-weight-display').textContent = remaining >= 0 ? remaining.toFixed(4) : '0.0000';
         }
 
         function attachRowListeners(row) {

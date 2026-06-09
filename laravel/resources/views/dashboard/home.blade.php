@@ -5,6 +5,10 @@
             <strong>{{ $counts['units'] }}</strong>
         </div>
         <div class="card">
+            <div class="muted">Kategori</div>
+            <strong>{{ $counts['categories'] }}</strong>
+        </div>
+        <div class="card">
             <div class="muted">Item</div>
             <strong>{{ $counts['items'] }}</strong>
         </div>
@@ -29,6 +33,7 @@
         <div class="panel-body">
             <div class="actions">
                 <a class="btn btn-primary" href="{{ route('units.create') }}">Tambah Unit</a>
+                <a class="btn btn-primary" href="{{ route('categories.index') }}">Kelola Kategori</a>
                 <a class="btn btn-primary" href="{{ route('items.create') }}">Tambah Item</a>
                 <a class="btn btn-primary" href="{{ route('concepts.create') }}">Buat Konsep</a>
                 <a class="btn btn-primary" href="{{ route('productions.create') }}">Buat Produksi</a>

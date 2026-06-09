@@ -13,10 +13,16 @@ use Illuminate\Validation\ValidationException;
 
 class ConceptController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
+        $query = Concept::query()->orderByDesc('id');
+
+        if ($request->filled('name')) {
+            $query->where('name', 'like', '%' . $request->name . '%');
+        }
+
         return view('dashboard.concepts.index', [
-            'concepts' => Concept::query()->orderByDesc('id')->get(),
+            'concepts' => $query->get(),
         ]);
     }
 

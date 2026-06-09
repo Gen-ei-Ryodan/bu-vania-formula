@@ -112,9 +112,21 @@ a {
     border-color: rgba(37, 99, 235, 0.25);
 }
 
-.nav small {
-    font-size: 11px;
+.nav-section {
+    margin-top: 18px;
+    padding: 6px 12px 4px;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
     color: var(--muted);
+    text-align: right;
+    border-top: 1px solid var(--border);
+}
+
+.nav-section:first-of-type {
+    margin-top: 0;
+    border-top: none;
 }
 
 .content {
