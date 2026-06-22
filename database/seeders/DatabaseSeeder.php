@@ -199,5 +199,8 @@ class DatabaseSeeder extends Seeder
                 'weight_input_unit_id' => $unitGram->id,
             ]);
         }
+
+        // === LAPORAN SORE (DUMMY) ===
+        $this->call(LaporanSoreSeeder::class);
     }
 }

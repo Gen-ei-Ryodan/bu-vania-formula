@@ -1,7 +1,7 @@
-<div class="grid-2">
+<div class="form-grid">
     <div class="field">
         <div class="label">Nama</div>
-        <input type="text" name="name" value="{{ old('name', $item->name ?? '') }}">
+        <input type="text" name="name" value="{{ old('name', $item->name ?? '') }}" placeholder="Nama item...">
     </div>
     <div class="field">
         <div class="label">Kategori</div>

@@ -1,28 +1,31 @@
 <x-layouts.dashboard title="Edit Satuan" heading="Edit Satuan">
-    <div class="panel">
-        <div class="panel-header">
-            <h2>Form Satuan</h2>
-            <a class="btn" href="{{ route('units.index') }}">Kembali</a>
-        </div>
-        <div class="panel-body">
-            <form method="POST" action="{{ route('units.update', $unit) }}">
-                @csrf
-                @method('PUT')
-                <div class="grid-2">
-                    <div class="field">
-                        <div class="label">Nama</div>
-                        <input type="text" name="name" value="{{ old('name', $unit->name) }}">
-                    </div>
-                    <div class="field">
-                        <div class="label">Konversi ke kg</div>
-                        <input type="number" step="0.0001" name="conversion_to_kg" value="{{ old('conversion_to_kg', $unit->conversion_to_kg) }}">
+    <div class="page-hero">
+        <h1>Edit Satuan</h1>
+        <p>{{ $unit->name }}</p>
+    </div>
+    <div class="content-section">
+        <form method="POST" action="{{ route('units.update', $unit) }}">
+            @csrf
+            @method('PUT')
+            <div class="form-card">
+                <div class="form-card-header"><h3>Informasi Satuan</h3></div>
+                <div class="form-card-body">
+                    <div class="form-grid">
+                        <div class="field">
+                            <div class="label">Nama</div>
+                            <input type="text" name="name" value="{{ old('name', $unit->name) }}">
+                        </div>
+                        <div class="field">
+                            <div class="label">Konversi ke kg</div>
+                            <input type="number" step="0.0001" name="conversion_to_kg" value="{{ old('conversion_to_kg', $unit->conversion_to_kg) }}">
+                        </div>
                     </div>
                 </div>
-                <div class="divider"></div>
-                <div class="actions">
+                <div class="form-card-footer">
+                    <a class="btn btn-ghost" href="{{ route('units.index') }}">Batal</a>
                     <button class="btn btn-primary" type="submit">Update</button>
                 </div>
-            </form>
-        </div>
+            </div>
+        </form>
     </div>
 </x-layouts.dashboard>

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Concept;
 use App\Models\ConceptItem;
 use App\Models\Item;
+use App\Models\Pembuat;
 use App\Models\Unit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -15,7 +16,7 @@ class ConceptController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Concept::query()->orderByDesc('id');
+        $query = Concept::query()->with('pembuat')->orderByDesc('id');
 
         if ($request->filled('name')) {
             $query->where('name', 'like', '%' . $request->name . '%');
@@ -33,6 +34,7 @@ class ConceptController extends Controller
         return view('dashboard.concepts.create', [
             'items' => Item::query()->orderBy('name')->get(),
             'units' => Unit::query()->orderBy('name')->get(),
+            'pembuats' => Pembuat::query()->orderBy('name')->get(),
             'unitsData' => $unitsMap,
         ]);
     }
@@ -41,6 +43,7 @@ class ConceptController extends Controller
     {
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255', 'unique:concepts,name'],
+            'pembuat_id' => ['nullable', 'integer', 'exists:pembuats,id'],
             'base_weight_value' => ['required', 'numeric', 'min:0.0001'],
             'base_weight_unit_id' => ['required', 'integer', 'exists:units,id'],
             'items' => ['required', 'array', 'min:1'],
@@ -111,6 +114,7 @@ class ConceptController extends Controller
         $concept = DB::transaction(function () use ($validated, $baseWeightKg, $items) {
             $concept = Concept::query()->create([
                 'name' => $validated['name'],
+                'pembuat_id' => $validated['pembuat_id'] ?? null,
                 'base_weight_kg' => $baseWeightKg,
             ]);
 
@@ -134,7 +138,7 @@ class ConceptController extends Controller
 
     public function show(Concept $concept)
     {
-        $concept->load(['items.item']);
+        $concept->load(['items.item', 'pembuat']);
 
         return view('dashboard.concepts.show', [
             'concept' => $concept,
@@ -143,6 +147,10 @@ class ConceptController extends Controller
 
     public function destroy(Concept $concept)
     {
+        if ($concept->productions()->exists()) {
+            return redirect()->route('concepts.index')->with('error', 'Konsep tidak bisa dihapus karena masih digunakan di produksi.');
+        }
+
         $concept->delete();
 
         return redirect()->route('concepts.index')->with('ok', 'Konsep dihapus.');
@@ -235,6 +243,7 @@ class ConceptController extends Controller
         DB::transaction(function () use ($concept, $validated, $baseWeightKg, $items) {
             $concept->update([
                 'name' => $validated['name'],
+                'pembuat_id' => $validated['pembuat_id'] ?? null,
                 'base_weight_kg' => $baseWeightKg,
             ]);
 

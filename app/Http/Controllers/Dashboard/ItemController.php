@@ -62,6 +62,15 @@ class ItemController extends Controller
 
     public function destroy(Item $item)
     {
+        $hasRelations = $item->conceptItems()->exists()
+            || $item->productionItems()->exists()
+            || $item->productionGroupItems()->exists()
+            || $item->productionTabItems()->exists();
+
+        if ($hasRelations) {
+            return redirect()->route('items.index')->with('error', 'Item tidak bisa dihapus karena masih digunakan di data lain (konsep/produksi).');
+        }
+
         $item->delete();
 
         return redirect()->route('items.index')->with('ok', 'Item dihapus.');

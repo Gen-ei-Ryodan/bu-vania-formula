@@ -25,3 +25,4 @@ Thumbs.db
 *.zip
 /database/database.sqlite
 /storage/logs/laravel.log
+/laravel
