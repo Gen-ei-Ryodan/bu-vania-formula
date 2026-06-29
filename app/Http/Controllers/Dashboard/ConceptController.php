@@ -165,6 +165,7 @@ class ConceptController extends Controller
             'concept' => $concept,
             'items' => Item::query()->orderBy('name')->get(),
             'units' => Unit::query()->orderBy('name')->get(),
+            'pembuats' => Pembuat::query()->orderBy('name')->get(),
             'unitsData' => $unitsMap,
         ]);
     }
