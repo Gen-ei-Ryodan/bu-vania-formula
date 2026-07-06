@@ -58,6 +58,7 @@
                                 <div class="field">
                                     <div class="label">Item</div>
                                     <select data-name="item_id">
+                                        <option value="">- Pilih Item -</option>
                                         @foreach ($items as $item)
                                             <option value="{{ $item->id }}">{{ $item->name }}</option>
                                         @endforeach
