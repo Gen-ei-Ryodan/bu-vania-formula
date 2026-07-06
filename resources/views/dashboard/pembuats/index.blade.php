@@ -1,9 +1,9 @@
-<x-layouts.dashboard title="Pembuat" heading="Pembuat">
+<x-layouts.dashboard title="Konsep Dari" heading="Konsep Dari">
     <div class="page-hero">
-        <h1>Master Pembuat</h1>
+        <h1>Master Konsep Dari</h1>
         <p>Daftar pembuat resep konsep</p>
         <div class="page-hero-actions">
-            <a class="btn btn-primary" href="{{ route('pembuats.create') }}">+ Tambah Pembuat</a>
+            <a class="btn btn-primary" href="{{ route('pembuats.create') }}">+ Tambah Konsep Dari</a>
         </div>
     </div>
 
@@ -29,7 +29,7 @@
                                         <form action="{{ route('pembuats.destroy', $pembuat) }}" method="POST" style="display: inline;">
                                             @csrf
                                             @method('DELETE')
-                                            <button class="btn btn-sm btn-danger" type="submit" onclick="return confirm('Hapus pembuat?')">Hapus</button>
+                                            <button class="btn btn-sm btn-danger" type="submit" onclick="return confirm('Hapus?')">Hapus</button>
                                         </form>
                                     </td>
                                 </tr>
