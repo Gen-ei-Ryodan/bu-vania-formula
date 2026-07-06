@@ -38,7 +38,7 @@
                             <tr>
                                 <th style="width: 60px;">ID</th>
                                 <th>Nama</th>
-                                <th>Pembuat</th>
+                                <th>Konsep Dari</th>
                                 <th style="width: 130px;">Berat Dasar</th>
                                 <th style="width: 200px;" class="cell-actions">Aksi</th>
                             </tr>

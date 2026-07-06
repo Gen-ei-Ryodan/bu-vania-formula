@@ -18,9 +18,9 @@
                             <input type="text" name="name" value="{{ old('name') }}" placeholder="Resep A" required>
                         </div>
                         <div class="field">
-                            <div class="label">Pembuat</div>
+                            <div class="label">Konsep Dari</div>
                             <select name="pembuat_id">
-                                <option value="">- Pilih Pembuat -</option>
+                                <option value="">- Pilih Konsep Dari -</option>
                                 @foreach ($pembuats as $pembuat)
                                     <option value="{{ $pembuat->id }}" @selected((int) old('pembuat_id') === $pembuat->id)>{{ $pembuat->name }}</option>
                                 @endforeach
