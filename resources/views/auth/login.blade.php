@@ -20,7 +20,7 @@
 
                 <div class="field">
                     <div class="label">Email</div>
-                    <input type="email" name="email" value="{{ old('email') }}" required autofocus placeholder="admin@buvania.com">
+                    <input type="email" name="email" value="{{ old('email') }}" required autofocus placeholder="Email">
                 </div>
 
                 <div class="field">
