@@ -12,6 +12,12 @@ class Concept extends Model
         'name',
         'pembuat_id',
         'base_weight_kg',
+        'start_date',
+        'notes',
+    ];
+
+    protected $casts = [
+        'start_date' => 'date',
     ];
 
     public function items(): HasMany
