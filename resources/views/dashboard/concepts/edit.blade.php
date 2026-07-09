@@ -204,10 +204,11 @@
         if (list) observer.observe(list, { childList: true });
         document.querySelectorAll('[data-repeatable-row]').forEach(attachRowListeners);
 
-        // Prefill existing
+        // Prefill existing — clear list first to remove empty row from app.js
         const existingItems = @json($concept->items);
         const listContainer = document.querySelector('[data-repeatable-list]');
         const template = document.querySelector('[data-repeatable] template');
+        listContainer.innerHTML = '';
         let kgUnitId = null;
         for (const [id, conv] of Object.entries(units)) {
             const val = typeof conv === 'object' ? parseFloat(conv.conversion_to_kg || 1) : parseFloat(conv || 1);
@@ -222,8 +223,22 @@
             if (kgUnitId) clone.querySelector('[data-name="weight_unit_id"]').value = kgUnitId;
             attachRowListeners(clone);
         });
+        // Set name attributes for form submission (mirroring app.js refreshNames)
+        refreshRowNames();
         recalcAll();
         updateItemOptions();
+
+        function refreshRowNames() {
+            const listContainer = document.querySelector('[data-repeatable-list]');
+            listContainer.querySelectorAll('[data-repeatable-row]').forEach(function (row, index) {
+                row.querySelectorAll('[data-name]').forEach(function (el) {
+                    if (el.tagName !== 'INPUT' && el.tagName !== 'SELECT') return;
+                    const base = el.getAttribute('data-name');
+                    if (!base) return;
+                    el.name = 'items[' + index + '][' + base + ']';
+                });
+            });
+        }
 
         document.querySelector('form')?.addEventListener('submit', function (e) {
             let totalPct = 0;
