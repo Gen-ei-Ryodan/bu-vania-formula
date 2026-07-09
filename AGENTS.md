@@ -65,3 +65,68 @@ Ketika USER memberi task:
 - Selalu rujuk file dengan clickable path
 - Jelaskan perubahan secara singkat, jangan bertele-tele
 - Jika ragu, tanya — jangan tebak
+
+### 9. Deployment Workflow
+
+Project ini punya **2 remote**:
+| Remote | URL |
+|--------|-----|
+| `origin` | `https://github.com/10969sosho/bu-vania-formula.git` |
+| `gen-ei-ryodan` | `https://github.com/Gen-ei-Ryodan/bu-vania-formula.git` |
+
+**Branch utama:**
+- `develop` — Development branch (struktur folder normal Laravel)
+- `deploy/shared-hosting` — Deployment ke shared hosting (struktur ada prefix `laravel/`)
+- `main` — Production (jarang dipakai)
+
+**Alur deploy ke shared hosting:**
+
+1. **Push perubahan ke develop** — commit di branch `develop`, lalu:
+
+   ```bash
+   git push origin develop
+   git push gen-ei-ryodan develop
+   ```
+
+2. **Sync ke deploy/shared-hosting** — pastikan perubahan juga ada di branch ini:
+
+   ```bash
+   git checkout deploy/shared-hosting
+   git merge develop --no-ff
+   # atau copy manual file dari app/... ke laravel/app/...
+   git push origin deploy/shared-hosting
+   git push gen-ei-ryodan deploy/shared-hosting
+   ```
+
+3. **Pull & deploy di server** (via SSH betw2231@juwana -p 65002):
+
+   ```bash
+   cd ~/repositories/bu-vania-formula
+   git pull origin deploy/shared-hosting
+   bash deploy.sh
+   cd ~/public_html/formula.3putraperkasa.com/laravel
+   php artisan migrate
+   php artisan optimize:clear
+   ```
+
+**PENTING — Directory Structure di deploy/shared-hosting:**
+
+Branch `deploy/shared-hosting` punya struktur folder berbeda:
+- `laravel/app/` → setara dengan `app/` di develop
+- `laravel/resources/views/` → setara dengan `resources/views/` di develop
+- `laravel/database/migrations/` → setara dengan `database/migrations/` di develop
+
+Saat merge `develop` ke `deploy/shared-hosting`, file mungkin tidak otomatis ter-sync ke path `laravel/`. **Selalu verifikasi** dengan:
+
+```bash
+grep -n "pembuat_id" laravel/app/Http/Controllers/Dashboard/ConceptController.php | wc -l
+```
+
+Jika jumlah baris berbeda dengan di `app/`, copy manual:
+
+```bash
+cp app/Http/Controllers/... laravel/app/Http/Controllers/...
+cp resources/views/... laravel/resources/views/...
+```
+
+Kemudian commit ke `deploy/shared-hosting` dan push.
