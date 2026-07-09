@@ -31,11 +31,22 @@ class ConceptController extends Controller
     {
         $unitsMap = Unit::query()->pluck('conversion_to_kg', 'id')->map(fn ($v) => (float) $v)->toArray();
 
+        $allConcepts = Concept::query()->with('items.item')->orderBy('name')->get()->map(fn ($c) => [
+            'id' => $c->id,
+            'name' => $c->name,
+            'items' => $c->items->map(fn ($i) => [
+                'item_id' => $i->item_id,
+                'item_name' => $i->item?->name ?? '?',
+                'weight_kg' => (float) $i->weight_kg,
+            ])->values(),
+        ])->values();
+
         return view('dashboard.concepts.create', [
             'items' => Item::query()->orderBy('name')->get(),
             'units' => Unit::query()->orderBy('name')->get(),
             'pembuats' => Pembuat::query()->orderBy('name')->get(),
             'unitsData' => $unitsMap,
+            'allConcepts' => $allConcepts,
         ]);
     }
 
@@ -44,6 +55,8 @@ class ConceptController extends Controller
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255', 'unique:concepts,name'],
             'pembuat_id' => ['nullable', 'integer', 'exists:pembuats,id'],
+            'start_date' => ['nullable', 'date'],
+            'notes' => ['nullable', 'string'],
             'base_weight_value' => ['required', 'numeric', 'min:0.0001'],
             'base_weight_unit_id' => ['required', 'integer', 'exists:units,id'],
             'items' => ['required', 'array', 'min:1'],
@@ -116,6 +129,8 @@ class ConceptController extends Controller
                 'name' => $validated['name'],
                 'pembuat_id' => $validated['pembuat_id'] ?? null,
                 'base_weight_kg' => $baseWeightKg,
+                'start_date' => $validated['start_date'] ?? null,
+                'notes' => $validated['notes'] ?? null,
             ]);
 
             $now = now();
@@ -174,6 +189,9 @@ class ConceptController extends Controller
     {
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255', 'unique:concepts,name,'.$concept->id],
+            'pembuat_id' => ['nullable', 'integer', 'exists:pembuats,id'],
+            'start_date' => ['nullable', 'date'],
+            'notes' => ['nullable', 'string'],
             'base_weight_value' => ['required', 'numeric', 'min:0.0001'],
             'base_weight_unit_id' => ['required', 'integer', 'exists:units,id'],
             'items' => ['required', 'array', 'min:1'],
@@ -246,6 +264,8 @@ class ConceptController extends Controller
                 'name' => $validated['name'],
                 'pembuat_id' => $validated['pembuat_id'] ?? null,
                 'base_weight_kg' => $baseWeightKg,
+                'start_date' => $validated['start_date'] ?? null,
+                'notes' => $validated['notes'] ?? null,
             ]);
 
             $concept->items()->delete();

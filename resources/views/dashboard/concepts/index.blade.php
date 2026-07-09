@@ -39,6 +39,7 @@
                                 <th style="width: 60px;">ID</th>
                                 <th>Nama</th>
                                 <th>Konsep Dari</th>
+                                <th style="width: 130px;">Tgl Mulai</th>
                                 <th style="width: 130px;">Berat Dasar</th>
                                 <th style="width: 200px;" class="cell-actions">Aksi</th>
                             </tr>
@@ -49,6 +50,7 @@
                                     <td class="cell-muted">#{{ $concept->id }}</td>
                                     <td><strong>{{ $concept->name }}</strong></td>
                                     <td class="cell-muted">{{ $concept->pembuat?->name ?? '-' }}</td>
+                                    <td class="cell-muted">{{ $concept->start_date?->format('d/m/Y') ?? '-' }}</td>
                                     <td>{{ formatWeight($concept->base_weight_kg) }} kg</td>
                                     <td class="cell-actions">
                                         <a class="btn btn-sm" href="{{ route('concepts.show', $concept) }}">Detail</a>
@@ -62,7 +64,7 @@
                                 </tr>
                             @endforeach
                             @if ($concepts->isEmpty())
-                                <tr><td colspan="5" style="text-align: center; padding: 48px; color: var(--text-muted);">Belum ada data konsep.</td></tr>
+                                <tr><td colspan="6" style="text-align: center; padding: 48px; color: var(--text-muted);">Belum ada data konsep.</td></tr>
                             @endif
                         </tbody>
                     </table>

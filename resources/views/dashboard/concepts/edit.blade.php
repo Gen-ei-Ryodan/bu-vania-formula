@@ -25,6 +25,14 @@
                                 @endforeach
                             </select>
                         </div>
+                        <div class="field">
+                            <div class="label">Tanggal Mulai</div>
+                            <input type="date" name="start_date" value="{{ old('start_date', optional($concept->start_date)->format('Y-m-d')) }}">
+                        </div>
+                        <div class="field">
+                            <div class="label">Keterangan</div>
+                            <input type="text" name="notes" value="{{ old('notes', $concept->notes) }}" placeholder="Keterangan konsep...">
+                        </div>
                         <div class="field form-grid-full">
                             <div class="label">Berat Dasar</div>
                             <div class="input-group" style="max-width: 400px;">
