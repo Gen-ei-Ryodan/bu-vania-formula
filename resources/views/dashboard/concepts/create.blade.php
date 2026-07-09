@@ -244,8 +244,30 @@
                 attachRowListeners(clone);
             });
 
+            // Set name attributes for form submission (mirroring app.js refreshNames)
+            refreshRowNames();
+            // Attach remove button listeners
+            listContainer.querySelectorAll('[data-repeatable-remove]').forEach(function (btn) {
+                btn.addEventListener('click', function () {
+                    btn.closest('[data-repeatable-row]').remove();
+                    refreshRowNames();
+                });
+            });
+
             recalcAll();
             updateItemOptions();
+        }
+
+        function refreshRowNames() {
+            const listContainer = document.querySelector('[data-repeatable-list]');
+            listContainer.querySelectorAll('[data-repeatable-row]').forEach(function (row, index) {
+                row.querySelectorAll('[data-name]').forEach(function (el) {
+                    if (el.tagName !== 'INPUT' && el.tagName !== 'SELECT') return;
+                    const base = el.getAttribute('data-name');
+                    if (!base) return;
+                    el.name = 'items[' + index + '][' + base + ']';
+                });
+            });
         }
 
         function setupKombinasiListeners(row) {
@@ -363,6 +385,9 @@
         document.querySelectorAll('[data-repeatable-row]').forEach(attachRowListeners);
         recalcAll();
         updateItemOptions();
+
+        // Ensure name attributes are set for default rows added by app.js
+        refreshRowNames();
 
         document.querySelector('form')?.addEventListener('submit', function (e) {
             let totalPct = 0;
