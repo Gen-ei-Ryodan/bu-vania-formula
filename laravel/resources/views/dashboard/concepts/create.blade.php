@@ -177,23 +177,26 @@
         }
 
         // ===== Kombinasi Konsep =====
-        function getCombinedItems() {
+        function getCombinedItems(baseKg) {
             const combined = {};
             document.querySelectorAll('[data-kombinasi-row]').forEach(row => {
                 const conceptId = parseInt(row.querySelector('[data-konsep-select]').value);
                 const pct = parseFloat(row.querySelector('[data-konsep-pct]').value);
                 if (!conceptId || !pct || pct <= 0) return;
                 const concept = allConcepts.find(c => c.id === conceptId);
-                if (!concept) return;
+                if (!concept || !concept.base_weight_kg || concept.base_weight_kg <= 0) return;
+
+                const allocatedKg = baseKg * (pct / 100);
                 concept.items.forEach(item => {
-                    const scaledWeight = item.weight_kg * (pct / 100);
+                    const itemProp = item.weight_kg / concept.base_weight_kg;
+                    const finalWeight = itemProp * allocatedKg;
                     if (combined[item.item_id]) {
-                        combined[item.item_id].weight_kg += scaledWeight;
+                        combined[item.item_id].weight_kg += finalWeight;
                     } else {
                         combined[item.item_id] = {
                             item_id: item.item_id,
                             item_name: item.item_name,
-                            weight_kg: scaledWeight,
+                            weight_kg: finalWeight,
                         };
                     }
                 });
@@ -214,21 +217,17 @@
         function applyCombinedItems() {
             if (!isKombinasiActive()) return;
 
-            const combined = getCombinedItems();
+            const baseKg = getBaseKg();
+            if (baseKg <= 0) return;
+
+            const combined = getCombinedItems(baseKg);
             const listContainer = document.querySelector('[data-repeatable-list]');
             const template = document.querySelector('[data-repeatable] template');
 
-            // Auto-set base weight to match total combined weight
-            let totalKg = 0;
-            combined.forEach(item => { totalKg += item.weight_kg; });
             let kgUnitId = null;
             for (const [id, conv] of Object.entries(units)) {
                 const val = typeof conv === 'object' ? parseFloat(conv.conversion_to_kg || 1) : parseFloat(conv || 1);
                 if (val === 1) { kgUnitId = id; break; }
-            }
-            if (kgUnitId && totalKg > 0) {
-                baseWeightInput.value = totalKg.toFixed(4);
-                baseWeightUnit.value = kgUnitId;
             }
 
             // Clear existing rows
