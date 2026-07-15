@@ -34,6 +34,7 @@ class ConceptController extends Controller
         $allConcepts = Concept::query()->with('items.item')->orderBy('name')->get()->map(fn ($c) => [
             'id' => $c->id,
             'name' => $c->name,
+            'base_weight_kg' => (float) $c->base_weight_kg,
             'items' => $c->items->map(fn ($i) => [
                 'item_id' => $i->item_id,
                 'item_name' => $i->item?->name ?? '?',
