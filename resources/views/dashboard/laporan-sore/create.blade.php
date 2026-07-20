@@ -486,7 +486,17 @@
             })
             .catch(err => {
                 console.error(err);
-                alert('Terjadi kesalahan. Silakan coba lagi.');
+                let msg = 'Terjadi kesalahan. Silakan coba lagi.';
+                if (err && err.errors) {
+                    // Validation error from Laravel
+                    const firstKey = Object.keys(err.errors)[0];
+                    if (firstKey) msg = err.errors[firstKey][0] || msg;
+                } else if (err && err.message) {
+                    msg = err.message;
+                } else if (typeof err === 'string') {
+                    msg = err;
+                }
+                alert(msg);
             });
         });
     });
