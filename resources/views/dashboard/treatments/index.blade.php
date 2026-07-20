@@ -54,7 +54,14 @@
                                     <td class="cell-actions">
                                         <a class="btn btn-sm" href="{{ route('treatments.show', $production) }}">Detail</a>
                                         <a class="btn btn-sm" href="{{ route('treatments.edit', $production) }}">Edit</a>
-                                        <a class="btn btn-sm" href="{{ route('treatments.pdf', $production) }}">PDF</a>
+                                        <div x-data="{ open: false }" style="position:relative;display:inline-block;">
+                                            <button class="btn btn-sm" @click="open = !open" @click.outside="open = false" type="button">PDF &#9660;</button>
+                                            <div x-show="open" x-cloak style="position:absolute;top:100%;right:0;z-index:50;background:#fff;border:1px solid var(--border,#E2E8F0);border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,0.1);min-width:130px;padding:4px;margin-top:4px;">
+                                                <a href="{{ route('treatments.pdf', [$production, 'cards' => 4]) }}" style="display:block;padding:5px 10px;border-radius:6px;text-decoration:none;color:var(--text,#0F172A);font-size:12px;" onmouseover="this.style.background='#F1F5F9'" onmouseout="this.style.background=''">4 Copy</a>
+                                                <a href="{{ route('treatments.pdf', [$production, 'cards' => 6]) }}" style="display:block;padding:5px 10px;border-radius:6px;text-decoration:none;color:var(--text,#0F172A);font-size:12px;" onmouseover="this.style.background='#F1F5F9'" onmouseout="this.style.background=''">6 Copy</a>
+                                                <a href="{{ route('treatments.pdf', [$production, 'cards' => 9]) }}" style="display:block;padding:5px 10px;border-radius:6px;text-decoration:none;color:var(--text,#0F172A);font-size:12px;" onmouseover="this.style.background='#F1F5F9'" onmouseout="this.style.background=''">9 Copy</a>
+                                            </div>
+                                        </div>
                                         <form method="POST" action="{{ route('treatments.destroy', $production) }}" style="display: inline;">
                                             @csrf
                                             @method('DELETE')

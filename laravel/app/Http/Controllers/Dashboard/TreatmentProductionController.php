@@ -460,7 +460,7 @@ class TreatmentProductionController extends Controller
         return redirect()->to(route('treatments.show', $productionId) . '#tab')->with('ok', 'Item TAB dihapus.');
     }
 
-    public function pdf(Production $production)
+    public function pdf(Request $request, Production $production)
     {
         if ($production->production_type !== 'treatment') {
             abort(Response::HTTP_NOT_FOUND);
@@ -480,8 +480,14 @@ class TreatmentProductionController extends Controller
             abort(Response::HTTP_INTERNAL_SERVER_ERROR, 'PDF generator belum terpasang.');
         }
 
+        $cards = (int) $request->query('cards', 9);
+        if (! in_array($cards, [4, 6, 9])) {
+            $cards = 9;
+        }
+
         $pdf = Pdf::loadView('dashboard.treatments.pdf', [
             'production' => $production,
+            'totalCards' => $cards,
         ]);
 
         return $pdf->download('treatment-'.$production->id.'.pdf');

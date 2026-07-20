@@ -154,10 +154,6 @@
             const weight = (parseFloat(weightInput.value) || 0) * getUnitConversion(unitSelect.value);
             const baseKg = getBaseKg();
             if (baseKg > 0 && weight > 0) {
-                if ((getTotalWeightKg(row) + weight) > baseKg) {
-                    alert('Total weight melebihi base weight (' + baseKg.toFixed(2) + ' kg)');
-                    weightInput.value = ''; pctInput.value = ''; return;
-                }
                 pctInput.value = ((weight / baseKg) * 100).toFixed(2);
             } else { pctInput.value = ''; }
         }
