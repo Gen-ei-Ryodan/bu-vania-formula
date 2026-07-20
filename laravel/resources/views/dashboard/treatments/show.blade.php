@@ -37,10 +37,17 @@
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
                     Edit
                 </a>
-                <a class="btn" href="{{ route('treatments.pdf', $production) }}">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
-                    Cetak PDF
-                </a>
+                <div x-data="{ open: false }" style="position:relative;display:inline-block;">
+                    <button class="btn" @click="open = !open" @click.outside="open = false" type="button">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+                        Cetak PDF &#9660;
+                    </button>
+                    <div x-show="open" x-cloak style="position:absolute;top:100%;right:0;z-index:50;background:#fff;border:1px solid var(--border,#E2E8F0);border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,0.1);min-width:150px;padding:4px;margin-top:4px;">
+                        <a class="dropdown-item" href="{{ route('treatments.pdf', [$production, 'cards' => 4]) }}" style="display:block;padding:6px 12px;border-radius:6px;text-decoration:none;color:var(--text,#0F172A);font-size:13px;" onmouseover="this.style.background='#F1F5F9'" onmouseout="this.style.background=''">4 Copy</a>
+                        <a class="dropdown-item" href="{{ route('treatments.pdf', [$production, 'cards' => 6]) }}" style="display:block;padding:6px 12px;border-radius:6px;text-decoration:none;color:var(--text,#0F172A);font-size:13px;" onmouseover="this.style.background='#F1F5F9'" onmouseout="this.style.background=''">6 Copy</a>
+                        <a class="dropdown-item" href="{{ route('treatments.pdf', [$production, 'cards' => 9]) }}" style="display:block;padding:6px 12px;border-radius:6px;text-decoration:none;color:var(--text,#0F172A);font-size:13px;" onmouseover="this.style.background='#F1F5F9'" onmouseout="this.style.background=''">9 Copy</a>
+                    </div>
+                </div>
                 <a class="btn btn-ghost" href="{{ route('treatments.index') }}">Kembali</a>
                 <form method="POST" action="{{ route('treatments.destroy', $production) }}" style="display:inline;">
                     @csrf
