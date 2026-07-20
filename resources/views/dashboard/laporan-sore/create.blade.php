@@ -74,7 +74,7 @@
                                         @if ($locCages->isNotEmpty())
                                             <optgroup label="{{ $location->name }}">
                                             @foreach ($locCages as $cage)
-                                                <option value="{{ $cage->id }}" data-location-id="{{ $location->id }}">{{ $cage->name }}</option>
+                                                <option value="{{ $cage->id }}">{{ $cage->name }}</option>
                                             @endforeach
                                             </optgroup>
                                         @endif
@@ -169,24 +169,6 @@
         tanggalInput.addEventListener('change', updateSisaKemarin);
         updateSisaKemarin();
 
-        // Filter cages by location
-        function filterCages() {
-            const selectedLocation = locationSelect.value;
-            document.querySelectorAll('[data-cage-select] option, [data-cage-select] optgroup').forEach(el => {
-                if (el.tagName === 'OPTION' && el.value === '') return;
-                const locId = el.dataset.locationId || el.parentElement?.dataset?.locationId;
-                if (!locId) return;
-                el.style.display = (!selectedLocation || locId === selectedLocation) ? '' : 'none';
-            });
-            document.querySelectorAll('[data-cage-select]').forEach(sel => {
-                const selectedOpt = sel.options[sel.selectedIndex];
-                if (selectedOpt && selectedOpt.style.display === 'none') {
-                    sel.value = '';
-                }
-            });
-        }
-        locationSelect.addEventListener('change', filterCages);
-
         // Initialize each section
         document.querySelectorAll('[data-section]').forEach(section => {
             const sectionKey = section.dataset.section;
@@ -206,7 +188,6 @@
                 const clone = cageTemplate.content.firstElementChild.cloneNode(true);
                 cageList.appendChild(clone);
                 setupCageRow(clone);
-                filterCages();
                 toggleEmptyState();
             }
 
