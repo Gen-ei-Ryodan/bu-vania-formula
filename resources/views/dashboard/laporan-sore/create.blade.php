@@ -106,22 +106,26 @@
                                             @endforeach
                                         </select>
                                     </div>
-                                    <div class="field">
+                                    <div class="field" style="flex: 1.5;">
                                         <div class="label">Item Tambahan</div>
-                                        <select data-item-select multiple size="3" style="min-height: 80px;">
-                                            @foreach ($items as $item)
-                                                <option value="{{ $item->id }}">{{ $item->name }}</option>
-                                            @endforeach
-                                        </select>
-                                        <div class="field-hint">Tahan Ctrl/Cmd untuk memilih lebih dari satu</div>
+                                        <div class="item-picker">
+                                            <button type="button" class="btn btn-sm" data-pick-items>
+                                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+                                                Pilih Item
+                                            </button>
+                                            <div class="item-picker-tags" data-selected-items>
+                                                <span class="item-picker-empty">Belum ada item dipilih</span>
+                                            </div>
+                                        </div>
                                     </div>
                                     <div class="field w-sm">
                                         <div class="label">Jumlah <span class="text-danger">*</span></div>
                                         <input type="number" step="0.01" min="0" data-jumlah-input placeholder="0" required>
                                     </div>
                                     <div class="field w-sm">
-                                        <div class="label">Satuan <span class="text-danger">*</span></div>
-                                        <input type="text" data-satuan-input placeholder="Contoh: Zak" required>
+                                        <div class="label">Satuan</div>
+                                        <div class="satuan-static">ZAK</div>
+                                        <input type="hidden" data-satuan-input value="ZAK">
                                     </div>
                                     <div class="konsep-row-actions">
                                         <button class="btn btn-sm btn-danger" type="button" data-remove-konsep>
@@ -148,8 +152,47 @@
         <button class="btn btn-primary btn-lg" type="submit" id="btn-submit">Simpan Laporan</button>
     </div>
 
+{{-- Modal Item Tambahan (global) --}}
+<div class="modal-overlay" id="item-modal" style="display: none;">
+    <div class="modal" style="max-width: 500px;">
+        <div class="modal-header">
+            <h3>Pilih Item Tambahan</h3>
+            <button class="btn btn-ghost btn-sm" type="button" data-modal-close style="width: 34px;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+        </div>
+        <div class="modal-body" style="max-height: 400px; overflow-y: auto;">
+            <div class="field" style="margin-bottom: 12px;">
+                <input type="text" id="item-search" placeholder="Cari item..." style="width: 100%;">
+            </div>
+            <div id="item-checkbox-list" style="display: flex; flex-direction: column; gap: 6px;">
+                @foreach ($items as $item)
+                <label class="item-checkbox" data-item-id="{{ $item->id }}">
+                    <input type="checkbox" value="{{ $item->id }}">
+                    <span>{{ $item->name }}</span>
+                    @if ($item->category)
+                        <small style="color: var(--text-muted); margin-left: auto;">{{ $item->category->name }}</small>
+                    @endif
+                </label>
+                @endforeach
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-ghost" type="button" data-modal-close>Batal</button>
+            <button class="btn btn-primary" type="button" id="item-modal-save">Simpan</button>
+        </div>
+    </div>
+</div>
+
     @push('scripts')
     <script>
+    // Item data lookup
+    const itemNames = {
+        @foreach ($items as $item)
+            {{ $item->id }}: '{{ $item->name }}',
+        @endforeach
+    };
+
     document.addEventListener('DOMContentLoaded', function () {
         const locationSelect = document.getElementById('location-id');
         const tanggalInput = document.getElementById('tanggal-laporan');
@@ -228,8 +271,38 @@
                 function setupKonsepRow(konsepRow) {
                     if (konsepRow.dataset.attached) return;
                     konsepRow.dataset.attached = '1';
+
                     konsepRow.querySelector('[data-remove-konsep]').addEventListener('click', function () {
                         konsepRow.remove();
+                    });
+
+                    // === Item Picker (Popup) ===
+                    const pickBtn = konsepRow.querySelector('[data-pick-items]');
+
+                    pickBtn.addEventListener('click', function () {
+                        const modal = document.getElementById('item-modal');
+                        const checkboxes = modal.querySelectorAll('#item-checkbox-list input[type="checkbox"]');
+                        const searchInput = document.getElementById('item-search');
+
+                        // Reset search
+                        searchInput.value = '';
+                        document.querySelectorAll('#item-checkbox-list .item-checkbox').forEach(el => {
+                            el.style.display = '';
+                        });
+
+                        // Check current selections from dataset
+                        let currentIds = [];
+                        try { currentIds = JSON.parse(konsepRow.dataset.itemIds || '[]'); } catch(e) {}
+                        checkboxes.forEach(cb => {
+                            cb.checked = currentIds.includes(parseInt(cb.value));
+                        });
+
+                        // Store reference to this row
+                        if (!konsepRow.dataset.konsepId) {
+                            konsepRow.dataset.konsepId = 'kr_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6);
+                        }
+                        modal.dataset.targetRow = konsepRow.dataset.konsepId;
+                        modal.style.display = 'flex';
                     });
                 }
 
@@ -250,6 +323,80 @@
 
             addCageBtn.addEventListener('click', addCageRow);
             toggleEmptyState();
+        });
+
+        // === Item Modal: Search filter ===
+        document.getElementById('item-search').addEventListener('input', function () {
+            const q = this.value.toLowerCase();
+            document.querySelectorAll('#item-checkbox-list .item-checkbox').forEach(el => {
+                const name = el.querySelector('span').textContent.toLowerCase();
+                el.style.display = name.includes(q) ? '' : 'none';
+            });
+        });
+
+        // === Item Modal: Save ===
+        document.getElementById('item-modal-save').addEventListener('click', function () {
+            const modal = document.getElementById('item-modal');
+            const targetRowId = modal.dataset.targetRow;
+            const checkboxes = modal.querySelectorAll('#item-checkbox-list input[type="checkbox"]:checked');
+            const selectedIds = Array.from(checkboxes).map(cb => parseInt(cb.value));
+
+            // Find the target konsep row and trigger render via bubbled event
+            document.querySelectorAll('[data-konsep-row]').forEach(row => {
+                if (row.dataset.konsepId === targetRowId) {
+                    const pickBtn = row.querySelector('[data-pick-items]');
+                    // Must use bubbles:true so document listener can catch it
+                    pickBtn.dispatchEvent(new CustomEvent('items-selected', {
+                        detail: { ids: selectedIds },
+                        bubbles: true,
+                    }));
+                }
+            });
+
+            modal.style.display = 'none';
+        });
+
+        // Listen for items-selected on each pick button
+        document.addEventListener('items-selected', function (e) {
+            const pickBtn = e.target;
+            const konsepRow = pickBtn.closest('[data-konsep-row]');
+            const tagsContainer = konsepRow.querySelector('[data-selected-items]');
+            const selectedIds = e.detail.ids;
+
+            // Rebuild tags
+            tagsContainer.innerHTML = '';
+            if (selectedIds.length === 0) {
+                tagsContainer.innerHTML = '<span class="item-picker-empty">Belum ada item dipilih</span>';
+                return;
+            }
+            selectedIds.forEach(id => {
+                const name = itemNames[id] || 'Item #' + id;
+                const tag = document.createElement('span');
+                tag.className = 'item-tag';
+                tag.innerHTML = name + ' <span class="item-tag-remove" data-id="' + id + '">&times;</span>';
+                tag.querySelector('.item-tag-remove').addEventListener('click', function (e2) {
+                    e2.stopPropagation();
+                    const removeId = parseInt(this.dataset.id);
+                    const filtered = selectedIds.filter(i => i !== removeId);
+                    pickBtn.dispatchEvent(new CustomEvent('items-selected', { detail: { ids: filtered } }));
+                });
+                tagsContainer.appendChild(tag);
+            });
+
+            // Store data attribute for submit
+            konsepRow.dataset.itemIds = JSON.stringify(selectedIds);
+        });
+
+        // Close modal on overlay click
+        document.getElementById('item-modal').addEventListener('click', function (e) {
+            if (e.target === this) this.style.display = 'none';
+        });
+
+        // Close modal on data-modal-close
+        document.querySelectorAll('#item-modal [data-modal-close]').forEach(btn => {
+            btn.addEventListener('click', function () {
+                document.getElementById('item-modal').style.display = 'none';
+            });
         });
 
         // Submit form
@@ -276,7 +423,6 @@
 
                     cageRow.querySelectorAll('[data-konsep-row]').forEach(konsepRow => {
                         const konsepSelect = konsepRow.querySelector('[data-konsep-select]');
-                        const itemSelect = konsepRow.querySelector('[data-item-select]');
                         const jumlahInput = konsepRow.querySelector('[data-jumlah-input]');
                         const satuanInput = konsepRow.querySelector('[data-satuan-input]');
 
@@ -288,9 +434,12 @@
                             return; // skip incomplete rows
                         }
 
-                        const selectedItems = [];
-                        for (const opt of itemSelect.options) {
-                            if (opt.selected && opt.value) selectedItems.push(opt.value);
+                        // Read selected items from data attribute
+                        let selectedItems = [];
+                        try {
+                            selectedItems = JSON.parse(konsepRow.dataset.itemIds || '[]');
+                        } catch (e) {
+                            selectedItems = [];
                         }
 
                         details.push({
@@ -405,6 +554,86 @@
         display: flex;
         align-items: end;
         padding-bottom: 1px;
+    }
+
+    /* Item Picker */
+    .item-picker {
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 6px;
+        min-height: 38px;
+    }
+    .item-picker-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 4px;
+        flex: 1;
+        min-width: 80px;
+    }
+    .item-picker-empty {
+        font-size: 11px;
+        color: var(--text-muted);
+        font-style: italic;
+        line-height: 1.4;
+    }
+    .item-tag {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 2px 8px;
+        background: var(--primary-light);
+        color: var(--primary);
+        border: 1px solid var(--primary-border);
+        border-radius: var(--radius-badge);
+        font-size: 11px;
+        font-weight: 500;
+    }
+    .item-tag-remove {
+        cursor: pointer;
+        font-size: 14px;
+        line-height: 1;
+        opacity: 0.6;
+        transition: opacity .15s;
+    }
+    .item-tag-remove:hover {
+        opacity: 1;
+    }
+    .item-checkbox {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 6px 8px;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: background .15s;
+    }
+    .item-checkbox:hover {
+        background: var(--card-alt);
+    }
+    .item-checkbox input[type="checkbox"] {
+        width: 16px;
+        height: 16px;
+        cursor: pointer;
+    }
+    .item-checkbox span {
+        font-size: 13px;
+        font-weight: 500;
+    }
+
+    .satuan-static {
+        display: flex;
+        align-items: center;
+        height: 38px;
+        padding: 0 12px;
+        background: var(--card-alt);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-input);
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--text);
+        letter-spacing: 0.05em;
     }
 
     @media (max-width: 768px) {
