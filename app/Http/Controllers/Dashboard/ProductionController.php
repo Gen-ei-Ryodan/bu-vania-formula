@@ -414,7 +414,7 @@ class ProductionController extends Controller
         }
 
         $cards = (int) $request->query('cards', 9);
-        if (! in_array($cards, [4, 6, 9])) {
+        if (! in_array($cards, [2, 4, 6, 9])) {
             $cards = 9;
         }
 

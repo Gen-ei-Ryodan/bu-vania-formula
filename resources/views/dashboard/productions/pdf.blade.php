@@ -77,7 +77,7 @@
         $cols = $totalCards <= 4 ? 2 : 3;
         $rows = (int) ceil($totalCards / $cols);
         $colW = $cols === 2 ? 49.8 : 33.1;
-        $rowH = $rows === 2 ? 49.6 : 33.0;
+        $rowH = $rows === 1 ? 99.6 : ($rows === 2 ? 49.6 : 33.0);
         $gap = 0.4;
     @endphp
 
