@@ -136,7 +136,7 @@
         const cageSelect = document.getElementById('cage-select');
         const concepts = @json($conceptsData ?? []);
 
-        function fmtNum(val) { const n = parseFloat(val); return isNaN(n) ? '0' : (n % 1 === 0 ? n.toFixed(0) : n.toFixed(2)); }
+        function fmtNum(val) { const n = parseFloat(val); return isNaN(n) ? '0' : n.toFixed(3); }
         function getTargetKg() { return (parseFloat(targetWeightInput.value) || 0) * (parseFloat(targetWeightUnit.options[targetWeightUnit.selectedIndex]?.dataset?.conv) || 1); }
 
         function showConceptPreview(id) {

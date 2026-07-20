@@ -129,7 +129,7 @@
         const cageSelect = document.getElementById('cage-select');
         const concepts = @json($conceptsData ?? []);
 
-        function fmtNum(val) { const n = parseFloat(val); return isNaN(n) ? '0' : (n % 1 === 0 ? n.toFixed(0) : n.toFixed(2)); }
+        function fmtNum(val) { const n = parseFloat(val); return isNaN(n) ? '0' : n.toFixed(3); }
         function getTargetKg() { return (parseFloat(targetWeightInput.value) || 0) * (parseFloat(targetWeightUnit.options[targetWeightUnit.selectedIndex]?.dataset?.conv) || 1); }
         function showConceptPreview(id) { const data = concepts[id]; if (!data) { conceptPreview.innerHTML = ''; return; } const targetKg = getTargetKg(); let html = '<div class="card" style="padding: 8px;"><div><strong>' + data.name + '</strong> \u2014 Target: ' + fmtNum(targetKg) + ' kg</div><table class="data" style="margin-top: 4px;"><thead><tr><th>Item</th><th>Berat (kg)</th><th>%</th></tr></thead><tbody>'; data.items.forEach(function (item) { const scaled = targetKg > 0 ? (targetKg * parseFloat(item.percentage) / 100) : 0; html += '<tr><td>' + (item.item || '-') + '</td><td>' + fmtNum(scaled) + '</td><td>' + fmtNum(item.percentage) + '%</td></tr>'; }); html += '</tbody></table></div>'; conceptPreview.innerHTML = html; }
 
