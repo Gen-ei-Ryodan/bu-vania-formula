@@ -112,9 +112,21 @@ a {
     border-color: rgba(37, 99, 235, 0.25);
 }
 
-.nav small {
-    font-size: 11px;
+.nav-section {
+    margin-top: 18px;
+    padding: 6px 12px 4px;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
     color: var(--muted);
+    text-align: right;
+    border-top: 1px solid var(--border);
+}
+
+.nav-section:first-of-type {
+    margin-top: 0;
+    border-top: none;
 }
 
 .content {
@@ -141,6 +153,38 @@ a {
     border-radius: 12px;
     padding: 10px 12px;
     cursor: pointer;
+    min-width: 44px;
+    min-height: 44px;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    flex-direction: column;
+}
+
+.burger::before,
+.burger::after {
+    content: '';
+    display: block;
+    width: 20px;
+    height: 2.5px;
+    background: var(--text);
+    border-radius: 2px;
+}
+
+.burger span {
+    display: block;
+    width: 20px;
+    height: 2.5px;
+    background: var(--text);
+    border-radius: 2px;
+}
+
+.sidebar-backdrop {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.3);
+    z-index: 49;
 }
 
 .topbar h1 {
@@ -238,31 +282,67 @@ a {
 
 .row {
     display: grid;
-    gap: 10px;
+    gap: 12px;
 }
 
+/* ─── Form Field ─── */
 .field {
     display: grid;
-    gap: 6px;
+    gap: 5px;
 }
 
 .label {
     font-size: 12px;
-    color: var(--muted);
+    font-weight: 600;
+    color: var(--text);
+    letter-spacing: 0.2px;
 }
 
+.label-optional {
+    font-weight: 400;
+    color: var(--muted);
+    font-size: 11px;
+}
+
+/* ─── Inputs & Selects ─── */
 input[type='text'],
 input[type='number'],
 input[type='date'],
+input[type='email'],
+input[type='password'],
 select,
 textarea {
     width: 100%;
-    padding: 10px 12px;
-    border-radius: 12px;
-    border: 1px solid #d1d5db;
+    padding: 10px 14px;
+    border-radius: 10px;
+    border: 1.5px solid #d1d5db;
     background: #ffffff;
     color: var(--text);
+    font-size: 14px;
+    line-height: 1.5;
     outline: none;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+select {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    background-size: 14px;
+    padding-right: 36px;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+}
+
+input::placeholder,
+textarea::placeholder {
+    color: #9ca3af;
 }
 
 textarea {
@@ -270,13 +350,158 @@ textarea {
     resize: vertical;
 }
 
-input:focus,
-select:focus,
-textarea:focus {
-    border-color: rgba(37, 99, 235, 0.55);
-    box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12);
+/* ─── Input Group (value + unit combo) ─── */
+.input-group {
+    display: grid;
+    grid-template-columns: 1fr 110px;
+    gap: 8px;
 }
 
+.input-group input,
+.input-group select {
+    min-width: 0;
+}
+
+/* ─── Inline Field (label + input in a row) ─── */
+.field-inline {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.field-inline label {
+    font-size: 13px;
+    color: var(--text);
+    white-space: nowrap;
+}
+
+/* ─── Form Row (laporan-sore: cage header row) ─── */
+.form-row-cage {
+    display: flex;
+    gap: 12px;
+    align-items: end;
+    flex-wrap: wrap;
+    margin-bottom: 12px;
+}
+
+.form-row-cage .field {
+    margin: 0;
+    flex: 1;
+    min-width: 180px;
+}
+
+.form-row-cage .field.w-compact {
+    flex: 0 1 auto;
+    min-width: 120px;
+}
+
+/* ─── Form Row (laporan-sore: konsep detail row) ─── */
+.form-row-konsep {
+    display: flex;
+    gap: 8px;
+    align-items: end;
+    flex-wrap: wrap;
+    padding: 10px 12px;
+    background: #f9fafb;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    margin-bottom: 6px;
+}
+
+.form-row-konsep .field {
+    margin: 0;
+    flex: 1;
+    min-width: 140px;
+}
+
+.form-row-konsep .field.w-narrow {
+    flex: 0 1 auto;
+    min-width: 100px;
+}
+
+.form-row-konsep .field.w-tiny {
+    flex: 0 1 auto;
+    min-width: 80px;
+}
+
+/* ─── Section header colors ─── */
+.section-sisa_kemarin .panel-header {
+    border-left: 4px solid #f59e0b;
+}
+
+.section-campuran_hari_ini .panel-header {
+    border-left: 4px solid #3b82f6;
+}
+
+.section-kirim_hari_ini .panel-header {
+    border-left: 4px solid #10b981;
+}
+
+.section-stock .panel-header {
+    border-left: 4px solid #8b5cf6;
+}
+
+/* ─── Detail Konsep label row ─── */
+.konsep-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 10px;
+    padding: 6px 0;
+    border-bottom: 1px solid var(--border);
+}
+
+.konsep-toolbar strong {
+    font-size: 13px;
+    color: var(--muted);
+}
+
+/* ─── Checkbox / Toggle ─── */
+input[type='checkbox'] {
+    width: 18px;
+    height: 18px;
+    border-radius: 5px;
+    border: 1.5px solid #d1d5db;
+    appearance: none;
+    background: #fff;
+    cursor: pointer;
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: border-color 0.15s ease, background 0.15s ease;
+    margin: 0;
+}
+
+input[type='checkbox']:checked {
+    border-color: var(--primary);
+    background: var(--primary);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'%3E%3C/polyline%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 12px;
+}
+
+input[type='checkbox']:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+}
+
+/* ─── Readonly & Disabled ─── */
+input:read-only,
+textarea:read-only {
+    background: #f3f4f6;
+    cursor: default;
+}
+
+input:disabled,
+select:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* ─── Actions ─── */
 .actions {
     display: flex;
     gap: 8px;
@@ -380,8 +605,29 @@ textarea:focus {
     margin-left: auto;
 }
 
+.table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.table-wrapper > .table {
+    min-width: max-content;
+}
+
+.btn-sm {
+    padding: 6px 10px;
+    font-size: 12px;
+}
+
 .hidden {
     display: none;
+}
+
+@media (max-width: 1200px) {
+    .grid-3 {
+        grid-template-columns: repeat(2, 1fr);
+    }
 }
 
 @media (max-width: 980px) {
@@ -396,29 +642,200 @@ textarea:focus {
         transform: translateX(-104%);
         transition: transform 200ms ease;
         width: 300px;
+        max-width: 85vw;
         z-index: 50;
         box-shadow: var(--shadow);
+        overflow-y: auto;
     }
 
     .sidebar.open {
         transform: translateX(0);
     }
 
+    .sidebar.open ~ .sidebar-backdrop {
+        display: block;
+    }
+
     .burger {
         display: inline-flex;
-        align-items: center;
-        justify-content: center;
     }
 
     .content {
-        padding: 16px;
+        padding: 12px;
     }
 
-    .grid-3 {
-        grid-template-columns: 1fr;
+    .topbar {
+        padding: 10px 12px;
+        gap: 8px;
     }
 
+    .topbar h1 {
+        font-size: 14px;
+        flex: 1;
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .topbar .right {
+        width: 100%;
+        justify-content: flex-end;
+        gap: 8px;
+    }
+
+    .topbar .right .muted {
+        font-size: 11px;
+    }
+
+    .grid-3,
     .grid-2 {
         grid-template-columns: 1fr;
+    }
+
+    .panel-header {
+        flex-wrap: wrap;
+    }
+
+    .panel-header h2 {
+        font-size: 13px;
+    }
+
+    .panel-body {
+        padding: 12px;
+    }
+
+    .table th,
+    .table td {
+        padding: 8px 8px;
+        font-size: 12px;
+    }
+
+    .actions .btn {
+        padding: 8px 10px;
+        font-size: 12px;
+    }
+
+    .btn {
+        padding: 10px 14px;
+        font-size: 14px;
+        min-height: 44px;
+    }
+
+    .btn-sm {
+        min-height: 36px;
+        padding: 6px 12px;
+        font-size: 13px;
+    }
+
+    .w-160,
+    .w-220,
+    .w-280 {
+        width: 100%;
+        min-width: 0;
+    }
+
+    .card strong {
+        font-size: 18px;
+    }
+
+    .inline {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .inline .field {
+        width: 100%;
+    }
+
+    input[type='text'],
+    input[type='number'],
+    input[type='date'],
+    select,
+    textarea {
+        padding: 12px 14px;
+        font-size: 16px;
+    }
+
+    .input-group {
+        grid-template-columns: 1fr 100px;
+    }
+
+    .form-row-cage .field {
+        min-width: 140px;
+    }
+
+    .form-row-cage .field.w-compact {
+        min-width: 100px;
+    }
+
+    .form-row-konsep .field {
+        min-width: 100px;
+    }
+
+    .grid-form-row,
+    .grid-item-row {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 480px) {
+    .content {
+        padding: 8px;
+    }
+
+    .panel-body {
+        padding: 10px;
+    }
+
+    .panel-header {
+        padding: 10px 12px;
+    }
+
+    .table th,
+    .table td {
+        padding: 6px 6px;
+        font-size: 11px;
+    }
+
+    .topbar .right {
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 4px;
+    }
+
+    .actions {
+        gap: 4px;
+    }
+
+    .actions .btn {
+        padding: 6px 8px;
+        font-size: 11px;
+    }
+
+    .input-group {
+        grid-template-columns: 1fr;
+    }
+
+    .form-row-cage {
+        flex-direction: column;
+    }
+
+    .form-row-cage .field,
+    .form-row-cage .field.w-compact {
+        min-width: 0;
+        width: 100%;
+    }
+
+    .form-row-konsep {
+        flex-direction: column;
+        padding: 8px;
+    }
+
+    .form-row-konsep .field,
+    .form-row-konsep .field.w-narrow,
+    .form-row-konsep .field.w-tiny {
+        min-width: 0;
+        width: 100%;
     }
 }

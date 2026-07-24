@@ -1,160 +1,220 @@
 <!doctype html>
-<html>
-    <head>
-        <meta charset="utf-8">
-        <title>Pengobatan: {{ $production->name }}</title>
-        <style>
-            body { font-family: sans-serif; font-size: 12px; color: #222; padding: 20px; }
-            h1 { font-size: 18px; margin-bottom: 4px; }
-            h2 { font-size: 14px; margin: 20px 0 8px; border-bottom: 1px solid #ddd; padding-bottom: 4px; }
-            table { width: 100%; border-collapse: collapse; margin-bottom: 12px; }
-            th, td { padding: 5px 8px; text-align: left; border: 1px solid #ddd; }
-            th { background: #f5f5f5; font-size: 11px; text-transform: uppercase; }
-            .info { display: flex; flex-wrap: wrap; gap: 16px; margin: 8px 0 16px; }
-            .info > div { font-size: 12px; }
-            .info strong { display: block; font-size: 14px; }
-            .chip { display: inline-block; background: #e8f4fd; padding: 2px 8px; border-radius: 4px; font-size: 11px; }
-        </style>
-    </head>
-    <body>
-        <h1>{{ $production->name }}</h1>
-        <div class="info">
-            <div>
-                <span>Resep</span>
-                <strong>{{ $production->concept?->name ?? '-' }}</strong>
-            </div>
-            <div>
-                <span>Target</span>
-                <strong>{{ formatWeight($production->target_weight_kg) }} kg</strong>
-            </div>
-            <div>
-                <span>Hari Ke</span>
-                <strong>{{ $production->treatment_day ?? '-' }}</strong>
-            </div>
-            <div>
-                <span>Waktu</span>
-                <strong><span class="chip">{{ $production->treatment_time ?? '-' }}</span></strong>
-            </div>
-            <div>
-                <span>Mulai</span>
-                <strong>{{ $production->start_date?->format('d-m-Y') ?? '-' }}</strong>
-            </div>
-            <div>
-                <span>Durasi</span>
-                <strong>{{ $production->is_forever ? 'Selamanya' : $production->duration_days.' hari' }}</strong>
-            </div>
-            <div>
-                <span>Lokasi</span>
-                <strong>{{ $production->location ?? '-' }}</strong>
-            </div>
-            <div>
-                <span>Kandang</span>
-                <strong>{{ $production->cage ?? '-' }}</strong>
-            </div>
-        </div>
+<html lang="id">
+<head>
+    <meta charset="utf-8">
+    <title>Pengobatan #{{ $production->id }} — Program Formula</title>
+    <style>
+        @page { margin: 3mm; size: A4 landscape; }
+        html, body {
+            font-family: 'DejaVu Sans', sans-serif;
+            font-size: 7pt;
+            color: #1E293B;
+            line-height: 1.25;
+            margin: 0;
+            padding: 0;
+        }
 
-        @if ($production->notes)
-            <p><strong>Catatan:</strong> {{ $production->notes }}</p>
-        @endif
+        .card {
+            position: absolute;
+            border: 0.4px solid #334155;
+            border-radius: 2px;
+            padding: 3px 4px;
+            background: #fff;
+            overflow: hidden;
+        }
 
-        <h2>Snapshot Item</h2>
-        <table>
-            <thead>
-                <tr>
-                    <th>Item</th>
-                    <th>Berat (kg)</th>
-                    <th>Sumber</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach ($production->items as $row)
+        .card-header {
+            font-weight: 700; font-size: 7.5pt; color: #fff;
+            background: #1E3A5F; padding: 1.5px 4px;
+            border-radius: 2px 2px 0 0;
+            margin: -3px -4px 3px -4px;
+            text-align: center; letter-spacing: 0.3px;
+        }
+
+        .info-grid {
+            width: 100%; border-collapse: collapse;
+            margin-bottom: 2px; border: 0.3px solid #CBD5E1;
+        }
+        .info-grid td { padding: 1px 2px; font-size: 6pt; border: 0.3px solid #CBD5E1; }
+        .info-grid .lbl { font-weight: 600; color: #475569; background: #F8FAFC; width: 35%; }
+        .info-grid .val { color: #1E293B; }
+
+        .item-table {
+            width: 100%; border-collapse: collapse;
+            font-size: 6pt; margin-bottom: 2px;
+        }
+        .item-table thead th {
+            background: #1E3A5F; color: #fff; font-weight: 600;
+            font-size: 5.5pt; text-transform: uppercase;
+            padding: 1.5px 2px; text-align: center;
+            border: 0.3px solid #1E3A5F; line-height: 1.2;
+        }
+        .item-table tbody td {
+            padding: 1px 2px; border: 0.3px solid #E2E8F0;
+            font-size: 6pt; vertical-align: middle;
+        }
+        .item-table tbody tr:nth-child(even) { background: #FAFAFA; }
+        .item-table .c-no { width: 12px; text-align: center; }
+        .item-table .c-name { text-align: left; }
+        .item-table .c-w { width: 28px; text-align: right; }
+        .item-table .c-ttd { width: 32px; text-align: center; }
+
+        .extra-items {
+            font-size: 5.5pt; color: #475569; padding: 1px 2px;
+            border-bottom: 0.3px solid #E2E8F0; margin-bottom: 1px;
+        }
+        .extra-items .label { font-weight: 700; color: #1E3A5F; }
+        .extra-items .sub { padding-left: 8px; color: #64748B; display: flex; }
+        .extra-items .sub .kw { margin-left: auto; text-align: right; min-width: 28px; }
+        .dosis-tag { font-size: 5pt; color: #B45309; }
+
+        .notes-line { font-size: 5.5pt; color: #64748B; font-style: italic; padding: 1px 2px; min-height: 8px; }
+    </style>
+</head>
+<body>
+    @php
+        $p = $production;
+        $totalCards = $totalCards ?? 9;
+        $cols = $totalCards <= 4 ? 2 : 3;
+        $rows = (int) ceil($totalCards / $cols);
+        $colW = $cols === 2 ? 49.8 : 33.1;
+        $rowH = $rows === 1 ? 99.6 : ($rows === 2 ? 49.6 : 33.0);
+        $gap = 0.4;
+    @endphp
+
+    @for ($r = 0; $r < $rows; $r++)
+        @php $leftInRow = $totalCards - ($r * $cols); $thisRow = min($cols, $leftInRow); @endphp
+        @for ($c = 0; $c < $thisRow; $c++)
+            @php
+                $top = $r * ($rowH + $gap);
+                $left = $c * ($colW + $gap);
+            @endphp
+            <div class="card" style="top: {{ $top }}%; left: {{ $left }}%; width: {{ $colW }}%; height: {{ $rowH }}%;">
+                <div class="card-header">FORMULIR PENGOBATAN &mdash; {{ $p->name }}</div>
+
+                <table class="info-grid">
                     <tr>
-                        <td>{{ $row->item?->name }}</td>
-                        <td>{{ formatWeight($row->weight_kg) }}</td>
-                        <td><span class="chip">{{ $row->source }}</span></td>
+                        <td class="lbl">Tgl Produksi</td>
+                        <td class="val">{{ $p->mix_date?->format('d-m-Y') ?? ($p->start_date?->format('d-m-Y') ?? '-') }}</td>
+                        <td class="lbl">Kapasitas</td>
+                        <td class="val">{{ formatWeight($p->target_weight_kg) }} kg</td>
                     </tr>
-                @endforeach
-                @if ($production->items->isEmpty())
                     <tr>
-                        <td colspan="3">Belum ada snapshot item.</td>
+                        <td class="lbl">Kode Formula</td>
+                        <td class="val">{{ $p->concept?->name ?? '-' }}</td>
+                        <td class="lbl">Kandang</td>
+                        <td class="val">{{ $p->cage ?? '-' }}</td>
                     </tr>
+                    <tr>
+                        <td class="lbl">Nama Formula</td>
+                        <td class="val" colspan="3">{{ $p->concept?->name ?? '-' }}</td>
+                    </tr>
+                    <tr>
+                        <td class="lbl">Hari Ke</td>
+                        <td class="val">{{ $p->treatment_day ?? '-' }}</td>
+                        <td class="lbl">Waktu</td>
+                        <td class="val">{{ ucfirst($p->treatment_time ?? '-') }}</td>
+                    </tr>
+                </table>
+
+                <table class="item-table">
+                    <thead>
+                        <tr>
+                            <th class="c-no">No</th>
+                            <th class="c-name">Nama Bahan</th>
+                            <th class="c-w">Kg</th>
+                            <th class="c-ttd">Cek Penimbangan OBAT (TTD)</th>
+                            <th class="c-ttd">Cek Pencampuran MIXER KECIL (TTD)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse ($p->items as $i => $row)
+                            <tr>
+                                <td class="c-no">{{ $i + 1 }}</td>
+                                <td class="c-name">{{ $row->item?->name }}</td>
+                                <td class="c-w">{{ formatWeight($row->weight_kg) }}</td>
+                                <td class="c-ttd"></td>
+                                <td class="c-ttd"></td>
+                            </tr>
+                        @empty
+                            <tr><td class="c-no" colspan="5" style="text-align:center;color:#CBD5E1;">-</td></tr>
+                        @endforelse
+                    </tbody>
+                </table>
+
+                @if ($p->groups->isNotEmpty())
+                    @foreach ($p->groups as $group)
+                        <table class="item-table" style="margin-top: 2px;">
+                            <thead>
+                                <tr>
+                                    <th class="c-no">No</th>
+                                    <th class="c-name">{{ $group->name }}</th>
+                                    <th class="c-w">Kg</th>
+                                    <th class="c-ttd">Cek Penimbangan OBAT (TTD)</th>
+                                    <th class="c-ttd">Cek Pencampuran MIXER KECIL (TTD)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach ($group->items as $i => $gi)
+                                    @php
+                                        $dw = $gi->weight_input_value && $gi->inputUnit
+                                            ? round($gi->weight_input_value, 4) . ' ' . $gi->inputUnit->name
+                                            : formatWeight($gi->weight_kg) . ' kg';
+                                    @endphp
+                                    <tr>
+                                        <td class="c-no">{{ $i + 1 }}</td>
+                                        <td class="c-name">{{ $gi->item?->name }}@if($gi->is_dosis) <span class="dosis-tag">[Dosis]</span>@endif</td>
+                                        <td class="c-w">{{ $dw }}</td>
+                                        <td class="c-ttd"></td>
+                                        <td class="c-ttd"></td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    @endforeach
                 @endif
-            </tbody>
-        </table>
 
-        <h2>Golongan</h2>
-        @foreach ($production->groups as $group)
-            <div><strong>{{ $group->name }}</strong></div>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Item</th>
-                        <th style="width: 120px;">Berat (kg)</th>
-                        <th style="width: 120px;">Dibuat</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach ($group->items as $gi)
-                        @php
-                            $displayW = $gi->weight_input_value && $gi->inputUnit
-                                ? formatWeight($gi->weight_input_value).' '.$gi->inputUnit->name
-                                : formatWeight($gi->weight_kg).' kg';
-                        @endphp
-                        <tr>
-                            <td>{{ $gi->item?->name }}</td>
-                            <td>{{ $displayW }}</td>
-                            <td>{{ $gi->created_at?->format('d-m-Y H:i') ?? '-' }}</td>
-                        </tr>
+                @if ($p->tabs->isNotEmpty())
+                    @foreach ($p->tabs as $tab)
+                        <table class="item-table" style="margin-top: 2px;">
+                            <thead>
+                                <tr>
+                                    <th class="c-no">No</th>
+                                    <th class="c-name">Tab: {{ $tab->name }} ({{ formatWeight($tab->input_weight_kg) }} kg)</th>
+                                    <th class="c-w">Kg</th>
+                                    <th class="c-ttd">Cek Penimbangan OBAT (TTD)</th>
+                                    <th class="c-ttd">Cek Pencampuran MIXER KECIL (TTD)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach ($tab->items as $i => $ti)
+                                    @php
+                                        $dw = $ti->weight_input_value && $ti->inputUnit
+                                            ? round($ti->weight_input_value, 4) . ' ' . $ti->inputUnit->name
+                                            : formatWeight($ti->weight_kg) . ' kg';
+                                    @endphp
+                                    <tr>
+                                        <td class="c-no">{{ $i + 1 }}</td>
+                                        <td class="c-name">{{ $ti->item?->name }}@if($ti->is_dosis) <span class="dosis-tag">[Dosis]</span>@endif</td>
+                                        <td class="c-w">{{ $dw }}</td>
+                                        <td class="c-ttd"></td>
+                                        <td class="c-ttd"></td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
                     @endforeach
-                    @if ($group->items->isEmpty())
-                        <tr>
-                            <td colspan="3">Belum ada item.</td>
-                        </tr>
-                    @endif
-                </tbody>
-            </table>
-        @endforeach
-        @if ($production->groups->isEmpty())
-            <div>Belum ada golongan.</div>
-        @endif
+                @endif
 
-        <h2>TAB (Split Batch)</h2>
-        @foreach ($production->tabs as $tab)
-            <div>
-                <strong>{{ $tab->name }}</strong>
-                (Ambil: {{ formatWeight($tab->input_weight_kg) }} kg, Sisa: {{ formatWeight($tab->remaining_weight_kg) }} kg)
+                <div class="notes-line">
+                    @if ($p->notes)
+                        {{ $p->notes }}
+                    @else
+                        &nbsp;
+                    @endif
+                </div>
             </div>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Item</th>
-                        <th style="width: 120px;">Berat (kg)</th>
-                        <th style="width: 120px;">Dibuat</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach ($tab->items as $ti)
-                        @php
-                            $displayW = $ti->weight_input_value && $ti->inputUnit
-                                ? formatWeight($ti->weight_input_value).' '.$ti->inputUnit->name
-                                : formatWeight($ti->weight_kg).' kg';
-                        @endphp
-                        <tr>
-                            <td>{{ $ti->item?->name }}</td>
-                            <td>{{ $displayW }}</td>
-                            <td>{{ $ti->created_at?->format('d-m-Y H:i') ?? '-' }}</td>
-                        </tr>
-                    @endforeach
-                    @if ($tab->items->isEmpty())
-                        <tr>
-                            <td colspan="3">Belum ada item.</td>
-                        </tr>
-                    @endif
-                </tbody>
-            </table>
-        @endforeach
-        @if ($production->tabs->isEmpty())
-            <div>Belum ada TAB.</div>
-        @endif
-    </body>
+        @endfor
+    @endfor
+</body>
 </html>

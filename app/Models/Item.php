@@ -10,9 +10,14 @@ class Item extends Model
 {
     protected $fillable = [
         'name',
-        'category',
+        'category_id',
         'default_unit_id',
     ];
+
+    public function category(): BelongsTo
+    {
+        return $this->belongsTo(Category::class);
+    }
 
     public function defaultUnit(): BelongsTo
     {

@@ -2,11 +2,30 @@ import './bootstrap';
 
 const toggle = document.querySelector('[data-sidebar-toggle]');
 const sidebar = document.querySelector('[data-sidebar]');
+const backdrop = document.querySelector('[data-sidebar-backdrop]');
 
 if (toggle && sidebar) {
+    function openSidebar() {
+        sidebar.classList.add('open');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeSidebar() {
+        sidebar.classList.remove('open');
+        document.body.style.overflow = '';
+    }
+
     toggle.addEventListener('click', () => {
-        sidebar.classList.toggle('open');
+        if (sidebar.classList.contains('open')) {
+            closeSidebar();
+        } else {
+            openSidebar();
+        }
     });
+
+    if (backdrop) {
+        backdrop.addEventListener('click', closeSidebar);
+    }
 
     document.addEventListener('click', (e) => {
         const target = e.target;
@@ -17,7 +36,7 @@ if (toggle && sidebar) {
         const clickedToggle = target.closest('[data-sidebar-toggle]');
         const clickedSidebar = target.closest('[data-sidebar]');
         if (!clickedToggle && !clickedSidebar) {
-            sidebar.classList.remove('open');
+            closeSidebar();
         }
     });
 }

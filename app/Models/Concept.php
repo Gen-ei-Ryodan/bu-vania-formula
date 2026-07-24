@@ -3,13 +3,21 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Concept extends Model
 {
     protected $fillable = [
         'name',
+        'pembuat_id',
         'base_weight_kg',
+        'start_date',
+        'notes',
+    ];
+
+    protected $casts = [
+        'start_date' => 'date',
     ];
 
     public function items(): HasMany
@@ -20,5 +28,10 @@ class Concept extends Model
     public function productions(): HasMany
     {
         return $this->hasMany(Production::class);
+    }
+
+    public function pembuat(): BelongsTo
+    {
+        return $this->belongsTo(Pembuat::class);
     }
 }

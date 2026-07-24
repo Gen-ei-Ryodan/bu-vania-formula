@@ -5,12 +5,14 @@ namespace App\Http\Controllers\Dashboard;
 use App\Http\Controllers\Controller;
 use App\Models\Concept;
 use App\Models\Item;
+use App\Models\Location;
 use App\Models\Production;
 use App\Models\ProductionGroup;
 use App\Models\ProductionGroupItem;
 use App\Models\ProductionTab;
 use App\Models\ProductionTabItem;
 use App\Models\Unit;
+use App\Services\ProductionExcelExportService;
 use App\Services\ProductionSnapshotService;
 use App\Services\ProductionTabService;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -21,10 +23,41 @@ use Symfony\Component\HttpFoundation\Response;
 
 class TreatmentProductionController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
+        $query = Production::query()->treatment()->with('concept')->orderByDesc('id');
+
+        if ($request->filled('name')) {
+            $query->where('name', 'like', '%' . $request->name . '%');
+        }
+        if ($request->filled('concept_id')) {
+            $query->where('concept_id', $request->concept_id);
+        }
+        if ($request->filled('treatment_day')) {
+            $query->where('treatment_day', $request->treatment_day);
+        }
+        if ($request->filled('treatment_time')) {
+            $query->where('treatment_time', $request->treatment_time);
+        }
+        if ($request->filled('start_date_from')) {
+            $query->whereDate('start_date', '>=', $request->start_date_from);
+        }
+        if ($request->filled('start_date_to')) {
+            $query->whereDate('start_date', '<=', $request->start_date_to);
+        }
+        if ($request->filled('location')) {
+            $query->where('location', 'like', '%' . $request->location . '%');
+        }
+        if ($request->filled('cage')) {
+            $query->where('cage', 'like', '%' . $request->cage . '%');
+        }
+        if ($request->has('is_active')) {
+            $query->where('is_active', $request->boolean('is_active'));
+        }
+
         return view('dashboard.treatments.index', [
-            'productions' => Production::query()->treatment()->with('concept')->orderByDesc('id')->get(),
+            'productions' => $query->get(),
+            'concepts' => Concept::query()->orderBy('name')->get(),
         ]);
     }
 
@@ -51,6 +84,8 @@ class TreatmentProductionController extends Controller
             'concepts' => $concepts,
             'conceptsData' => $conceptsData,
             'units' => Unit::query()->orderBy('name')->get(),
+            'locations' => Location::with('cages')->orderBy('name')->get(),
+            'recentProductions' => Production::query()->treatment()->with('concept')->orderByDesc('id')->limit(50)->get(),
         ]);
     }
 
@@ -62,6 +97,7 @@ class TreatmentProductionController extends Controller
             'cage' => ['nullable', 'string', 'max:255'],
             'treatment_day' => ['required', 'integer', 'min:1'],
             'treatment_time' => ['required', 'in:pagi,siang,malam,full'],
+            'treatment_duration_days' => ['nullable', 'integer', 'min:1'],
             'concept_id' => ['required', 'integer', 'exists:concepts,id'],
             'target_weight_value' => ['required', 'numeric', 'min:0.0001'],
             'target_weight_unit_id' => ['required', 'integer', 'exists:units,id'],
@@ -70,6 +106,7 @@ class TreatmentProductionController extends Controller
             'is_forever' => ['nullable', 'boolean'],
             'mix_date' => ['nullable', 'date'],
             'notes' => ['nullable', 'string'],
+            'is_active' => ['nullable', 'boolean'],
         ]);
 
         $unit = Unit::query()->findOrFail((int) $validated['target_weight_unit_id']);
@@ -82,6 +119,7 @@ class TreatmentProductionController extends Controller
                 'cage' => $validated['cage'] ?? null,
                 'treatment_day' => $validated['treatment_day'],
                 'treatment_time' => $validated['treatment_time'],
+                'treatment_duration_days' => $validated['treatment_duration_days'] ?? null,
                 'concept_id' => (int) $validated['concept_id'],
                 'target_weight_kg' => $targetWeightKg,
                 'start_date' => $validated['start_date'] ?? null,
@@ -90,6 +128,7 @@ class TreatmentProductionController extends Controller
                 'mix_date' => $validated['mix_date'] ?? null,
                 'notes' => $validated['notes'] ?? null,
                 'production_type' => 'treatment',
+                'is_active' => $request->has('is_active'),
             ]);
 
             $production->load('concept.items');
@@ -155,6 +194,7 @@ class TreatmentProductionController extends Controller
             'concepts' => $concepts,
             'conceptsData' => $conceptsData,
             'units' => Unit::query()->orderBy('name')->get(),
+            'locations' => Location::with('cages')->orderBy('name')->get(),
         ]);
     }
 
@@ -170,6 +210,7 @@ class TreatmentProductionController extends Controller
             'cage' => ['nullable', 'string', 'max:255'],
             'treatment_day' => ['required', 'integer', 'min:1'],
             'treatment_time' => ['required', 'in:pagi,siang,malam,full'],
+            'treatment_duration_days' => ['nullable', 'integer', 'min:1'],
             'concept_id' => ['required', 'integer', 'exists:concepts,id'],
             'target_weight_value' => ['required', 'numeric', 'min:0.0001'],
             'target_weight_unit_id' => ['required', 'integer', 'exists:units,id'],
@@ -178,6 +219,7 @@ class TreatmentProductionController extends Controller
             'is_forever' => ['nullable', 'boolean'],
             'mix_date' => ['nullable', 'date'],
             'notes' => ['nullable', 'string'],
+            'is_active' => ['nullable', 'boolean'],
         ]);
 
         $unit = Unit::query()->findOrFail((int) $validated['target_weight_unit_id']);
@@ -199,6 +241,7 @@ class TreatmentProductionController extends Controller
                 'cage' => $validated['cage'] ?? null,
                 'treatment_day' => $validated['treatment_day'],
                 'treatment_time' => $validated['treatment_time'],
+                'treatment_duration_days' => $validated['treatment_duration_days'] ?? null,
                 'concept_id' => (int) $validated['concept_id'],
                 'target_weight_kg' => $targetWeightKg,
                 'start_date' => $validated['start_date'] ?? null,
@@ -207,6 +250,7 @@ class TreatmentProductionController extends Controller
                 'mix_date' => $validated['mix_date'] ?? null,
                 'notes' => $validated['notes'] ?? null,
                 'production_type' => 'treatment',
+                'is_active' => $request->has('is_active'),
             ]);
 
             $production->load('concept.items');
@@ -316,6 +360,44 @@ class TreatmentProductionController extends Controller
         return redirect()->to(route('treatments.show', $production) . '#tab')->with('ok', 'Item TAB ditambah.');
     }
 
+    public function updateGroupItem(Request $request, ProductionGroupItem $groupItem)
+    {
+        $validated = $request->validate([
+            'weight_value' => ['required', 'numeric', 'min:0.0001'],
+            'weight_unit_id' => ['required', 'integer', 'exists:units,id'],
+        ]);
+
+        $unit = Unit::query()->findOrFail((int) $validated['weight_unit_id']);
+        $weightKg = (float) $validated['weight_value'] * (float) $unit->conversion_to_kg;
+
+        $groupItem->update([
+            'weight_kg' => $weightKg,
+            'weight_input_value' => (float) $validated['weight_value'],
+            'weight_input_unit_id' => (int) $validated['weight_unit_id'],
+        ]);
+
+        return back()->with('ok', 'Berat item diupdate.');
+    }
+
+    public function updateTabItem(Request $request, ProductionTabItem $tabItem)
+    {
+        $validated = $request->validate([
+            'weight_value' => ['required', 'numeric', 'min:0.0001'],
+            'weight_unit_id' => ['required', 'integer', 'exists:units,id'],
+        ]);
+
+        $unit = Unit::query()->findOrFail((int) $validated['weight_unit_id']);
+        $weightKg = (float) $validated['weight_value'] * (float) $unit->conversion_to_kg;
+
+        $tabItem->update([
+            'weight_kg' => $weightKg,
+            'weight_input_value' => (float) $validated['weight_value'],
+            'weight_input_unit_id' => (int) $validated['weight_unit_id'],
+        ]);
+
+        return back()->with('ok', 'Berat item diupdate.');
+    }
+
     public function destroy(Production $production)
     {
         if ($production->production_type !== 'treatment') {
@@ -379,7 +461,7 @@ class TreatmentProductionController extends Controller
         return redirect()->to(route('treatments.show', $productionId) . '#tab')->with('ok', 'Item TAB dihapus.');
     }
 
-    public function pdf(Production $production)
+    public function pdf(Request $request, Production $production)
     {
         if ($production->production_type !== 'treatment') {
             abort(Response::HTTP_NOT_FOUND);
@@ -399,10 +481,108 @@ class TreatmentProductionController extends Controller
             abort(Response::HTTP_INTERNAL_SERVER_ERROR, 'PDF generator belum terpasang.');
         }
 
+        $cards = (int) $request->query('cards', 9);
+        if (! in_array($cards, [2, 4, 6, 9])) {
+            $cards = 9;
+        }
+
         $pdf = Pdf::loadView('dashboard.treatments.pdf', [
             'production' => $production,
+            'totalCards' => $cards,
         ]);
 
         return $pdf->download('treatment-'.$production->id.'.pdf');
+    }
+
+    public function excel(Production $production)
+    {
+        if ($production->production_type !== 'treatment') {
+            abort(Response::HTTP_NOT_FOUND);
+        }
+
+        $production->load([
+            'concept',
+            'concept.items.item',
+            'items.item',
+            'groups.items.item',
+            'groups.items.inputUnit',
+            'tabs.items.item',
+            'tabs.items.inputUnit',
+        ]);
+
+        $writer = (new ProductionExcelExportService)->export($production);
+
+        $filename = 'treatment-' . $production->id . '.xlsx';
+        $tempPath = storage_path('app/temp/' . $filename);
+        $dir = dirname($tempPath);
+        if (! is_dir($dir)) {
+            mkdir($dir, 0755, true);
+        }
+        $writer->save($tempPath);
+
+        return response()->download($tempPath, $filename)->deleteFileAfterSend(true);
+    }
+
+    public function duplicate(Request $request)
+    {
+        $source = Production::query()->findOrFail($request->source_id);
+        if ($source->production_type !== 'treatment') {
+            abort(404);
+        }
+
+        // Deep copy using a transaction
+        return DB::transaction(function () use ($source) {
+            $source->load(['items', 'groups.items', 'tabs.items']);
+
+            // Create new production
+            $copy = $source->replicate();
+            $copy->is_active = true;
+            $copy->save();
+
+            // Copy snapshot items
+            foreach ($source->items as $si) {
+                $copy->items()->create([
+                    'item_id' => $si->item_id,
+                    'weight_kg' => $si->weight_kg,
+                    'percentage' => $si->percentage,
+                    'source' => $si->source,
+                ]);
+            }
+
+            // Copy groups
+            foreach ($source->groups as $group) {
+                $newGroup = $copy->groups()->create(['name' => $group->name]);
+                foreach ($group->items as $gi) {
+                    $newGroup->items()->create([
+                        'item_id' => $gi->item_id,
+                        'weight_kg' => $gi->weight_kg,
+                        'weight_input_value' => $gi->weight_input_value,
+                        'input_unit_id' => $gi->input_unit_id,
+                        'is_dosis' => $gi->is_dosis,
+                    ]);
+                }
+            }
+
+            // Copy tabs
+            foreach ($source->tabs as $tab) {
+                $newTab = $copy->tabs()->create([
+                    'name' => $tab->name,
+                    'input_weight_kg' => $tab->input_weight_kg,
+                    'remaining_weight_kg' => $tab->remaining_weight_kg,
+                ]);
+                foreach ($tab->items as $ti) {
+                    $newTab->items()->create([
+                        'item_id' => $ti->item_id,
+                        'weight_kg' => $ti->weight_kg,
+                        'weight_input_value' => $ti->weight_input_value,
+                        'input_unit_id' => $ti->input_unit_id,
+                        'is_dosis' => $ti->is_dosis,
+                    ]);
+                }
+            }
+
+            return redirect()->route('treatments.edit', $copy)
+                ->with('ok', 'Disalin dari #' . $source->id . '. Silakan sesuaikan.');
+        });
     }
 }
