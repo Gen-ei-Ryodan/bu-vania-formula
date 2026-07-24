@@ -43,6 +43,7 @@ Route::middleware('auth')->group(function () {
         Route::post('/productions/duplicate', [ProductionController::class, 'duplicate'])->name('productions.duplicate');
 
         Route::get('/productions/{production}/pdf', [ProductionController::class, 'pdf'])->name('productions.pdf');
+        Route::get('/productions/{production}/excel', [ProductionController::class, 'excel'])->name('productions.excel');
         Route::post('/productions/{production}/groups', [ProductionController::class, 'storeGroup'])->name('productions.groups.store');
         Route::delete('/groups/{group}', [ProductionController::class, 'destroyGroup'])->name('groups.destroy');
         Route::post('/groups/{group}/items', [ProductionController::class, 'storeGroupItem'])->name('groups.items.store');
@@ -54,6 +55,7 @@ Route::middleware('auth')->group(function () {
         Route::resource('/treatments', TreatmentProductionController::class, ['parameters' => ['treatments' => 'production']])->only(['index', 'create', 'store', 'show', 'edit', 'update', 'destroy']);
         Route::post('/treatments/duplicate', [TreatmentProductionController::class, 'duplicate'])->name('treatments.duplicate');
         Route::get('/treatments/{production}/pdf', [TreatmentProductionController::class, 'pdf'])->name('treatments.pdf');
+        Route::get('/treatments/{production}/excel', [TreatmentProductionController::class, 'excel'])->name('treatments.excel');
         Route::post('/treatments/{production}/groups', [TreatmentProductionController::class, 'storeGroup'])->name('treatments.groups.store');
         Route::delete('/treatments/groups/{group}', [TreatmentProductionController::class, 'destroyGroup'])->name('treatments.groups.destroy');
         Route::post('/treatments/groups/{group}/items', [TreatmentProductionController::class, 'storeGroupItem'])->name('treatments.groups.items.store');

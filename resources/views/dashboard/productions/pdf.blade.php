@@ -64,7 +64,8 @@
             border-bottom: 0.3px solid #E2E8F0; margin-bottom: 1px;
         }
         .extra-items .label { font-weight: 700; color: #1E3A5F; }
-        .extra-items .sub { padding-left: 8px; color: #64748B; }
+        .extra-items .sub { padding-left: 8px; color: #64748B; display: flex; }
+        .extra-items .sub .kw { margin-left: auto; text-align: right; min-width: 28px; }
         .dosis-tag { font-size: 5pt; color: #B45309; }
 
         .notes-line { font-size: 5.5pt; color: #64748B; font-style: italic; padding: 1px 2px; min-height: 8px; }
@@ -101,8 +102,8 @@
                     <tr>
                         <td class="lbl">Kode Formula</td>
                         <td class="val">{{ $p->concept?->name ?? '-' }}</td>
-                        <td class="lbl">Batch</td>
-                        <td class="val">-</td>
+                        <td class="lbl">Kandang</td>
+                        <td class="val">{{ $p->cage ?? '-' }}</td>
                     </tr>
                     <tr>
                         <td class="lbl">Nama Formula</td>
@@ -137,33 +138,65 @@
 
                 @if ($p->groups->isNotEmpty())
                     @foreach ($p->groups as $group)
-                        <div class="extra-items">
-                            <span class="label">{{ $group->name }}</span>
-                            @foreach ($group->items as $gi)
-                                @php
-                                    $dw = $gi->weight_input_value && $gi->inputUnit
-                                        ? round($gi->weight_input_value, 4) . ' ' . $gi->inputUnit->name
-                                        : formatWeight($gi->weight_kg) . ' kg';
-                                @endphp
-                                <br><span class="sub">&mdash; {{ $gi->item?->name }}: {{ $dw }}@if($gi->is_dosis) <span class="dosis-tag">[Dosis]</span>@endif</span>
-                            @endforeach
-                        </div>
+                        <table class="item-table" style="margin-top: 2px;">
+                            <thead>
+                                <tr>
+                                    <th class="c-no">No</th>
+                                    <th class="c-name">{{ $group->name }}</th>
+                                    <th class="c-w">Kg</th>
+                                    <th class="c-ttd">Cek Penimbangan OBAT (TTD)</th>
+                                    <th class="c-ttd">Cek Pencampuran MIXER KECIL (TTD)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach ($group->items as $i => $gi)
+                                    @php
+                                        $dw = $gi->weight_input_value && $gi->inputUnit
+                                            ? round($gi->weight_input_value, 4) . ' ' . $gi->inputUnit->name
+                                            : formatWeight($gi->weight_kg) . ' kg';
+                                    @endphp
+                                    <tr>
+                                        <td class="c-no">{{ $i + 1 }}</td>
+                                        <td class="c-name">{{ $gi->item?->name }}@if($gi->is_dosis) <span class="dosis-tag">[Dosis]</span>@endif</td>
+                                        <td class="c-w">{{ $dw }}</td>
+                                        <td class="c-ttd"></td>
+                                        <td class="c-ttd"></td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
                     @endforeach
                 @endif
 
                 @if ($p->tabs->isNotEmpty())
                     @foreach ($p->tabs as $tab)
-                        <div class="extra-items">
-                            <span class="label">TAB: {{ $tab->name }} ({{ formatWeight($tab->input_weight_kg) }} kg)</span>
-                            @foreach ($tab->items as $ti)
-                                @php
-                                    $dw = $ti->weight_input_value && $ti->inputUnit
-                                        ? round($ti->weight_input_value, 4) . ' ' . $ti->inputUnit->name
-                                        : formatWeight($ti->weight_kg) . ' kg';
-                                @endphp
-                                <br><span class="sub">&mdash; {{ $ti->item?->name }}: {{ $dw }}@if($ti->is_dosis) <span class="dosis-tag">[Dosis]</span>@endif</span>
-                            @endforeach
-                        </div>
+                        <table class="item-table" style="margin-top: 2px;">
+                            <thead>
+                                <tr>
+                                    <th class="c-no">No</th>
+                                    <th class="c-name">Tab: {{ $tab->name }} ({{ formatWeight($tab->input_weight_kg) }} kg)</th>
+                                    <th class="c-w">Kg</th>
+                                    <th class="c-ttd">Cek Penimbangan OBAT (TTD)</th>
+                                    <th class="c-ttd">Cek Pencampuran MIXER KECIL (TTD)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach ($tab->items as $i => $ti)
+                                    @php
+                                        $dw = $ti->weight_input_value && $ti->inputUnit
+                                            ? round($ti->weight_input_value, 4) . ' ' . $ti->inputUnit->name
+                                            : formatWeight($ti->weight_kg) . ' kg';
+                                    @endphp
+                                    <tr>
+                                        <td class="c-no">{{ $i + 1 }}</td>
+                                        <td class="c-name">{{ $ti->item?->name }}@if($ti->is_dosis) <span class="dosis-tag">[Dosis]</span>@endif</td>
+                                        <td class="c-w">{{ $dw }}</td>
+                                        <td class="c-ttd"></td>
+                                        <td class="c-ttd"></td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
                     @endforeach
                 @endif
 

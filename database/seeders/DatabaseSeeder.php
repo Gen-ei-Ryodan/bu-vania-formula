@@ -38,18 +38,24 @@ class DatabaseSeeder extends Seeder
             User::factory()->create([
                 'name' => 'Test User',
                 'email' => 'test@example.com',
+                'role' => 'admin',
             ]);
         }
 
+        // === CATEGORIES (create if not exist) ===
+        $catBahan = \App\Models\Category::firstOrCreate(['name' => 'Bahan Pokok']);
+        $catObat = \App\Models\Category::firstOrCreate(['name' => 'Obat']);
+        $catVitamin = \App\Models\Category::firstOrCreate(['name' => 'Vitamin']);
+
         // === ITEMS ===
         Item::query()->upsert([
-            ['name' => 'Jagung', 'category' => 'bahan_pokok', 'default_unit_id' => $unitKg->id],
-            ['name' => 'Beras', 'category' => 'bahan_pokok', 'default_unit_id' => $unitKg->id],
-            ['name' => 'Kedelai', 'category' => 'bahan_pokok', 'default_unit_id' => $unitKg->id],
-            ['name' => 'Tepung Ikan', 'category' => 'bahan_pokok', 'default_unit_id' => $unitKg->id],
-            ['name' => 'Vitamin C', 'category' => 'vitamin', 'default_unit_id' => $unitGram->id],
-            ['name' => 'Amoksilin', 'category' => 'obat', 'default_unit_id' => $unitGram->id],
-        ], ['name'], ['category', 'default_unit_id']);
+            ['name' => 'Jagung', 'category_id' => $catBahan->id, 'default_unit_id' => $unitKg->id],
+            ['name' => 'Beras', 'category_id' => $catBahan->id, 'default_unit_id' => $unitKg->id],
+            ['name' => 'Kedelai', 'category_id' => $catBahan->id, 'default_unit_id' => $unitKg->id],
+            ['name' => 'Tepung Ikan', 'category_id' => $catBahan->id, 'default_unit_id' => $unitKg->id],
+            ['name' => 'Vitamin C', 'category_id' => $catVitamin->id, 'default_unit_id' => $unitGram->id],
+            ['name' => 'Amoksilin', 'category_id' => $catObat->id, 'default_unit_id' => $unitGram->id],
+        ], ['name'], ['category_id', 'default_unit_id']);
 
         $jagung = Item::where('name', 'Jagung')->first();
         $beras = Item::where('name', 'Beras')->first();

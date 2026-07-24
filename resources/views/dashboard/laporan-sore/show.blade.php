@@ -23,12 +23,12 @@
         $groupedSections = [];
         foreach ($sectionConfigs as $key => $config) {
             $sectionDetails = $laporanSore->details->where('section', $key);
-            if ($sectionDetails->isNotEmpty()) {
-                $groupedSections[$key] = [
-                    'config' => $config,
-                    'groups' => $sectionDetails->groupBy(fn ($d) => $d->cage_id . '|' . $d->nama_tali),
-                ];
-            }
+            $groupedSections[$key] = [
+                'config' => $config,
+                'groups' => $sectionDetails->isNotEmpty()
+                    ? $sectionDetails->groupBy(fn ($d) => $d->cage_id . '|' . $d->nama_tali)
+                    : collect(),
+            ];
         }
 
         $tanggal = $laporanSore->tanggal;
@@ -68,7 +68,7 @@
                     </div>
                 </div>
                 <div class="card-body" style="padding: 0;">
-                    @foreach ($groupData['groups'] as $groupKey => $details)
+                    @forelse ($groupData['groups'] as $groupKey => $details)
                         @php
                             $first = $details->first();
                             $cageName = $first->cage?->name ?? '(tanpa kandang)';
@@ -103,7 +103,9 @@
                                 @endforeach
                             </div>
                         </div>
-                    @endforeach
+                    @empty
+                        <div style="padding: 24px 16px; text-align: center; color: var(--text-muted); font-size: 14px;">-</div>
+                    @endforelse
                 </div>
             </div>
         @endforeach
@@ -141,11 +143,19 @@
                 lines.push('SISA - ' + h1);
                 renderSection(sections.sisa_kemarin, lines);
                 lines.push('');
+            } else {
+                lines.push('SISA - ' + h1);
+                lines.push('-');
+                lines.push('');
             }
 
             if (sections.campuran_hari_ini) {
                 lines.push('CAMPURAN :');
                 renderSection(sections.campuran_hari_ini, lines);
+                lines.push('');
+            } else {
+                lines.push('CAMPURAN :');
+                lines.push('-');
                 lines.push('');
             }
 
@@ -153,11 +163,19 @@
                 lines.push('KIRIM :');
                 renderSection(sections.kirim_hari_ini, lines);
                 lines.push('');
+            } else {
+                lines.push('KIRIM :');
+                lines.push('-');
+                lines.push('');
             }
 
             if (sections.stock) {
                 lines.push('STOCK :');
                 renderSection(sections.stock, lines);
+                lines.push('');
+            } else {
+                lines.push('STOCK :');
+                lines.push('-');
                 lines.push('');
             }
 
@@ -166,7 +184,12 @@
 
         function renderSection(sectionData, lines) {
             const groups = sectionData.groups;
-            Object.keys(groups).forEach(function (groupKey) {
+            const keys = Object.keys(groups);
+            if (keys.length === 0) {
+                lines.push('-');
+                return;
+            }
+            keys.forEach(function (groupKey) {
                 const details = groups[groupKey];
                 const first = details[0];
                 var cageName = first.cage ? first.cage.name : '(tanpa kandang)';

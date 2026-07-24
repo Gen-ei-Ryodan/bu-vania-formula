@@ -13,6 +13,7 @@ use App\Models\ProductionGroupItem;
 use App\Models\ProductionTab;
 use App\Models\ProductionTabItem;
 use App\Models\Unit;
+use App\Services\ProductionExcelExportService;
 use App\Services\ProductionSnapshotService;
 use App\Services\ProductionTabService;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -424,6 +425,31 @@ class ProductionController extends Controller
         ]);
 
         return $pdf->download('production-'.$production->id.'.pdf');
+    }
+
+    public function excel(Production $production)
+    {
+        $production->load([
+            'concept',
+            'concept.items.item',
+            'items.item',
+            'groups.items.item',
+            'groups.items.inputUnit',
+            'tabs.items.item',
+            'tabs.items.inputUnit',
+        ]);
+
+        $writer = (new ProductionExcelExportService)->export($production);
+
+        $filename = 'production-' . $production->id . '.xlsx';
+        $tempPath = storage_path('app/temp/' . $filename);
+        $dir = dirname($tempPath);
+        if (! is_dir($dir)) {
+            mkdir($dir, 0755, true);
+        }
+        $writer->save($tempPath);
+
+        return response()->download($tempPath, $filename)->deleteFileAfterSend(true);
     }
 
     public function duplicate(Request $request)

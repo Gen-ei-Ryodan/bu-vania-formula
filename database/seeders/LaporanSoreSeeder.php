@@ -39,9 +39,10 @@ class LaporanSoreSeeder extends Seeder
         $konsepC = Concept::firstOrCreate(['name' => 'Konsep C']);
 
         // === ITEMS (dummy for laporan sore) ===
-        $itemB = Item::firstOrCreate(['name' => 'Item B']);
-        $itemC = Item::firstOrCreate(['name' => 'Item C']);
-        $itemD = Item::firstOrCreate(['name' => 'Item D']);
+        $unitKg = \App\Models\Unit::where('name', 'kg')->first();
+        $itemB = Item::firstOrCreate(['name' => 'Item B'], ['default_unit_id' => $unitKg->id]);
+        $itemC = Item::firstOrCreate(['name' => 'Item C'], ['default_unit_id' => $unitKg->id]);
+        $itemD = Item::firstOrCreate(['name' => 'Item D'], ['default_unit_id' => $unitKg->id]);
 
         $userId = DB::table('users')->first()?->id ?? 1;
         $tanggal = now()->subDay();

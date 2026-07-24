@@ -5,6 +5,12 @@ if (! function_exists('formatWeight')) {
     {
         if ($value === null) return '-';
 
-        return number_format($value, 3);
+        $rounded = round($value, 2);
+
+        if ($rounded == (int) $rounded) {
+            return number_format((int) $rounded, 0, ',', '');
+        }
+
+        return number_format($rounded, 2, ',', '');
     }
 }

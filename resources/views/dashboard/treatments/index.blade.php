@@ -54,6 +54,7 @@
                                     <td class="cell-actions">
                                         <a class="btn btn-sm" href="{{ route('treatments.show', $production) }}">Detail</a>
                                         <a class="btn btn-sm" href="{{ route('treatments.edit', $production) }}">Edit</a>
+                                        <a class="btn btn-sm" href="{{ route('treatments.excel', $production) }}" style="background:#059669;border-color:#059669;color:#fff;">Excel</a>
                                         <div x-data="{ open: false }" style="position:relative;display:inline-block;">
                                             <button class="btn btn-sm" @click="open = !open" @click.outside="open = false" type="button">PDF &#9660;</button>
                                             <div x-show="open" x-cloak style="position:absolute;top:100%;right:0;z-index:50;background:#fff;border:1px solid var(--border,#E2E8F0);border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,0.1);min-width:130px;padding:4px;margin-top:4px;">
