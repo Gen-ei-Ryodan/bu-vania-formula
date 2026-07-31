@@ -35,6 +35,10 @@ rsync -a --delete \
 echo ""
 echo "[3/5] Setting up storage..."
 cd "$TARGET_DIR"
+mkdir -p "$TARGET_DIR/storage/framework/cache/data"
+mkdir -p "$TARGET_DIR/storage/framework/sessions"
+mkdir -p "$TARGET_DIR/storage/framework/views"
+mkdir -p "$TARGET_DIR/storage/logs"
 php artisan storage:link --force 2>/dev/null || true
 
 echo ""
