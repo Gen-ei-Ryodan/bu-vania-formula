@@ -195,10 +195,11 @@
                 var cageName = first.cage ? first.cage.name : '(tanpa kandang)';
                 var tali = first.nama_tali || '';
 
-                var cageLine = cageName;
+                var cageLine = '*' + cageName;
                 if (tali) {
                     cageLine += ' (' + tali + ')';
                 }
+                cageLine += '*';
                 lines.push(cageLine);
 
                 details.forEach(function (detail) {
