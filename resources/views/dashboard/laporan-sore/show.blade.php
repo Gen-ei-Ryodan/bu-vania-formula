@@ -133,48 +133,48 @@
             const lines = [];
 
             // Header
-            lines.push(loc + ' ' + tanggal);
+            lines.push('*' + loc + '*' + ' ' + tanggal);
             lines.push('');
 
             // Sections
             const sections = @json($groupedSections);
 
             if (sections.sisa_kemarin) {
-                lines.push('SISA - ' + h1);
+                lines.push('*SISA - ' + h1 + '*');
                 renderSection(sections.sisa_kemarin, lines);
                 lines.push('');
             } else {
-                lines.push('SISA - ' + h1);
+                lines.push('*SISA - ' + h1 + '*');
                 lines.push('-');
                 lines.push('');
             }
 
             if (sections.campuran_hari_ini) {
-                lines.push('CAMPURAN :');
+                lines.push('*CAMPURAN :*');
                 renderSection(sections.campuran_hari_ini, lines);
                 lines.push('');
             } else {
-                lines.push('CAMPURAN :');
+                lines.push('*CAMPURAN :*');
                 lines.push('-');
                 lines.push('');
             }
 
             if (sections.kirim_hari_ini) {
-                lines.push('KIRIM :');
+                lines.push('*KIRIM :*');
                 renderSection(sections.kirim_hari_ini, lines);
                 lines.push('');
             } else {
-                lines.push('KIRIM :');
+                lines.push('*KIRIM :*');
                 lines.push('-');
                 lines.push('');
             }
 
             if (sections.stock) {
-                lines.push('STOCK :');
+                lines.push('*STOCK :*');
                 renderSection(sections.stock, lines);
                 lines.push('');
             } else {
-                lines.push('STOCK :');
+                lines.push('*STOCK :*');
                 lines.push('-');
                 lines.push('');
             }
