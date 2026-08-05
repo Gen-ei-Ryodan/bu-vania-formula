@@ -5,7 +5,7 @@ set -e
 REPO_DIR="/home/alurelab/repositories/bu-vania-formula"
 TARGET_DIR="/home/alurelab/formula.3putraperkasa.com"
 BRANCH="main"
-COMPOSER="/home/alurelab/composer.phar"
+COMPOSER="/home/alurelab/.local/bin/composer"
 
 echo "========================================"
 echo "  Deploying BU VANIA — Formula"
@@ -48,9 +48,9 @@ php artisan storage:link --force 2>/dev/null || true
 echo ""
 echo "[4/5] Installing Composer dependencies..."
 if [ -f "$TARGET_DIR/composer.lock" ]; then
-    cd "$TARGET_DIR" && /usr/local/bin/php "$COMPOSER" install --no-dev --optimize-autoloader --no-interaction
+    cd "$TARGET_DIR" && "$COMPOSER" install --no-dev --optimize-autoloader --no-interaction
 else
-    cd "$TARGET_DIR" && /usr/local/bin/php "$COMPOSER" install --no-interaction
+    cd "$TARGET_DIR" && "$COMPOSER" install --no-interaction
 fi
 
 echo ""
