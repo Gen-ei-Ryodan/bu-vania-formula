@@ -71,6 +71,9 @@ Controllers/
 ### Service Classes
 - `App\Services\ProductionSnapshotService` — `generate(production)` dan `regenerate(production)`: membuat/memperbarui ProductionItem records berdasarkan scaling dari ConceptItem + target_weight_kg
 - `App\Services\ProductionTabService` — `createTab(production, name, inputKg)`: membuat tab baru dan menghitung `remaining_weight_kg`
+- `App\Services\RecipePriceService` — menghitung biaya item dan total resep dengan konversi unit ke kilogram.
+- `App\Http\Controllers\Api\ItemController` — endpoint read-only master item dan struktur harga.
+- `App\Http\Controllers\Api\ConceptController` — membuat konsep melalui API dan menyediakan breakdown harga resep.
 
 ## Database
 
@@ -106,6 +109,7 @@ Controllers/
 
 ### API Routes (`routes/api.php`)
 - Unauthenticated (external/3rd party)
+- Read master item prices, recipe prices, and create concepts
 - CRUD operations: concepts, productions, groups, tabs
 - Digunakan untuk integrasi dari sistem eksternal
 

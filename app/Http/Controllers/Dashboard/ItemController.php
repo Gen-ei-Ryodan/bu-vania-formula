@@ -13,7 +13,7 @@ class ItemController extends Controller
     public function index()
     {
         return view('dashboard.items.index', [
-            'items' => Item::query()->with(['defaultUnit', 'category'])->orderBy('name')->get(),
+            'items' => Item::query()->with(['defaultUnit', 'priceUnit', 'category'])->orderBy('name')->get(),
         ]);
     }
 
@@ -31,6 +31,9 @@ class ItemController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'category_id' => ['required', 'integer', 'exists:categories,id'],
             'default_unit_id' => ['required', 'integer', 'exists:units,id'],
+            'price' => ['required', 'numeric', 'gt:0'],
+            'price_unit_value' => ['required', 'numeric', 'gt:0'],
+            'price_unit_id' => ['required', 'integer', 'exists:units,id'],
         ]);
 
         Item::query()->create($validated);
@@ -53,6 +56,9 @@ class ItemController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'category_id' => ['required', 'integer', 'exists:categories,id'],
             'default_unit_id' => ['required', 'integer', 'exists:units,id'],
+            'price' => ['required', 'numeric', 'gt:0'],
+            'price_unit_value' => ['required', 'numeric', 'gt:0'],
+            'price_unit_id' => ['required', 'integer', 'exists:units,id'],
         ]);
 
         $item->update($validated);

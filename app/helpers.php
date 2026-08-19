@@ -14,3 +14,12 @@ if (! function_exists('formatWeight')) {
         return number_format($rounded, 2, ',', '');
     }
 }
+
+if (! function_exists('formatCurrency')) {
+    function formatCurrency(float|int|null $value): string
+    {
+        if ($value === null) return '-';
+
+        return 'Rp'.number_format((float) $value, 0, ',', '.');
+    }
+}

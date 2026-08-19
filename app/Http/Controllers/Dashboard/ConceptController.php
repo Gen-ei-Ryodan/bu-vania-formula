@@ -31,7 +31,7 @@ class ConceptController extends Controller
     {
         $unitsMap = Unit::query()->pluck('conversion_to_kg', 'id')->map(fn ($v) => (float) $v)->toArray();
 
-        $allConcepts = Concept::query()->with('items.item')->orderBy('name')->get()->map(fn ($c) => [
+        $allConcepts = Concept::query()->with('items.item.priceUnit')->orderBy('name')->get()->map(fn ($c) => [
             'id' => $c->id,
             'name' => $c->name,
             'base_weight_kg' => (float) $c->base_weight_kg,
@@ -43,11 +43,12 @@ class ConceptController extends Controller
         ])->values();
 
         return view('dashboard.concepts.create', [
-            'items' => Item::query()->orderBy('name')->get(),
+            'items' => Item::query()->with('priceUnit')->orderBy('name')->get(),
             'units' => Unit::query()->orderBy('name')->get(),
             'pembuats' => Pembuat::query()->orderBy('name')->get(),
             'unitsData' => $unitsMap,
             'allConcepts' => $allConcepts,
+            'itemsData' => $this->itemPriceData(),
         ]);
     }
 
@@ -154,7 +155,7 @@ class ConceptController extends Controller
 
     public function show(Concept $concept)
     {
-        $concept->load(['items.item', 'pembuat']);
+        $concept->load(['items.item.priceUnit', 'pembuat']);
 
         return view('dashboard.concepts.show', [
             'concept' => $concept,
@@ -174,15 +175,16 @@ class ConceptController extends Controller
 
     public function edit(Concept $concept)
     {
-        $concept->load(['items.item']);
+        $concept->load(['items.item.priceUnit']);
         $unitsMap = Unit::query()->pluck('conversion_to_kg', 'id')->map(fn ($v) => (float) $v)->toArray();
 
         return view('dashboard.concepts.edit', [
             'concept' => $concept,
-            'items' => Item::query()->orderBy('name')->get(),
+            'items' => Item::query()->with('priceUnit')->orderBy('name')->get(),
             'units' => Unit::query()->orderBy('name')->get(),
             'pembuats' => Pembuat::query()->orderBy('name')->get(),
             'unitsData' => $unitsMap,
+            'itemsData' => $this->itemPriceData(),
         ]);
     }
 
@@ -285,5 +287,16 @@ class ConceptController extends Controller
         });
 
         return redirect()->route('concepts.show', $concept)->with('ok', 'Konsep diupdate.');
+    }
+
+    private function itemPriceData(): array
+    {
+        return Item::query()->with('priceUnit')->get()->mapWithKeys(fn (Item $item) => [
+            $item->id => [
+                'price' => (float) $item->price,
+                'price_unit_value' => (float) $item->price_unit_value,
+                'price_unit_conversion_to_kg' => (float) ($item->priceUnit?->conversion_to_kg ?? 0),
+            ],
+        ])->all();
     }
 }

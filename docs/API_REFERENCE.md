@@ -6,6 +6,12 @@ Semua API endpoint bersifat **publik (unauthenticated)** — digunakan untuk int
 
 ## Concepts
 
+### GET /api/items
+Mengambil master item beserta kategori, unit default, dan struktur harga (`price`, `price_unit_value`, `price_unit_id`).
+
+### GET /api/items/{item}
+Mengambil detail satu item beserta unit harga dan unit default.
+
 ### POST /api/concepts
 Buat konsep baru beserta item komposisinya.
 
@@ -22,7 +28,18 @@ Buat konsep baru beserta item komposisinya.
 }
 ```
 
-**Response:** Redirect ke dashboard concepts index.
+**Response:** JSON konsep baru beserta breakdown biaya setiap item dan `total_price`. Jika `weight_kg` item tidak dikirim, nilainya dihitung dari `base_weight_kg × percentage / 100`.
+
+Contoh potongan response:
+```json
+{
+  "items": [{ "item_id": 1, "weight_kg": 0.5, "price": 5000 }],
+  "total_price": 5000
+}
+```
+
+### GET /api/concepts/{concept}/price
+Mengambil biaya setiap item pada konsep dan total harga resep. Harga dihitung otomatis dari berat pemakaian dalam kilogram dan harga per jumlah satuan item.
 
 ---
 

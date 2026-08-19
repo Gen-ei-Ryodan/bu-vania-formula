@@ -10,12 +10,16 @@
 ### Item
 - Item bisa memiliki `category_id` (optional) untuk grouping
 - Item bisa memiliki `default_unit_id` (optional)
+- Item memiliki harga positif (`price`) untuk jumlah positif (`price_unit_value`) pada `price_unit_id`.
+- Harga resep tidak diinput manual; biaya item dihitung dari berat pemakaian setelah dikonversi ke kilogram.
 - Item yang sudah digunakan di konsep, produksi, atau laporan tidak boleh dihapus
 
 ### Concept (Resep)
 - Setiap konsep memiliki `base_weight_kg` sebagai patokan komposisi
 - `ConceptItem`: item dalam konsep memiliki `percentage` (persentase) dan `weight_kg`
 - Total persentase semua item dalam satu konsep harus = 100%
+- Biaya item = `price / (price_unit_value × konversi price_unit ke kg) × weight_kg`; total harga resep adalah jumlah biaya seluruh item.
+- Contoh: Rp10.000/kg untuk pemakaian 500 gram = Rp5.000; Rp500/100 gram untuk pemakaian 200 gram = Rp1.000.
 - Satu konsep bisa digunakan di banyak produksi
 
 ### Location & Cage

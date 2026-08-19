@@ -75,6 +75,7 @@
                                 <th>Item</th>
                                 <th style="width: 120px;">Berat (kg)</th>
                                 <th style="width: 100px;">Persen</th>
+                                <th style="width: 150px;">Biaya</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -83,14 +84,24 @@
                                     <td><strong>{{ $row->item?->name }}</strong></td>
                                     <td>{{ formatWeight($row->weight_kg) }}</td>
                                     <td><span class="badge badge-muted">{{ number_format($row->percentage, 2) }}%</span></td>
+                                    <td>{{ formatCurrency($row->price) }}</td>
                                 </tr>
                             @endforeach
                             @if ($concept->items->isEmpty())
-                                <tr><td colspan="3" style="text-align: center; padding: 48px; color: var(--text-muted);">Belum ada item.</td></tr>
+                                 <tr><td colspan="4" style="text-align: center; padding: 48px; color: var(--text-muted);">Belum ada item.</td></tr>
                             @endif
                         </tbody>
                     </table>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="content-section">
+        <div class="summary-box">
+            <div class="summary-item">
+                <div class="label">Total Harga Resep</div>
+                <div class="value">{{ formatCurrency($concept->total_price) }}</div>
             </div>
         </div>
     </div>

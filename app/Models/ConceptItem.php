@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use App\Services\RecipePriceService;
 
 class ConceptItem extends Model
 {
@@ -27,5 +28,10 @@ class ConceptItem extends Model
     public function item(): BelongsTo
     {
         return $this->belongsTo(Item::class);
+    }
+
+    public function getPriceAttribute(): float
+    {
+        return app(RecipePriceService::class)->itemCost($this->item, (float) $this->weight_kg);
     }
 }

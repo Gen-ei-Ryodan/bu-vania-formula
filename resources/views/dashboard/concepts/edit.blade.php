@@ -89,6 +89,10 @@
                                         @endforeach
                                     </select>
                                 </div>
+                                <div class="field">
+                                    <div class="label">Biaya</div>
+                                    <div data-item-price class="field-hint">Rp0</div>
+                                </div>
                                 <div style="display: flex; align-items: center; justify-content: center;">
                                     <button class="btn btn-danger btn-sm" data-repeatable-remove type="button">Hapus</button>
                                 </div>
@@ -113,6 +117,10 @@
                     <div class="label">Kurang (kg)</div>
                     <div class="value" id="remaining-weight-display" style="color: var(--danger);">0.0000</div>
                 </div>
+                <div class="summary-item">
+                    <div class="label">Total Harga Resep</div>
+                    <div class="value" id="total-price-display">Rp0</div>
+                </div>
             </div>
         </div>
 
@@ -126,6 +134,7 @@
     <script>
     document.addEventListener('DOMContentLoaded', function () {
         const units = @json($unitsData ?? []);
+        const items = @json($itemsData ?? []);
         const baseWeightInput = document.getElementById('base-weight-value');
         const baseWeightUnit = document.getElementById('base-weight-unit');
 
@@ -156,6 +165,14 @@
             if (baseKg > 0 && weight > 0) {
                 pctInput.value = ((weight / baseKg) * 100).toFixed(2);
             } else { pctInput.value = ''; }
+
+            const item = items[row.querySelector('[data-name="item_id"]').value];
+            const cost = item && item.price_unit_value > 0 && item.price_unit_conversion_to_kg > 0
+                ? (item.price / (item.price_unit_value * item.price_unit_conversion_to_kg)) * weight
+                : 0;
+            row.dataset.itemCost = cost;
+            row.dataset.itemCost = cost;
+            row.querySelector('[data-item-price]').textContent = 'Rp' + Math.round(cost).toLocaleString('id-ID');
         }
 
         function recalcAll() { document.querySelectorAll('[data-repeatable-row]').forEach(recalcRow); updateWeightInfo(); }
@@ -170,6 +187,11 @@
             document.getElementById('target-weight-display').textContent = baseKg.toFixed(4);
             document.getElementById('total-weight-display').textContent = totalKg.toFixed(4);
             document.getElementById('remaining-weight-display').textContent = remaining >= 0 ? remaining.toFixed(4) : '0.0000';
+            let totalPrice = 0;
+            document.querySelectorAll('[data-repeatable-row]').forEach(row => {
+                totalPrice += parseFloat(row.dataset.itemCost || 0);
+            });
+            document.getElementById('total-price-display').textContent = 'Rp' + totalPrice.toLocaleString('id-ID');
         }
 
         function updateItemOptions() {
@@ -187,9 +209,9 @@
         function attachRowListeners(row) {
             if (row.dataset.listenerAttached === '1') return;
             row.dataset.listenerAttached = '1';
-            row.querySelector('[data-calc-percentage]').addEventListener('input', () => recalcRow(row));
-            row.querySelector('[data-name="weight_unit_id"]').addEventListener('change', () => recalcRow(row));
-            row.querySelector('[data-name="item_id"]').addEventListener('change', updateItemOptions);
+            row.querySelector('[data-calc-percentage]').addEventListener('input', recalcAll);
+            row.querySelector('[data-name="weight_unit_id"]').addEventListener('change', recalcAll);
+            row.querySelector('[data-name="item_id"]').addEventListener('change', () => { updateItemOptions(); recalcAll(); });
         }
 
         baseWeightInput?.addEventListener('input', recalcAll);

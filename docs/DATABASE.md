@@ -78,6 +78,9 @@ concepts ────< pembuats
 | name | string | |
 | category_id | bigint FK→categories nullable | |
 | default_unit_id | bigint FK→units nullable | |
+| price | decimal(16,2) nullable | Harga dalam rupiah |
+| price_unit_value | decimal(16,6) nullable | Jumlah unit yang dihargai |
+| price_unit_id | bigint FK→units nullable | Unit harga; mis. kg atau gram |
 | timestamps | | |
 
 ### pembuats
@@ -229,4 +232,5 @@ concepts ────< pembuats
 | LaporanSoreDetail → Concept | N:1 | `laporan_sore_details.konsep_id` (konsep_id) |
 | Item → Category | N:1 | `items.category_id` |
 | Item → Unit (default) | N:1 | `items.default_unit_id` |
+| Item → Unit (harga) | N:1 | `items.price_unit_id` |
 | User → LaporanSore | 1:N | `laporan_sore.user_id` |

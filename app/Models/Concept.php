@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use App\Services\RecipePriceService;
 
 class Concept extends Model
 {
@@ -33,5 +34,10 @@ class Concept extends Model
     public function pembuat(): BelongsTo
     {
         return $this->belongsTo(Pembuat::class);
+    }
+
+    public function getTotalPriceAttribute(): float
+    {
+        return app(RecipePriceService::class)->total($this->items);
     }
 }

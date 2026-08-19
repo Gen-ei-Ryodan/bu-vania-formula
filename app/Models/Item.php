@@ -12,6 +12,14 @@ class Item extends Model
         'name',
         'category_id',
         'default_unit_id',
+        'price',
+        'price_unit_value',
+        'price_unit_id',
+    ];
+
+    protected $casts = [
+        'price' => 'decimal:2',
+        'price_unit_value' => 'decimal:6',
     ];
 
     public function category(): BelongsTo
@@ -22,6 +30,11 @@ class Item extends Model
     public function defaultUnit(): BelongsTo
     {
         return $this->belongsTo(Unit::class, 'default_unit_id');
+    }
+
+    public function priceUnit(): BelongsTo
+    {
+        return $this->belongsTo(Unit::class, 'price_unit_id');
     }
 
     public function conceptItems(): HasMany

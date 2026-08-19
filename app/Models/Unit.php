@@ -16,4 +16,9 @@ class Unit extends Model
     {
         return $this->hasMany(Item::class, 'default_unit_id');
     }
+
+    public function priceItems(): HasMany
+    {
+        return $this->hasMany(Item::class, 'price_unit_id');
+    }
 }
