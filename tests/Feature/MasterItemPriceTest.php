@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Feature;
 
 use App\Models\Category;
@@ -7,6 +9,7 @@ use App\Models\Concept;
 use App\Models\ConceptItem;
 use App\Models\Item;
 use App\Models\Unit;
+use App\Models\User;
 use App\Services\RecipePriceService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -137,6 +140,6 @@ class MasterItemPriceTest extends TestCase
 
     private function createAdmin()
     {
-        return \App\Models\User::factory()->create(['role' => 'admin']);
+        return User::factory()->create(['role' => 'admin']);
     }
 }

@@ -2,8 +2,8 @@
 
 namespace App\Services;
 
-use App\Models\ConceptItem;
 use App\Models\Concept;
+use App\Models\ConceptItem;
 use App\Models\Item;
 use Illuminate\Support\Collection;
 
@@ -11,7 +11,7 @@ class RecipePriceService
 {
     public function itemCost(?Item $item, float $weightKg): float
     {
-        if (! $item || $weightKg <= 0 || (float) $item->price <= 0 || (float) $item->price_unit_value <= 0) {
+        if (!$item || $weightKg <= 0 || (float) $item->price <= 0 || (float) $item->price_unit_value <= 0) {
             return 0.0;
         }
 
