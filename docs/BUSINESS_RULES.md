@@ -23,6 +23,7 @@
 - Biaya item = `price / (price_unit_value × konversi price_unit ke kg) × weight_kg`; total harga resep adalah jumlah biaya seluruh item.
 - Contoh: Rp10.000/kg untuk pemakaian 500 gram = Rp5.000; Rp500/100 gram untuk pemakaian 200 gram = Rp1.000.
 - Konversi volume menggunakan aturan yang sama terhadap unit dasar volume, tanpa dicampur dengan massa.
+- Resep produksi saat ini berbasis berat, sehingga berat dasar dan komposisi resep wajib menggunakan dimensi massa; item berharga volume tidak dapat dimasukkan sebagai berat tanpa unit yang kompatibel.
 - Satu konsep bisa digunakan di banyak produksi
 
 ### Location & Cage

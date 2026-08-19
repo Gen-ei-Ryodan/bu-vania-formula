@@ -71,6 +71,11 @@ class ConceptController extends Controller
         ]);
 
         $unit = Unit::query()->findOrFail((int) $validated['base_weight_unit_id']);
+        if ($unit->dimension !== 'mass') {
+            throw ValidationException::withMessages([
+                'base_weight_unit_id' => ['Berat dasar resep harus menggunakan satuan massa.'],
+            ]);
+        }
         $baseWeightKg = (float) $validated['base_weight_value'] * (float) $unit->conversion_to_kg;
 
         $items = collect($validated['items'])->map(function (array $row) use ($baseWeightKg) {
@@ -85,6 +90,11 @@ class ConceptController extends Controller
                     ]);
                 }
                 $unit = Unit::query()->findOrFail($unitId);
+                if ($unit->dimension !== 'mass') {
+                    throw ValidationException::withMessages([
+                        'items' => ['Komposisi resep harus menggunakan satuan massa.'],
+                    ]);
+                }
                 $item = Item::query()->with('priceUnit')->findOrFail((int) $row['item_id']);
                 if ($item->priceUnit && ! $item->priceUnit->isCompatibleWith($unit)) {
                     throw ValidationException::withMessages([
@@ -95,6 +105,12 @@ class ConceptController extends Controller
                 $percentage = $baseWeightKg > 0 ? (($weightKg / $baseWeightKg) * 100.0) : 0.0;
             } elseif ($hasPercentage) {
                 $percentage = (float) $row['percentage'];
+                $item = Item::query()->with('priceUnit')->findOrFail((int) $row['item_id']);
+                if ($item->priceUnit?->dimension === 'volume') {
+                    throw ValidationException::withMessages([
+                        'items' => ['Item dengan harga volume harus diisi menggunakan berat dan satuan pemakaian yang sesuai.'],
+                    ]);
+                }
                 $weightKg = ($baseWeightKg * $percentage) / 100.0;
             } else {
                 throw ValidationException::withMessages([
@@ -217,6 +233,11 @@ class ConceptController extends Controller
         ]);
 
         $unit = Unit::query()->findOrFail((int) $validated['base_weight_unit_id']);
+        if ($unit->dimension !== 'mass') {
+            throw ValidationException::withMessages([
+                'base_weight_unit_id' => ['Berat dasar resep harus menggunakan satuan massa.'],
+            ]);
+        }
         $baseWeightKg = (float) $validated['base_weight_value'] * (float) $unit->conversion_to_kg;
 
         $items = collect($validated['items'])->map(function (array $row) use ($baseWeightKg) {
@@ -231,6 +252,11 @@ class ConceptController extends Controller
                     ]);
                 }
                 $unit = Unit::query()->findOrFail($unitId);
+                if ($unit->dimension !== 'mass') {
+                    throw ValidationException::withMessages([
+                        'items' => ['Komposisi resep harus menggunakan satuan massa.'],
+                    ]);
+                }
                 $item = Item::query()->with('priceUnit')->findOrFail((int) $row['item_id']);
                 if ($item->priceUnit && ! $item->priceUnit->isCompatibleWith($unit)) {
                     throw ValidationException::withMessages([
@@ -241,6 +267,12 @@ class ConceptController extends Controller
                 $percentage = $baseWeightKg > 0 ? (($weightKg / $baseWeightKg) * 100.0) : 0.0;
             } elseif ($hasPercentage) {
                 $percentage = (float) $row['percentage'];
+                $item = Item::query()->with('priceUnit')->findOrFail((int) $row['item_id']);
+                if ($item->priceUnit?->dimension === 'volume') {
+                    throw ValidationException::withMessages([
+                        'items' => ['Item dengan harga volume harus diisi menggunakan berat dan satuan pemakaian yang sesuai.'],
+                    ]);
+                }
                 $weightKg = ($baseWeightKg * $percentage) / 100.0;
             } else {
                 throw ValidationException::withMessages([

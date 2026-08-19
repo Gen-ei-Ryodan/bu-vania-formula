@@ -38,7 +38,7 @@ Contoh potongan response:
 }
 ```
 
-`weight_unit_id` opsional dan digunakan untuk memvalidasi dimensi unit pemakaian terhadap unit harga item. Harga resep tidak menerima harga manual.
+`weight_unit_id` opsional dan digunakan untuk memvalidasi dimensi unit pemakaian terhadap unit harga item. Resep produksi tetap berbasis massa. Harga resep tidak menerima harga manual.
 
 ### GET /api/concepts/{concept}/price
 Mengambil biaya setiap item pada konsep dan total harga resep. Harga dihitung otomatis dari berat pemakaian dalam kilogram dan harga per jumlah satuan item.

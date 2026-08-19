@@ -73,6 +73,7 @@ Controllers/
 - `App\Services\ProductionSnapshotService` — `generate(production)` dan `regenerate(production)`: membuat/memperbarui ProductionItem records berdasarkan scaling dari ConceptItem + target_weight_kg
 - `App\Services\ProductionTabService` — `createTab(production, name, inputKg)`: membuat tab baru dan menghitung `remaining_weight_kg`
 - `App\Services\RecipePriceService` — menghitung biaya item dan total resep dengan konversi unit ke kilogram.
+- `Unit.dimension` membedakan massa dan volume; `ConceptItem.weight_unit_id` menyimpan unit input untuk audit, sedangkan `weight_kg` tetap nilai ternormalisasi untuk scaling produksi.
 - `App\Http\Controllers\Api\ItemController` — endpoint read-only master item dan struktur harga.
 - `App\Http\Controllers\Api\ConceptController` — membuat konsep melalui API dan menyediakan breakdown harga resep.
 
