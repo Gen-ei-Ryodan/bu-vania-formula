@@ -28,7 +28,7 @@ Aplikasi web untuk mengelola produksi pakan ternak secara end-to-end:
 ## Modul Utama
 
 ### 1. Master Data
-- **Units** — Satuan berat (kg, gram, ton, sak) dengan konversi ke kg
+- **Units** — Satuan massa/volume (kg, gram, ton, sak, liter, dll) dengan konversi ke unit dasar dimensinya
 - **Categories** — Kategori item (bahan pokok, vitamin, obat)
 - **Items** — Bahan baku produksi (Jagung, Beras, Tepung Ikan, Vitamin, dll)
 - **Concepts** — Resep dasar pakan (komposisi item + persentase + berat)

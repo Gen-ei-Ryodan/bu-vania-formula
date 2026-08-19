@@ -4,6 +4,7 @@
 - Menambahkan harga Master Item terstruktur (harga, jumlah unit harga, dan satuan harga).
 - Menambahkan kalkulasi biaya per item dan total resep otomatis dengan konversi unit konsisten.
 - API master item sekarang mengembalikan struktur harga; API konsep mengembalikan breakdown biaya dan total resep serta menyediakan endpoint baca harga resep.
+- Menambahkan dimensi unit massa/volume dan menolak konversi unit harga/pemakaian yang tidak kompatibel.
 
 Catatan keputusan dan perubahan penting selama pengembangan.
 

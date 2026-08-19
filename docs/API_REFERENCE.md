@@ -7,7 +7,7 @@ Semua API endpoint bersifat **publik (unauthenticated)** — digunakan untuk int
 ## Concepts
 
 ### GET /api/items
-Mengambil master item beserta kategori, unit default, dan struktur harga (`price`, `price_unit_value`, `price_unit_id`).
+Mengambil master item beserta kategori, unit default, dan struktur harga (`price`, `price_unit_value`, `price_unit_id`). Setiap unit juga memiliki `dimension` (`mass` atau `volume`).
 
 ### GET /api/items/{item}
 Mengambil detail satu item beserta unit harga dan unit default.
@@ -21,14 +21,14 @@ Buat konsep baru beserta item komposisinya.
   "name": "Resep Baru",
   "base_weight_kg": 1000,
   "items": [
-    { "item_id": 1, "percentage": 50, "weight_kg": 500 },
+  { "item_id": 1, "percentage": 50, "weight_kg": 500, "weight_unit_id": 1 },
     { "item_id": 2, "percentage": 30, "weight_kg": 300 },
     { "item_id": 3, "percentage": 20, "weight_kg": 200 }
   ]
 }
 ```
 
-**Response:** JSON konsep baru beserta breakdown biaya setiap item dan `total_price`. Jika `weight_kg` item tidak dikirim, nilainya dihitung dari `base_weight_kg × percentage / 100`.
+**Response:** JSON konsep baru beserta breakdown biaya setiap item dan `total_price`. Jika `weight_kg` item tidak dikirim, nilainya dihitung dari `base_weight_kg × percentage / 100`. `weight_unit_id` opsional untuk mencatat satuan pemakaian dan wajib satu dimensi dengan satuan harga item.
 
 Contoh potongan response:
 ```json
@@ -37,6 +37,8 @@ Contoh potongan response:
   "total_price": 5000
 }
 ```
+
+`weight_unit_id` opsional dan digunakan untuk memvalidasi dimensi unit pemakaian terhadap unit harga item. Harga resep tidak menerima harga manual.
 
 ### GET /api/concepts/{concept}/price
 Mengambil biaya setiap item pada konsep dan total harga resep. Harga dihitung otomatis dari berat pemakaian dalam kilogram dan harga per jumlah satuan item.

@@ -138,6 +138,41 @@ class MasterItemPriceTest extends TestCase
             ->assertJsonPath('total_price', 1000);
     }
 
+    public function test_volume_price_conversion_is_supported_without_mixing_dimensions(): void
+    {
+        $liter = Unit::query()->create(['name' => 'liter', 'dimension' => 'volume', 'conversion_to_kg' => 1]);
+        $milliliter = Unit::query()->create(['name' => 'milliliter', 'dimension' => 'volume', 'conversion_to_kg' => 0.001]);
+        $item = Item::query()->create([
+            'name' => 'Minyak', 'default_unit_id' => $milliliter->id,
+            'price' => 500, 'price_unit_value' => 100, 'price_unit_id' => $milliliter->id,
+        ]);
+
+        $service = app(RecipePriceService::class);
+
+        $this->assertSame(1000.0, $service->itemCost($item, 200, $milliliter));
+        $this->expectException(\InvalidArgumentException::class);
+        $service->itemCost($item, 1, Unit::query()->create([
+            'name' => 'kg', 'dimension' => 'mass', 'conversion_to_kg' => 1,
+        ]));
+    }
+
+    public function test_master_item_rejects_incompatible_price_unit(): void
+    {
+        $admin = $this->createAdmin();
+        $kg = Unit::query()->create(['name' => 'kg', 'dimension' => 'mass', 'conversion_to_kg' => 1]);
+        $liter = Unit::query()->create(['name' => 'liter', 'dimension' => 'volume', 'conversion_to_kg' => 1]);
+        $category = Category::query()->create(['name' => 'Bahan Pokok']);
+
+        $this->actingAs($admin)
+            ->from(route('items.create'))
+            ->post(route('items.store'), [
+                'name' => 'Item Campur Dimensi', 'category_id' => $category->id,
+                'default_unit_id' => $kg->id, 'price' => 1000,
+                'price_unit_value' => 1, 'price_unit_id' => $liter->id,
+            ])
+            ->assertSessionHasErrors('price_unit_id');
+    }
+
     private function createAdmin()
     {
         return User::factory()->create(['role' => 'admin']);

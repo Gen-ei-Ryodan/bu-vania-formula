@@ -7,6 +7,7 @@ use App\Models\Category;
 use App\Models\Item;
 use App\Models\Unit;
 use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
 
 class ItemController extends Controller
 {
@@ -36,6 +37,8 @@ class ItemController extends Controller
             'price_unit_id' => ['required', 'integer', 'exists:units,id'],
         ]);
 
+        $this->ensureCompatibleUnits($validated);
+
         Item::query()->create($validated);
 
         return redirect()->route('items.index')->with('ok', 'Item dibuat.');
@@ -61,6 +64,8 @@ class ItemController extends Controller
             'price_unit_id' => ['required', 'integer', 'exists:units,id'],
         ]);
 
+        $this->ensureCompatibleUnits($validated);
+
         $item->update($validated);
 
         return redirect()->route('items.index')->with('ok', 'Item diupdate.');
@@ -80,5 +85,17 @@ class ItemController extends Controller
         $item->delete();
 
         return redirect()->route('items.index')->with('ok', 'Item dihapus.');
+    }
+
+    private function ensureCompatibleUnits(array $validated): void
+    {
+        $defaultUnit = Unit::query()->findOrFail($validated['default_unit_id']);
+        $priceUnit = Unit::query()->findOrFail($validated['price_unit_id']);
+
+        if (! $defaultUnit->isCompatibleWith($priceUnit)) {
+            throw ValidationException::withMessages([
+                'price_unit_id' => ['Satuan harga harus satu dimensi dengan unit default item.'],
+            ]);
+        }
     }
 }

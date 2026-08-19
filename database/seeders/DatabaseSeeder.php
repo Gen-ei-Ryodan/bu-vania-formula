@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Category;
 use App\Models\Concept;
 use App\Models\ConceptItem;
 use App\Models\Item;
@@ -25,10 +26,10 @@ class DatabaseSeeder extends Seeder
     {
         // === UNITS ===
         Unit::query()->upsert([
-            ['name' => 'kg', 'conversion_to_kg' => 1],
-            ['name' => 'gram', 'conversion_to_kg' => 0.001],
-            ['name' => 'ton', 'conversion_to_kg' => 1000],
-            ['name' => 'sak', 'conversion_to_kg' => 50],
+            ['name' => 'kg', 'dimension' => 'mass', 'conversion_to_kg' => 1],
+            ['name' => 'gram', 'dimension' => 'mass', 'conversion_to_kg' => 0.001],
+            ['name' => 'ton', 'dimension' => 'mass', 'conversion_to_kg' => 1000],
+            ['name' => 'sak', 'dimension' => 'mass', 'conversion_to_kg' => 50],
         ], ['name'], ['conversion_to_kg']);
 
         $unitKg = Unit::where('name', 'kg')->first();
@@ -43,9 +44,9 @@ class DatabaseSeeder extends Seeder
         }
 
         // === CATEGORIES (create if not exist) ===
-        $catBahan = \App\Models\Category::firstOrCreate(['name' => 'Bahan Pokok']);
-        $catObat = \App\Models\Category::firstOrCreate(['name' => 'Obat']);
-        $catVitamin = \App\Models\Category::firstOrCreate(['name' => 'Vitamin']);
+        $catBahan = Category::firstOrCreate(['name' => 'Bahan Pokok']);
+        $catObat = Category::firstOrCreate(['name' => 'Obat']);
+        $catVitamin = Category::firstOrCreate(['name' => 'Vitamin']);
 
         // === ITEMS ===
         Item::query()->upsert([

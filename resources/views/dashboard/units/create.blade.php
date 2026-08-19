@@ -15,7 +15,14 @@
                             <input type="text" name="name" value="{{ old('name') }}" placeholder="kg / ton / sak / gram">
                         </div>
                         <div class="field">
-                            <div class="label">Konversi ke kg</div>
+                            <div class="label">Dimensi</div>
+                            <select name="dimension">
+                                <option value="mass" @selected(old('dimension', 'mass') === 'mass')>Massa</option>
+                                <option value="volume" @selected(old('dimension') === 'volume')>Volume</option>
+                            </select>
+                        </div>
+                        <div class="field">
+                            <div class="label">Konversi ke unit dasar dimensi</div>
                             <input type="number" step="0.0001" name="conversion_to_kg" value="{{ old('conversion_to_kg') }}" placeholder="1 untuk kg">
                         </div>
                     </div>

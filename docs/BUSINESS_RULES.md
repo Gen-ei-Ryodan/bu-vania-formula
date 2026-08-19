@@ -3,15 +3,17 @@
 ## 1. Master Data Rules
 
 ### Unit
-- Setiap unit memiliki `conversion_to_kg` untuk standarisasi berat
+- Setiap unit memiliki `conversion_to_kg` untuk konversi ke unit dasar dimensinya
   - Contoh: 1 kg = 1, 1 gram = 0.001, 1 ton = 1000, 1 sak = 50
+- Setiap unit memiliki `dimension`: `mass` atau `volume`. Faktor konversi dipakai terhadap unit dasar dimensinya (kg untuk massa, liter untuk volume).
+- Unit harga dan unit pemakaian wajib memiliki dimensi yang sama; massa tidak boleh dihitung sebagai volume atau sebaliknya.
 - Unit tidak bisa dihapus jika masih digunakan sebagai default unit item
 
 ### Item
 - Item bisa memiliki `category_id` (optional) untuk grouping
 - Item bisa memiliki `default_unit_id` (optional)
 - Item memiliki harga positif (`price`) untuk jumlah positif (`price_unit_value`) pada `price_unit_id`.
-- Harga resep tidak diinput manual; biaya item dihitung dari berat pemakaian setelah dikonversi ke kilogram.
+- Harga resep tidak diinput manual; biaya item dihitung dari jumlah pemakaian setelah dikonversi ke unit dasar dimensinya.
 - Item yang sudah digunakan di konsep, produksi, atau laporan tidak boleh dihapus
 
 ### Concept (Resep)
@@ -20,6 +22,7 @@
 - Total persentase semua item dalam satu konsep harus = 100%
 - Biaya item = `price / (price_unit_value × konversi price_unit ke kg) × weight_kg`; total harga resep adalah jumlah biaya seluruh item.
 - Contoh: Rp10.000/kg untuk pemakaian 500 gram = Rp5.000; Rp500/100 gram untuk pemakaian 200 gram = Rp1.000.
+- Konversi volume menggunakan aturan yang sama terhadap unit dasar volume, tanpa dicampur dengan massa.
 - Satu konsep bisa digunakan di banyak produksi
 
 ### Location & Cage

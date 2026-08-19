@@ -144,6 +144,8 @@
             return parseFloat(typeof unit === 'object' ? (unit.conversion_to_kg || 1) : (unit || 1));
         }
 
+        function getUnitDimension(unitId) { return units[unitId]?.dimension || null; }
+
         function getBaseKg() { return (parseFloat(baseWeightInput.value) || 0) * getUnitConversion(baseWeightUnit.value); }
 
         function getTotalWeightKg(excludeRow) {
@@ -167,7 +169,8 @@
             } else { pctInput.value = ''; }
 
             const item = items[row.querySelector('[data-name="item_id"]').value];
-            const cost = item && item.price_unit_value > 0 && item.price_unit_conversion_to_kg > 0
+            const compatible = item && (!item.price_unit_dimension || item.price_unit_dimension === getUnitDimension(unitSelect.value));
+            const cost = compatible && item.price_unit_value > 0 && item.price_unit_conversion_to_kg > 0
                 ? (item.price / (item.price_unit_value * item.price_unit_conversion_to_kg)) * weight
                 : 0;
             row.dataset.itemCost = cost;

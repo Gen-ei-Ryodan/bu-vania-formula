@@ -60,8 +60,9 @@ concepts ────< pembuats
 | Column | Type | Notes |
 |--------|------|-------|
 | id | bigint AI PK | |
-| name | string | kg, gram, ton, sak |
-| conversion_to_kg | decimal | 1, 0.001, 1000, 50 |
+| name | string | kg, gram, ton, sak, liter, ml |
+| dimension | string | `mass` atau `volume`; unit tidak boleh dicampur |
+| conversion_to_kg | decimal | Faktor ke unit dasar dimensinya; untuk volume diperlakukan sebagai faktor ke liter |
 | timestamps | | |
 
 ### categories
@@ -107,6 +108,7 @@ concepts ────< pembuats
 | item_id | bigint FK→items | |
 | percentage | decimal(6,4) | Persentase komposisi |
 | weight_kg | decimal(10,4) | Berat dalam kg |
+| weight_unit_id | bigint FK→units nullable | Unit input pemakaian untuk audit; `weight_kg` tetap nilai ternormalisasi |
 | timestamps | | |
 
 ### productions
@@ -233,4 +235,5 @@ concepts ────< pembuats
 | Item → Category | N:1 | `items.category_id` |
 | Item → Unit (default) | N:1 | `items.default_unit_id` |
 | Item → Unit (harga) | N:1 | `items.price_unit_id` |
+| ConceptItem → Unit (pemakaian) | N:1 | `concept_items.weight_unit_id` |
 | User → LaporanSore | 1:N | `laporan_sore.user_id` |

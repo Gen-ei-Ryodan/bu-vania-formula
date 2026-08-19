@@ -15,7 +15,8 @@
                             <tr>
                                 <th style="width: 60px;">ID</th>
                                 <th>Nama</th>
-                                <th>Konversi ke kg</th>
+                                <th>Dimensi</th>
+                                <th>Konversi ke dasar</th>
                                 <th style="width: 180px;" class="cell-actions">Aksi</th>
                             </tr>
                         </thead>
@@ -24,6 +25,7 @@
                                 <tr>
                                     <td class="cell-muted">#{{ $unit->id }}</td>
                                     <td><strong>{{ $unit->name }}</strong></td>
+                                    <td class="cell-muted">{{ $unit->dimension === 'volume' ? 'Volume' : 'Massa' }}</td>
                                     <td class="cell-muted">{{ formatWeight($unit->conversion_to_kg) }}</td>
                                     <td class="cell-actions">
                                         <a class="btn btn-sm" href="{{ route('units.edit', $unit) }}">Edit</a>
@@ -36,7 +38,7 @@
                                 </tr>
                             @endforeach
                             @if ($units->isEmpty())
-                                <tr><td colspan="4" style="text-align: center; padding: 48px; color: var(--text-muted);">Belum ada data satuan.</td></tr>
+                                <tr><td colspan="5" style="text-align: center; padding: 48px; color: var(--text-muted);">Belum ada data satuan.</td></tr>
                             @endif
                         </tbody>
                     </table>

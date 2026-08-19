@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Concept;
 use App\Models\ConceptItem;
+use App\Models\Item;
+use App\Models\Unit;
 use App\Services\RecipePriceService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -21,6 +23,7 @@ class ConceptController extends Controller
             'items.*.item_id' => ['required', 'integer', 'distinct', 'exists:items,id'],
             'items.*.percentage' => ['required', 'numeric', 'min:0.0001', 'max:100'],
             'items.*.weight_kg' => ['nullable', 'numeric', 'min:0.000001'],
+            'items.*.weight_unit_id' => ['nullable', 'integer', 'exists:units,id'],
         ]);
 
         $sumPercentage = collect($validated['items'])->sum(fn ($row) => (float) $row['percentage']);
@@ -29,6 +32,18 @@ class ConceptController extends Controller
             throw ValidationException::withMessages([
                 'items' => ['Total persen concept harus 100%.'],
             ]);
+        }
+
+        foreach ($validated['items'] as $row) {
+            if (! empty($row['weight_unit_id'])) {
+                $priceUnit = Item::query()->with('priceUnit')->findOrFail($row['item_id'])->priceUnit;
+                $usageUnit = Unit::query()->findOrFail($row['weight_unit_id']);
+                if ($priceUnit && ! $priceUnit->isCompatibleWith($usageUnit)) {
+                    throw ValidationException::withMessages([
+                        'items' => ['Satuan pemakaian harus kompatibel dengan satuan harga item.'],
+                    ]);
+                }
+            }
         }
 
         $concept = DB::transaction(function () use ($validated) {
@@ -46,6 +61,7 @@ class ConceptController extends Controller
                 'weight_kg' => array_key_exists('weight_kg', $row) && $row['weight_kg'] !== null
                     ? $row['weight_kg']
                     : ((float) $validated['base_weight_kg'] * (float) $row['percentage'] / 100),
+                'weight_unit_id' => $row['weight_unit_id'] ?? null,
                 'created_at' => $now,
                 'updated_at' => $now,
             ])->all();

@@ -16,7 +16,14 @@
                             <input type="text" name="name" value="{{ old('name', $unit->name) }}">
                         </div>
                         <div class="field">
-                            <div class="label">Konversi ke kg</div>
+                            <div class="label">Dimensi</div>
+                            <select name="dimension">
+                                <option value="mass" @selected(old('dimension', $unit->dimension) === 'mass')>Massa</option>
+                                <option value="volume" @selected(old('dimension', $unit->dimension) === 'volume')>Volume</option>
+                            </select>
+                        </div>
+                        <div class="field">
+                            <div class="label">Konversi ke unit dasar dimensi</div>
                             <input type="number" step="0.0001" name="conversion_to_kg" value="{{ old('conversion_to_kg', $unit->conversion_to_kg) }}">
                         </div>
                     </div>

@@ -25,6 +25,7 @@ class UnitController extends Controller
     {
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255', 'unique:units,name'],
+            'dimension' => ['required', 'in:mass,volume'],
             'conversion_to_kg' => ['required', 'numeric', 'min:0.0001'],
         ]);
 
@@ -44,6 +45,7 @@ class UnitController extends Controller
     {
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255', Rule::unique('units', 'name')->ignore($unit->id)],
+            'dimension' => ['required', 'in:mass,volume'],
             'conversion_to_kg' => ['required', 'numeric', 'min:0.0001'],
         ]);
 

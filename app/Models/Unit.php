@@ -9,8 +9,18 @@ class Unit extends Model
 {
     protected $fillable = [
         'name',
+        'dimension',
         'conversion_to_kg',
     ];
+
+    protected $casts = [
+        'conversion_to_kg' => 'decimal:6',
+    ];
+
+    public function isCompatibleWith(?self $unit): bool
+    {
+        return $unit !== null && $this->dimension === $unit->dimension;
+    }
 
     public function items(): HasMany
     {
